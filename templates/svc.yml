@@ -1,0 +1,63 @@
+{{- range $.Values.services }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "app.labels" $ | nindent 4 }}
+    {{- if .labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.global.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if $.Values.global.annotations }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.annotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .annotations }}
+    {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if not (empty .type) }}
+  type: {{ .type }}
+  {{- if eq .type "LoadBalancer" }}
+  {{- if not (empty .loadBalancerIP) }}
+  loadBalancerIP: {{ .loadBalancerIP }}
+  {{- end }}
+  {{- if .loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- if (or (eq .type "LoadBalancer") (eq .type "NodePort")) }}
+  {{- if and (not (empty .externalTrafficPolicy)) (eq .externalTrafficPolicy "Local" ) }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy | quote }}
+  {{- if not (empty .healthCheckNodePort) }}
+  healthCheckNodePort: {{ .healthCheckNodePort | quote }}
+  {{- end }}
+  {{- else }}
+  externalTrafficPolicy: "Cluster"
+  {{- end }}
+  {{- end }}
+  {{- if .externalIPs }}
+  externalIPs: {{- toYaml .externalIPs | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  ports:
+  {{- range .ports }}
+  - name: {{ .name }}
+    protocol: {{ .protocol }}
+    port: {{ .port }}
+    {{- if not (empty .targetPort) }}
+    targetPort: {{ .targetPort }}
+    {{- end }}
+  {{- end }}
+  selector:
+    {{- include "app.selectorLabels" $ | nindent 4 }}
+    {{- if .extraSelectorLabels }}
+    {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 4 }}
+    {{- end }}
+{{- end }}

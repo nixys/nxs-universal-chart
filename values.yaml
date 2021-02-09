@@ -1,0 +1,145 @@
+#
+## global - переменные, которые пользуют все манифесты
+#
+
+global:
+  defaultImage: nginx
+  domain: nixys.ru
+  labels:
+    general-label: lbl-value
+  annotations:
+    general-annotation: ant-value
+  secretEnvs:
+    FOO: bar
+
+ingresses:
+- annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+  tls: true
+  certManager:
+    enabled: true
+    issuerType: cluster-issuer
+    issuerName: letsencrypt
+  hosts:
+  - hostname:
+    paths:
+    - path: /
+      pathType:
+      servicePort:
+- annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+  - hostname: nixys.org
+    paths:
+    - path: /api
+      servicePort: api
+  - hostname: nixys.com
+    paths:
+    - path: /api
+      servicePort: api
+  extraTls:
+  - hosts:
+    - nixys.com
+    - nixys.org
+    secretName: "{{ .Release.Name }}-domain-tls"
+
+deployments:
+- name:
+  labels:
+  podLabels:
+  replicas: 2
+  extraSelectorLabels:
+    app: app-extra-selector
+  serviceAccountName: deployer
+#  affinity:
+#    nodeAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        nodeSelectorTerms:
+#        - matchExpressions:
+#          - key: noderole/pay-dev
+#            operator: In
+#            values:
+#            - "true"
+  containers:
+  - name: nginx
+    imagePullPolicy: Always
+    ports:
+    - name: http
+      containerPort: 8080
+
+services:
+- name: nginx
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8080
+  extraSelectorLabels:
+    app: app-extra-selector
+
+secrets:
+- name: test1
+  data:
+    BAR: foo
+- name: domain-tls
+  labels:
+    blah: blah
+  data:
+    tls.crt: |-
+      -----BEGIN CERTIFICATE-----
+      MIIC2DCCAcCgAwIBAgIBATANBgkqh
+      -----END CERTIFICATE-----
+    tls.key: |-
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
+      -----END RSA PRIVATE KEY-----
+  type: kubernetes.io/tls
+
+configmaps:
+- name: some-cm
+  labels:
+    kek: lol
+  data:
+    LOL: kek
+
+pvcs:
+- name: app-pvc
+  accessModes:
+  - ReadWriteOnce
+  - ReadWriteMany
+  size: 8Gi
+
+
+## Pod affinity preset
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard, nil
+##
+podAffinityPreset: soft
+
+## Pod anti-affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard, nil
+##
+podAntiAffinityPreset: soft
+
+## Node affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+## Allowed values: soft, hard
+##
+nodeAffinityPreset:
+  ## Node affinity type
+  ## Allowed values: soft, hard
+  ##
+  type: ""
+  ## Node label key to match
+  ## E.g.
+  ## key: "kubernetes.io/e2e-az-name"
+  ##
+  key: ""
+  ## Node label values to match
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []

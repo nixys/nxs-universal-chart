@@ -1,0 +1,18 @@
+{{- range .Values.configmaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "app.labels" $ | nindent 4 }}
+    {{- if .labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.global.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- end }}
+data:
+  {{- include "helpers.tplvalues.render" ( dict "value" .data "context" $ ) | nindent 2 }}
+{{- end }}

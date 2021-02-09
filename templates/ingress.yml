@@ -1,0 +1,57 @@
+{{- range .Values.ingresses }}
+---
+apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
+kind: Ingress
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "app.labels" $ | nindent 4 }}
+    {{- if .labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.global.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if .certManager }}
+    kubernetes.io/tls-acme: "true"
+    {{- if .certManager.issuerName }}
+    cert-manager.io/{{ .certManager.issuerType }}: {{ .certManager.issuerName }}
+    {{- end }}
+    {{- end }}
+    {{- if .annotations -}}
+    {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
+    {{- end -}}
+    {{- if $.Values.global.annotations -}}
+    {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  rules:
+  {{- range .hosts }}
+  - host: {{ default $.Values.global.domain .hostname | quote }}
+    http:
+      paths:
+      {{- range .paths }}
+      - path: {{ default "/" .path }}
+        {{- if eq "true" (include "helpers.ingress.supportsPathType" $) }}
+        pathType: {{ default "ImplementationSpecific" .pathType }}
+        {{- end }}
+        backend:
+          {{- include "helpers.ingress.backend" (dict "serviceName" (include "helpers.app.fullname" (dict "name" .serviceName "context" $)) "servicePort" .servicePort "context" $) | nindent 10 }}
+      {{- end }}
+  {{- end }}
+  {{- if or .tls .extraTls }}
+  tls:
+  {{- if .tls }}
+  - hosts:
+    {{- range .hosts }}
+    - {{ default $.Values.global.domain .hostname | quote }}
+    {{- end }}
+    secretName: {{ .tlsName | default (printf "%s-tls" $.Release.Name) }}
+  {{- end }}
+  {{- if .extraTls }}
+  {{- include "helpers.tplvalues.render" ( dict "value" .extraTls "context" $ ) | nindent 2 }}
+  {{- end }}
+  {{- end }}
+{{- end -}}
