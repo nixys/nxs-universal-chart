@@ -42,3 +42,17 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "helpers.app.labels" -}}
+helm.sh/chart: {{ include "helpers.app.chart" . }}
+{{ include "helpers.app.selectorLabels" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+{{- end }}
+
+{{- define "helpers.app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "helpers.app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

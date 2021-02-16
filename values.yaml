@@ -18,7 +18,6 @@ ingresses:
     nginx.ingress.kubernetes.io/proxy-body-size: "128m"
   tls: true
   certManager:
-    enabled: true
     issuerType: cluster-issuer
     issuerName: letsencrypt
   hosts:
@@ -109,6 +108,15 @@ pvcs:
   - ReadWriteMany
   size: 8Gi
 
+servicemonitors:
+- endpoints:
+  - interval: 30s
+    port: exporter
+    path: /metrics
+  extraSelectorLabels:
+    app: nginx
+  labels:
+    foo: foo
 
 ## Pod affinity preset
 ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

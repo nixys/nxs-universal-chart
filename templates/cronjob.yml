@@ -1,0 +1,185 @@
+{{- $CJ := dict -}}
+{{- if .Values.cronJobs -}}
+{{- $CJ = fromYaml .Values.cronJobs -}}
+{{- else if .Values.cronJobsFileName -}}
+{{- $CJ = fromYaml (.Files.Get .Values.cronJobsFileName) -}}
+{{- end -}}
+{{- $general := $CJ.general -}}
+{{- range $CJ.jobs }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+  {{- include "helpers.app.labels" $ | nindent 4 }}
+  {{- if .labels }}
+  {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if $.Values.global.labels }}
+  {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+  {{- end }}
+  annotations:
+  {{- if $.Values.global.annotations }}
+  {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.annotations "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .annotations }}
+  {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ include "helpers.tplvalues.render" (dict "value" .schedule "context" $) }}
+  {{- if .single_only }}
+  concurrencyPolicy: Forbid
+  {{- end }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- with $general.serviceAccountName }}
+          serviceAccountName: {{ . }}
+          {{- end }}
+          {{- with $general.affinity }}
+          affinity: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+          {{- else }}
+          affinity:
+            nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 14 }}
+            podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 14 }}
+            podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 14 }}
+          {{- end }}
+          {{- with .podSecurityContext }}
+          securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 10 }}
+          {{- end }}
+          {{- with .nodeSelector }}
+          nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 10 }}
+          {{- end }}
+          {{- with .tolerations }}
+          tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 10 }}
+          {{- end }}
+          {{- with $general.imagePullSecrets }}
+          imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+          {{- end }}
+          {{- with .initContainers}}
+          initContainers:
+          {{- range . }}
+          - name: {{ .name }}
+            image: {{ default $.Values.global.defaultImage .image }}
+            imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+            {{- with .containerSecurityContext }}
+            securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .args }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .command }}
+            {{- if typeIs "string" . }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+            {{- else -}}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- end }}
+            env:
+            {{- include "helpers.secrets.include" $ | nindent 12 }}
+            {{- with .env }}
+            {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .envFrom }}
+            envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .ports }}
+            ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .volumeMounts }}
+            volumeMounts: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+          containers:
+          {{- range .containers }}
+          - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+            image: {{ default $.Values.global.defaultImage .image }}
+            imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+            {{- with .containerSecurityContext }}
+            securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            env:
+            {{- include "helpers.secrets.include" $ | nindent 12 }}
+            {{- with .env }}
+            {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .envFrom }}
+            envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .command }}
+            {{- if typeIs "string" . }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+            {{- else -}}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- end }}
+            {{- with .lifecycle }}
+            lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .livenessProbe }}
+            livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .readinessProbe }}
+            readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- with .resources }}
+            resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .volumeMounts }}
+            volumeMounts:
+            {{- range .volumeMounts }}
+            {{- if .nameOverride }}
+            - name: {{ .nameOverride }}
+              {{- else }}
+            - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+              {{- end }}
+              {{- with .subPath }}
+              subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+              {{- end }}
+              mountPath: {{ .mountPath }}
+              {{- with .readOnly }}
+              readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          volumes:
+          {{- if $.Files.Glob ("extra-files/config/**") }}
+          {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
+          {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-") "context" $) }}
+          - name: {{ $name }}
+            configMap:
+              name: {{ $name }}
+          {{- end }}
+          {{- end }}
+          {{- if $.Files.Glob ("extra-files/secret/**") }}
+          {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
+          {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-") "context" $) }}
+          - name: {{ $name }}
+            secret:
+              secretName: {{ $name }}
+          {{- end }}
+          {{- end }}
+          {{- if .volumes }}
+          {{- range .volumes }}
+          {{- if eq .type "configMap" }}
+          - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+            configMap:
+              name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+          {{- end }}
+          {{- if eq .type "secret" }}
+          - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+            secret:
+              secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- with .extraVolumes }}
+          {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+          {{- end }}
+          restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- end }}

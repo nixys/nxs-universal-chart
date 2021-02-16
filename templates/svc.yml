@@ -6,7 +6,7 @@ metadata:
   name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
-    {{- include "app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
     {{- end }}
@@ -56,7 +56,7 @@ spec:
     {{- end }}
   {{- end }}
   selector:
-    {{- include "app.selectorLabels" $ | nindent 4 }}
+    {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
     {{- if .extraSelectorLabels }}
     {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 4 }}
     {{- end }}

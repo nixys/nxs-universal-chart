@@ -46,7 +46,7 @@ requiredDuringSchedulingIgnoredDuringExecution:
 preferredDuringSchedulingIgnoredDuringExecution:
   - podAffinityTerm:
       labelSelector:
-        matchLabels: {{- (include "app.selectorLabels" .context) | nindent 10 }}
+        matchLabels: {{- (include "helpers.app.selectorLabels" .context) | nindent 10 }}
           {{- if not (empty $component) }}
           {{ printf "app.kubernetes.io/component: %s" $component }}
           {{- end }}
@@ -60,7 +60,7 @@ preferredDuringSchedulingIgnoredDuringExecution:
 {{- $component := default "" .component -}}
 requiredDuringSchedulingIgnoredDuringExecution:
   - labelSelector:
-      matchLabels: {{- (include "app.selectorLabels" .context) | nindent 8 }}
+      matchLabels: {{- (include "helpers.app.selectorLabels" .context) | nindent 8 }}
         {{- if not (empty $component) }}
         {{ printf "app.kubernetes.io/component: %s" $component }}
         {{- end }}

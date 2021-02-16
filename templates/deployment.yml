@@ -6,7 +6,7 @@ metadata:
   name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
     {{- end }}
@@ -21,20 +21,20 @@ metadata:
     {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.annotations "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .replicaCount | default 1 }}
+  replicas: {{ .replicas | default 1 }}
   {{- with .strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "app.selectorLabels" $ | nindent 6 }}
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
       {{- if .extraSelectorLabels }}
       {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 6 }}
       {{- end }}
   template:
     metadata:
       labels:
-        {{- include "app.selectorLabels" $ | nindent 8 }}
+        {{- include "helpers.app.selectorLabels" $ | nindent 8 }}
         {{- if .extraSelectorLabels }}
         {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 8 }}
         {{- end }}
@@ -89,10 +89,14 @@ spec:
         args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .command }}
-        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        {{- if typeIs "string" . }}
+        command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+        {{- else -}}
+        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+        {{- end }}
         {{- end }}
         env:
-          {{- include "helpers.secrets.include" $ | indent 10 }}
+          {{- include "helpers.secrets.include" $ | nindent 10 }}
           {{- with .env }}
           {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
           {{- end }}
@@ -120,16 +124,19 @@ spec:
         args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .command }}
-        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        {{- if typeIs "string" . }}
+        command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+        {{- else -}}
+        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+        {{- end }}
         {{- end }}
         env:
-        {{- include "helpers.secrets.include" $ | indent 10 }}
+        {{- include "helpers.secrets.include" $ | nindent 10 }}
         {{- with .env }}
         {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .envFrom }}
-        envFrom:
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .ports }}
         ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -146,14 +153,65 @@ spec:
         {{- with .resources }}
         resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
-        {{- with .volumeMounts }}
-        volumeMounts: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        {{- if .volumeMounts }}
+        volumeMounts:
+        {{- range .volumeMounts }}
+        {{- if .nameOverride }}
+        - name: {{ .nameOverride }}
+        {{- else }}
+        - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+          {{- end }}
+          {{- with .subPath }}
+          subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          {{- end }}
+          {{- with .subPathExpr }}
+          subPathExpr: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          {{- end }}
+          mountPath: {{ .mountPath }}
+          {{- with .readOnly }}
+          readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          {{- end }}
+        {{- end }}
         {{- end }}
       {{- end }}
-      {{- with .volumes}}
-      volumes: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-      {{- end }}
+      volumes:
+        {{- if $.Files.Glob ("extra-files/config/**") }}
+        {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
+        {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-") "context" $) }}
+        - name: {{ $name }}
+          configMap:
+            name: {{ $name }}
+        {{- end }}
+        {{- end }}
+        {{- if $.Files.Glob ("extra-files/secret/**") }}
+        {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
+        {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-") "context" $) }}
+        - name: {{ $name }}
+          secret:
+            secretName: {{ $name }}
+        {{- end }}
+        {{- end }}
+        {{- if .volumes }}
+        {{- range .volumes }}
+        {{- if eq .type "configMap" }}
+        - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+          configMap:
+            name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+        {{- end }}
+        {{- if eq .type "secret" }}
+        - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+          secret:
+            secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- with .extraVolumes }}
+        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
       {{- with .imagePullSecrets }}
       imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+      {{- end }}
+      {{- with .terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
       {{- end }}
 {{- end }}
