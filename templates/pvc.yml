@@ -3,7 +3,11 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  {{- if .nameOverride }}
+  name: {{ .nameOverride }}
+  {{- else }}
   name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  {{- end }}
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}

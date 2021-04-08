@@ -20,5 +20,7 @@ spec:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
     {{- if .extraSelectorLabels }}
     {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 4 }}
+    {{- else if $.Values.global.extraSelectorLabels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.extraSelectorLabels "context" $) | nindent 4 }}
     {{- end -}}
 {{- end -}}
