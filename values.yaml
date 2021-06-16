@@ -4,6 +4,7 @@
 
 global:
   defaultImage: nginx
+  defaultImageTag: latest
   domain: nixys.ru
   labels:
     general-label: lbl-value

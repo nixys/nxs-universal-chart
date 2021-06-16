@@ -123,7 +123,7 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name | default $jobName }}
-        image: {{ default $.Values.global.defaultImage .image }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
@@ -183,7 +183,7 @@ spec:
       containers:
       {{- range $containers }}
       - name: {{ .name | default $jobName }}
-        image: {{ default $.Values.global.defaultImage .image }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}

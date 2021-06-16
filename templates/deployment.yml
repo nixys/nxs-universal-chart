@@ -102,7 +102,7 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name }}
-        image: {{ default $.Values.global.defaultImage .image }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -160,7 +160,7 @@ spec:
       containers:
       {{- range .containers }}
       - name: {{ .name }}
-        image: {{ default $.Values.global.defaultImage .image }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
