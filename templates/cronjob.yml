@@ -10,6 +10,7 @@
 {{- end -}}
 {{- $general := $.Values.cronJobsGeneral -}}
 {{- range $CJ.jobs }}
+{{- $job := . -}}
 {{- $cronJobName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
 ---
 apiVersion: batch/v1beta1
@@ -149,12 +150,17 @@ spec:
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- with .args }}
+            {{- if and .args (not $job.max_duration) }}
             args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
             {{- with .command }}
             {{- if typeIs "string" . }}
-            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+            {{- if $job.max_duration }}
+            command: ["/bin/bash"]
+            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.max_duration }} {{ . }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.max_duration }} seconds (Added by task #91828)!'; fi; exit $exit_status"]
+            {{- else }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
+            {{- end }}
             {{- else -}}
             command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
@@ -217,9 +223,17 @@ spec:
             {{- with .envFrom }}
             envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
+            {{- if and .args (not $job.max_duration) }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
+            {{- end }}
             {{- with .command }}
             {{- if typeIs "string" . }}
-            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
+            {{- if $job.max_duration }}
+            command: ["/bin/bash"]
+            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.max_duration }} {{ . }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.max_duration }} seconds (Added by task #91828)!'; fi; exit $exit_status"]
+            {{- else }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
+            {{- end }}
             {{- else -}}
             command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}

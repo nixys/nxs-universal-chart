@@ -152,3 +152,22 @@ nodeAffinityPreset:
   ##   - e2e-az2
   ##
   values: []
+
+cronJobs:
+  jobs:
+  - name: generate-data
+    schedule: "*/5 * * * *"
+    command: "php yii crontab/generate-data"
+    single_only: true
+    duration_alert: 600
+    max_duration: 800
+  - name: auto-sender
+    schedule: "*/5 * * * *"
+    command: "php yii crontab/auto-sender"
+
+jobs:
+  jobs:
+  - name: refresh-cache
+    command: "php yii crontab/refresh-cache"
+    duration_alert: 30
+    max_duration: 60
