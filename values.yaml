@@ -3,15 +3,17 @@
 #
 
 global:
-  defaultImage: nginx
+  defaultImage: privat.registry.com/some-cool-app
   defaultImageTag: latest
   domain: nixys.ru
   labels:
     general-label: lbl-value
   annotations:
     general-annotation: ant-value
+# --set global.secretEnvs=$SECRET_ENVS
   secretEnvs:
     FOO: bar
+    BAR: foo
 
 ingresses:
 - annotations:
@@ -63,10 +65,20 @@ deployments:
 #            - "true"
   containers:
   - name: nginx
+    image: nginx
+    imageTag: 1.19
     imagePullPolicy: Always
     ports:
     - name: http
       containerPort: 8080
+    volumeMounts:
+    - templatedName: secret-file
+      mountPath: /var/lib/secret
+    - pvcName: app-pvc
+      mountPath: /var/www/html/files
+  templatedVolumes:
+  - templatedName: secret-file
+    type: secret
 
 services:
 - name: nginx
@@ -78,22 +90,29 @@ services:
     app: app-extra-selector
 
 secrets:
-- name: test1
-  data:
-    BAR: foo
-- name: domain-tls
-  labels:
-    blah: blah
-  data:
-    tls.crt: |-
-      -----BEGIN CERTIFICATE-----
-      MIIC2DCCAcCgAwIBAgIBATANBgkqh
-      -----END CERTIFICATE-----
-    tls.key: |-
-      -----BEGIN RSA PRIVATE KEY-----
-      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
-      -----END RSA PRIVATE KEY-----
-  type: kubernetes.io/tls
+# --set secrets.test1.data.BAR=foo
+  test1:
+    data:
+      BAR: foo
+# --set "secrets.secret-file.data.api\.key=$SOME_ENV"
+  secret-file:
+    data:
+      api.key: |-
+        JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
+# --set "secrets.domain-tls.labels.blah=blah,secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
+  domain-tls:
+    labels:
+      blah: blah
+    data:
+      tls.crt: |-
+        -----BEGIN CERTIFICATE-----
+        MIIC2DCCAcCgAwIBAgIBATANBgkqh
+        -----END CERTIFICATE-----
+      tls.key: |-
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
+        -----END RSA PRIVATE KEY-----
+    type: kubernetes.io/tls
 
 configmaps:
 - name: some-cm
@@ -102,6 +121,7 @@ configmaps:
   data:
     LOL: kek
 
+# All PVSs will be added to `volumes` block in each workload excluding hooks
 pvcs:
 - name: app-pvc
   accessModes:

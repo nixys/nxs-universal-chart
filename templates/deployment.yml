@@ -102,7 +102,7 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name }}
-        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .imageTag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -160,7 +160,7 @@ spec:
       containers:
       {{- range .containers }}
       - name: {{ .name }}
-        image: {{ .image | default $.Values.global.defaultImage }}:{{ .tag | default  $.Values.global.defaultImageTag }}
+        image: {{ .image | default $.Values.global.defaultImage }}:{{ .imageTag | default  $.Values.global.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -206,25 +206,27 @@ spec:
         {{- end }}
         {{- if not (empty $volMounts) }}
         volumeMounts:
-        {{- range $volMounts }}
-          {{- if .extraFilesDirName }}
-        - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
-          {{- else if .pvcName }}
-        - name: {{ include "helpers.app.fullname" (dict "name" (.pvcName | replace "_" "-") "context" $) }}
-          {{- else }}
-        - name: {{ .name }}
+          {{- range $volMounts }}
+            {{- if .extraFilesDirName }}
+          - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
+            {{- else if .pvcName }}
+          - name: {{ include "helpers.app.fullname" (dict "name" .pvcName "context" $) }}
+            {{- else if .templatedName }}
+          - name: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
+            {{- else }}
+          - name: {{ .name }}
+            {{- end }}
+            {{- with .subPath }}
+            subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+            {{- end }}
+            {{- with .subPathExpr }}
+            subPathExpr: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+            {{- end }}
+            mountPath: {{ .mountPath }}
+            {{- with .readOnly }}
+            readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+            {{- end }}
           {{- end }}
-          {{- with .subPath }}
-          subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-          {{- end }}
-          {{- with .subPathExpr }}
-          subPathExpr: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-          {{- end }}
-          mountPath: {{ .mountPath }}
-          {{- with .readOnly }}
-          readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-          {{- end }}
-        {{- end }}
         {{- end }}
       {{- end }}
       volumes:
@@ -245,7 +247,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- range .templatedVolumes }}
-        {{- $volName := include "helpers.app.fullname" (dict "name" .name "context" $) -}}
+        {{- $volName := include "helpers.app.fullname" (dict "name" .templatedName "context" $) -}}
         {{- if eq .type "configMap" }}
         - name: {{ $volName }}
           configMap:
