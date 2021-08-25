@@ -28,7 +28,11 @@
 {{- end -}}
 {{- else -}}
 {{- range $key, $value := .value }}
+{{- if kindIs "string" $value }}
 {{ printf "%s: %s" $key (toString $value | b64enc) }}
+{{- else }}
+{{ $key }}: {{$value | toJson | b64enc }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

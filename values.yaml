@@ -113,6 +113,12 @@ secrets:
         MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
         -----END RSA PRIVATE KEY-----
     type: kubernetes.io/tls
+# --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
+  json-file:
+    data:
+      file.json: {
+          "arg": "value"
+        }
 
 configmaps:
 - name: some-cm
