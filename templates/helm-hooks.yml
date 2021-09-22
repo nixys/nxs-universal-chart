@@ -120,7 +120,10 @@ spec:
       {{- if .imagePullSecrets }}
       imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
       {{- else if $.Values.global.imagePullSecrets }}
-      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.imagePullSecrets "context" $) | nindent 8 }}
+      imagePullSecrets:
+      {{- range $sName, $v := $.Values.global.imagePullSecrets }}
+        - name: {{ $sName }}
+      {{- end }}
       {{- end }}
       {{- with .initContainers}}
       initContainers:
@@ -356,7 +359,10 @@ spec:
       {{- if .imagePullSecrets }}
       imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
       {{- else if $.Values.global.imagePullSecrets }}
-      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.imagePullSecrets "context" $) | nindent 8 }}
+      imagePullSecrets:
+      {{- range $sName, $v := $.Values.global.imagePullSecrets }}
+        - name: {{ $sName }}
+      {{- end }}
       {{- end }}
       {{- with .initContainers}}
       initContainers:
