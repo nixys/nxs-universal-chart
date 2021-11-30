@@ -117,13 +117,11 @@ spec:
       {{- with .tolerations }}
       tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}
       {{- end }}
-      {{- if .imagePullSecrets }}
-      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
-      {{- else if $.Values.global.imagePullSecrets }}
+      {{ if or $.Values.global.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:
-      {{- range $sName, $v := $.Values.global.imagePullSecrets }}
+        {{- range $sName, $v := .imagePullSecrets | default $.Values.global.imagePullSecrets }}
         - name: {{ $sName }}
-      {{- end }}
+        {{- end }}
       {{- end }}
       {{- with .initContainers}}
       initContainers:
@@ -206,7 +204,7 @@ spec:
         {{- with .command }}
         {{- if typeIs "string" . }}
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
-        {{- else }}
+        {{- else -}}
         command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- end }}
@@ -359,10 +357,7 @@ spec:
       {{- if .imagePullSecrets }}
       imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
       {{- else if $.Values.global.imagePullSecrets }}
-      imagePullSecrets:
-      {{- range $sName, $v := $.Values.global.imagePullSecrets }}
-        - name: {{ $sName }}
-      {{- end }}
+      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.imagePullSecrets "context" $) | nindent 8 }}
       {{- end }}
       {{- with .initContainers}}
       initContainers:

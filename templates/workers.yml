@@ -101,10 +101,14 @@ spec:
       {{- with .podSecurityContext }}
       securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 8 }}
       {{- end }}
-      {{- if .imagePullSecrets }}
-      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
-      {{- else if $.Values.global.imagePullSecrets }}
-      imagePullSecrets: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.imagePullSecrets "context" $) | nindent 8 }}
+      {{ if or $.Values.global.imagePullSecrets .imagePullSecrets }}
+      imagePullSecrets:
+        {{- range $sName, $v := $.Values.global.imagePullSecrets }}
+        - name: {{ $sName }}
+        {{- end }}
+        {{- if .imagePullSecrets }}
+        {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
@@ -258,16 +262,22 @@ spec:
         {{- end }}
         {{- end }}
         {{- range .templatedVolumes }}
-        {{- $volName := include "helpers.app.fullname" (dict "name" .name "context" $) -}}
+        {{- $volName := include "helpers.app.fullname" (dict "name" .templatedName "context" $) -}}
         {{- if eq .type "configMap" }}
         - name: {{ $volName }}
           configMap:
             name: {{ $volName }}
+            {{- with .items }}
+            items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 14 }}
+            {{- end }}
         {{- end }}
         {{- if eq .type "secret" }}
         - name: {{ $volName }}
           secret:
             secretName: {{ $volName }}
+            {{- with .items }}
+            items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 14 }}
+            {{- end }}
         {{- end }}
         {{- end }}
         {{- range $.Values.pvcs }}
