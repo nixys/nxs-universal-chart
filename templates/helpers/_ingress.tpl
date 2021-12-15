@@ -11,6 +11,8 @@ service:
     name: {{ .servicePort }}
     {{- else if typeIs "float64" .servicePort }}
     number: {{ .servicePort }}
+    {{- else if typeIs "int64" .servicePort }}
+    number: {{ .servicePort }}
     {{- end }}
 {{- end -}}
 {{- end -}}
