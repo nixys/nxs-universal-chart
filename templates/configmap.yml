@@ -1,4 +1,4 @@
-{{- range .Values.configmaps -}}
+{{- range .Values.configmaps }}
 ---
 apiVersion: v1
 kind: ConfigMap
