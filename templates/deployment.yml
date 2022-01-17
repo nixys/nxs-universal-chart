@@ -176,7 +176,7 @@ spec:
         {{- with .command }}
         {{- if typeIs "string" . }}
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
-        {{- else -}}
+        {{- else }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
         {{- end }}
         {{- end }}
