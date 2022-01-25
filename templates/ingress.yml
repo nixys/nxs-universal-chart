@@ -10,8 +10,8 @@ metadata:
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
     {{- end }}
-    {{- if $.Values.global.labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- if $.Values.generic.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
     {{- end }}
   annotations:
     {{- if .certManager }}
@@ -23,13 +23,13 @@ metadata:
     {{- if .annotations -}}
     {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
     {{- end -}}
-    {{- if $.Values.global.annotations -}}
-    {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.annotations "context" $ ) | nindent 4 }}
+    {{- if $.Values.generic.annotations -}}
+    {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.annotations "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
   rules:
   {{- range .hosts }}
-  - host: {{ default $.Values.global.domain .hostname | quote }}
+  - host: {{ default $.Values.generic.domain .hostname | quote }}
     http:
       paths:
       {{- range .paths }}
@@ -46,7 +46,7 @@ spec:
   {{- if .tls }}
   - hosts:
     {{- range .hosts }}
-    - {{ default $.Values.global.domain .hostname | quote }}
+    - {{ default $.Values.generic.domain .hostname | quote }}
     {{- end }}
     secretName: {{ .tlsName | default (printf "%s-tls" $.Release.Name) }}
   {{- end }}

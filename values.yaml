@@ -1,8 +1,15 @@
 #
-## global - переменные, которые пользуют все манифесты
+## global - values that uses by all charts
 #
 
 global:
+
+
+#
+## generic - values that uses by all nxs-chart templates
+#
+
+generic:
   defaultImage: privat.registry.com/some-cool-app
   defaultImageTag: latest
   domain: nixys.ru
@@ -10,7 +17,7 @@ global:
     general-label: lbl-value
   annotations:
     general-annotation: ant-value
-# --set global.secretEnvs=$SECRET_ENVS
+  # --set global.secretEnvs=$SECRET_ENVS
   secretEnvs:
     FOO: bar
     BAR: foo

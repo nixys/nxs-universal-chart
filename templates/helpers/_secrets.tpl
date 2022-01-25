@@ -1,8 +1,8 @@
 {{/*Подключает секреты*/}}
 {{- define "helpers.secrets.include" -}}
-{{- if .Values.global.secretEnvs }}
-{{- if typeIs "string" .Values.global.secretEnvs -}}
-{{- range $key, $v := fromYaml .Values.global.secretEnvs }}
+{{- if .Values.generic.secretEnvs }}
+{{- if typeIs "string" .Values.generic.secretEnvs -}}
+{{- range $key, $v := fromYaml .Values.generic.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
@@ -10,7 +10,7 @@
       key: {{ $key }}
 {{- end -}}
 {{- else -}}
-{{- range $key, $v := .Values.global.secretEnvs }}
+{{- range $key, $v := .Values.generic.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:

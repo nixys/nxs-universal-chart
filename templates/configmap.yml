@@ -10,8 +10,8 @@ metadata:
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
     {{- end }}
-    {{- if $.Values.global.labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- if $.Values.generic.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
@@ -31,8 +31,8 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- if $.Values.global.labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+    {{- if $.Values.generic.labels }}
+    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"

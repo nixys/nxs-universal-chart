@@ -23,12 +23,12 @@ metadata:
   {{- if .labels }}
   {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
   {{- end }}
-  {{- if $.Values.global.labels }}
-  {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.labels "context" $) | nindent 4 }}
+  {{- if $.Values.generic.labels }}
+  {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
   {{- end }}
   annotations:
-  {{- if $.Values.global.annotations }}
-  {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.annotations "context" $) | nindent 4 }}
+  {{- if $.Values.generic.annotations }}
+  {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.annotations "context" $) | nindent 4 }}
   {{- end }}
   {{- if .annotations }}
   {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
@@ -85,18 +85,18 @@ spec:
           labels:
             {{- if .extraSelectorLabels }}
             {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 12 }}
-            {{- else if $.Values.global.extraSelectorLabels }}
-            {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.extraSelectorLabels "context" $) | nindent 12 }}
+            {{- else if $.Values.generic.extraSelectorLabels }}
+            {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.extraSelectorLabels "context" $) | nindent 12 }}
             {{- end }}
             {{- if .podLabels }}
             {{- include "helpers.tplvalues.render" (dict "value" .podLabels "context" $) | nindent 12 }}
             {{- end }}
-            {{- if $.Values.global.podLabels }}
-            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.podLabels "context" $ ) | nindent 12 }}
+            {{- if $.Values.generic.podLabels }}
+            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.podLabels "context" $ ) | nindent 12 }}
             {{- end }}
           annotations:
-            {{- if $.Values.global.podAnnotations }}
-            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.podAnnotations "context" $ ) | nindent 12 }}
+            {{- if $.Values.generic.podAnnotations }}
+            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.podAnnotations "context" $ ) | nindent 12 }}
             {{- end }}
             {{- if .podAnnotations }}
             {{- include "helpers.tplvalues.render" ( dict "value" .podAnnotations "context" $) | nindent 12 }}
@@ -104,13 +104,13 @@ spec:
         spec:
           {{- if .serviceAccountName }}
           serviceAccountName: {{ .serviceAccountName }}
-          {{- else if $.Values.global.serviceAccountName }}
-          serviceAccountName: {{ $.Values.global.serviceAccountName }}
+          {{- else if $.Values.generic.serviceAccountName }}
+          serviceAccountName: {{ $.Values.generic.serviceAccountName }}
           {{- end }}
           {{- if .hostAliases }}
           hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 12 }}
-          {{- else if $.Values.global.hostAliases }}
-          hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.global.hostAliases "context" $) | nindent 12 }}
+          {{- else if $.Values.generic.hostAliases }}
+          hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.hostAliases "context" $) | nindent 12 }}
           {{- end }}
           {{- if .affinity }}
           affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 12 }}
@@ -127,8 +127,8 @@ spec:
           {{- end }}
           {{- if .dnsPolicy }}
           dnsPolicy: {{ .dnsPolicy }}
-          {{- else if $.Values.global.dnsPolicy }}
-          dnsPolicy: {{ $.Values.global.dnsPolicy }}
+          {{- else if $.Values.generic.dnsPolicy }}
+          dnsPolicy: {{ $.Values.generic.dnsPolicy }}
           {{- end }}
           {{- with .nodeSelector }}
           nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
@@ -136,9 +136,9 @@ spec:
           {{- with .tolerations }}
           tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
           {{- end }}
-          {{ if or $.Values.global.imagePullSecrets .imagePullSecrets }}
+          {{ if or $.Values.generic.imagePullSecrets .imagePullSecrets }}
           imagePullSecrets:
-            {{- range $sName, $v := $.Values.global.imagePullSecrets }}
+            {{- range $sName, $v := $.Values.generic.imagePullSecrets }}
             - name: {{ $sName }}
             {{- end }}
             {{- if .imagePullSecrets }}
@@ -149,7 +149,7 @@ spec:
           initContainers:
           {{- range . }}
           - name: {{ .name | default $cronJobName }}
-            image: {{ .image | default $.Values.global.defaultImage }}:{{ .imageTag | default  $.Values.global.defaultImageTag }}
+            image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
@@ -185,8 +185,8 @@ spec:
             {{- $volMounts = .volumeMounts -}}
             {{- else if $general.extraVolumeMounts -}}
             {{- $volMounts = $general.extraVolumeMounts -}}
-            {{- else if $.Values.global.extraVolumeMounts -}}
-            {{- $volMounts = $.Values.global.extraVolumeMounts -}}
+            {{- else if $.Values.generic.extraVolumeMounts -}}
+            {{- $volMounts = $.Values.generic.extraVolumeMounts -}}
             {{- end -}}
             {{- if not (empty $volMounts) }}
             volumeMounts:
@@ -214,7 +214,7 @@ spec:
           containers:
           {{- range $containers }}
           - name: {{ .name | default $cronJobName }}
-            image: {{ .image | default $.Values.global.defaultImage }}:{{ .imageTag | default  $.Values.global.defaultImageTag }}
+            image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
@@ -259,8 +259,8 @@ spec:
             {{- $volMounts = .volumeMounts -}}
             {{- else if $general.extraVolumeMounts -}}
             {{- $volMounts = $general.extraVolumeMounts -}}
-            {{- else if $.Values.global.extraVolumeMounts -}}
-            {{- $volMounts = $.Values.global.extraVolumeMounts -}}
+            {{- else if $.Values.generic.extraVolumeMounts -}}
+            {{- $volMounts = $.Values.generic.extraVolumeMounts -}}
             {{- end -}}
             {{- if not (empty $volMounts) }}
             volumeMounts:
@@ -332,8 +332,8 @@ spec:
           {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 10 }}
           {{- else if $general.extraVolumes }}
           {{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 10 }}
-          {{- else if $.Values.global.extraVolumes }}
-          {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.extraVolumes "context" $) | nindent 10 }}
+          {{- else if $.Values.generic.extraVolumes }}
+          {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 10 }}
           {{- end }}
           restartPolicy: {{ .restartPolicy | default "Never" }}
 {{- end }}

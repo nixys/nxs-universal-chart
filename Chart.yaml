@@ -4,5 +4,7 @@ description: Common Helm chart for Kubernetes
 name: nxs-helm-chart
 version: 1.0.0
 maintainers:
-  - name: Roman Andreev
-    email: randreev@nixys.ru
+- name: Roman Andreev
+  email: r.andreev@nixys.ru
+- name: Anton Zhideev
+  email: a.zhideev@nixys.ru
