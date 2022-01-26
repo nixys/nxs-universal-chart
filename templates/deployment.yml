@@ -94,7 +94,7 @@ spec:
       {{ if or $.Values.generic.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:
         {{- range $sName, $v := $.Values.generic.imagePullSecrets }}
-        - name: {{ $sName }}
+      - name: {{ $sName }}
         {{- end }}
         {{- if .imagePullSecrets }}
         {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
@@ -214,74 +214,42 @@ spec:
         volumeMounts:
           {{- range $volMounts }}
             {{- if .extraFilesDirName }}
-          - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
+        - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
             {{- else if .pvcName }}
-          - name: {{ include "helpers.app.fullname" (dict "name" .pvcName "context" $) }}
+        - name: {{ include "helpers.app.fullname" (dict "name" .pvcName "context" $) }}
             {{- else if .templatedName }}
-          - name: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
+        - name: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
             {{- else }}
-          - name: {{ .name }}
+        - name: {{ .name }}
             {{- end }}
             {{- with .subPath }}
-            subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
             {{- end }}
             {{- with .subPathExpr }}
-            subPathExpr: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          subPathExpr: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
             {{- end }}
-            mountPath: {{ .mountPath }}
+          mountPath: {{ .mountPath }}
             {{- with .readOnly }}
-            readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+          readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
             {{- end }}
           {{- end }}
         {{- end }}
       {{- end }}
       volumes:
-        {{- if $.Files.Glob ("extra-files/config/**") }}
-        {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
-        {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-" | replace "." "-") "context" $) }}
-        - name: {{ $name }}
-          configMap:
-            name: {{ $name }}
-        {{- end }}
-        {{- end }}
-        {{- if $.Files.Glob ("extra-files/secret/**") }}
-        {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
-        {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-" | replace "." "-") "context" $) }}
-        - name: {{ $name }}
-          secret:
-            secretName: {{ $name }}
-        {{- end }}
-        {{- end }}
-        {{- range .templatedVolumes }}
-        {{- $volName := include "helpers.app.fullname" (dict "name" .templatedName "context" $) -}}
-        {{- if eq .type "configMap" }}
-        - name: {{ $volName }}
-          configMap:
-            name: {{ $volName }}
-            {{- with .items }}
-            items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 14 }}
-            {{- end }}
-        {{- end }}
-        {{- if eq .type "secret" }}
-        - name: {{ $volName }}
-          secret:
-            secretName: {{ $volName }}
-            {{- with .items }}
-            items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 14 }}
-            {{- end }}
-        {{- end }}
-        {{- end }}
-        {{- range $.Values.pvcs }}
-        {{- $claimName := "" -}}
-        {{- if .nameOverride -}}{{- $claimName = .nameOverride -}}{{- else -}}{{- $claimName = include "helpers.app.fullname" (dict "name" .name "context" $) -}}{{- end }}
-        - name: {{ $claimName }}
-          persistentVolumeClaim:
-            claimName: {{ $claimName }}
-        {{- end }}
-        {{- if .extraVolumes }}
-        {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 8 }}
-        {{- else if $.Values.generic.extraVolumes }}
-        {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 8 }}
-        {{- end }}
+      {{- if .templatedVolumes }}
+      {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 6}}
+      {{- end }}
+      {{- range $.Values.pvcs }}
+      {{- $claimName := "" -}}
+      {{- if .nameOverride -}}{{- $claimName = .nameOverride -}}{{- else -}}{{- $claimName = include "helpers.app.fullname" (dict "name" .name "context" $) -}}{{- end }}
+      - name: {{ $claimName }}
+        persistentVolumeClaim:
+          claimName: {{ $claimName }}
+      {{- end }}
+      {{- if .extraVolumes }}
+      {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}
+      {{- else if $.Values.generic.extraVolumes }}
+      {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 6 }}
+      {{- end }}
 {{- end }}
 {{- end }}

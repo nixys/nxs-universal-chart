@@ -249,20 +249,9 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
-      {{- if .volumes }}
-      {{- range .volumes }}
-      {{- if eq .type "configMap" }}
-      - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        configMap:
-          name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+      {{- if .templatedVolumes }}
+      {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 6}}
       {{- end }}
-      {{- if eq .type "secret" }}
-      - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        secret:
-          secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        {{- end }}
-        {{- end }}
-        {{- end }}
       {{- if .extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}
       {{- else if $general.extraVolumes }}
@@ -485,19 +474,8 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
-      {{- if .volumes }}
-      {{- range .volumes }}
-      {{- if eq .type "configMap" }}
-      - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        configMap:
-          name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        {{- end }}
-        {{- if eq .type "secret" }}
-      - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-        secret:
-          secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-      {{- end }}
-      {{- end }}
+      {{- if .templatedVolumes }}
+      {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 6}}
       {{- end }}
       {{- if .extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}

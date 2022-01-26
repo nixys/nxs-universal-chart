@@ -139,7 +139,7 @@ spec:
           {{ if or $.Values.generic.imagePullSecrets .imagePullSecrets }}
           imagePullSecrets:
             {{- range $sName, $v := $.Values.generic.imagePullSecrets }}
-            - name: {{ $sName }}
+          - name: {{ $sName }}
             {{- end }}
             {{- if .imagePullSecrets }}
             {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 12 }}
@@ -285,41 +285,8 @@ spec:
             {{- end }}
           {{- end }}
           volumes:
-          {{- if $.Files.Glob ("extra-files/config/**") }}
-          {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
-          {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-" | replace "." "-") "context" $) }}
-          - name: {{ $name }}
-            configMap:
-              name: {{ $name }}
-          {{- end }}
-          {{- end }}
-          {{- if $.Files.Glob ("extra-files/secret/**") }}
-          {{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
-          {{- $name := include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-" | replace "." "-") "context" $) }}
-          - name: {{ $name }}
-            secret:
-              secretName: {{ $name }}
-          {{- end }}
-          {{- end }}
           {{- if .templatedVolumes }}
-          {{- range .templatedVolumes }}
-          {{- if eq .type "configMap" }}
-          - name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-            configMap:
-              name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-              {{- with .items }}
-              items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 16 }}
-              {{- end }}
-          {{- end }}
-          {{- if eq .type "secret" }}
-          - name: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
-            secret:
-              secretName: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
-              {{- with .items }}
-              items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 16 }}
-              {{- end }}
-          {{- end }}
-          {{- end }}
+          {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 10}}
           {{- end }}
           {{- range $.Values.pvcs }}
           {{- $claimName := "" -}}

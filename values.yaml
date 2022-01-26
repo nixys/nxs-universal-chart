@@ -84,7 +84,7 @@ deployments:
     - pvcName: app-pvc
       mountPath: /var/www/html/files
   templatedVolumes:
-  - templatedName: secret-file
+  - name: secret-file
     type: secret
 
 services:
@@ -194,6 +194,9 @@ cronJobs:
     single_only: true
     duration_alert: 600
     max_duration: 800
+    templatedVolumes:
+    - name: secret-file
+      type: secret
   - name: auto-sender
     schedule: "*/5 * * * *"
     command: "php yii crontab/auto-sender"
