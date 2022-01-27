@@ -1,5 +1,5 @@
-{{- define "helpers.volumes.templated" -}}
-{{- $ctx := .context }}
+{{- define "helpers.volumes.typed" -}}
+{{- $ctx := .context -}}
 {{- range .volumes }}
 {{- if eq .type "configMap" }}
 - name: {{ .name }}
@@ -33,4 +33,18 @@
     {{- end }}
 {{- end }}
 {{- end }}
-{{- end -}}
+{{- end }}
+
+{{- define "helpers.volumes.mount" -}}
+{{- $ctx := .context -}}
+{{- range .mounts }}
+- name: {{ .name }}
+  mountPath: {{ .mountPath }}
+  {{- with .subPath }}
+  subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}
+  {{- end }}
+  {{- with .readOnly }}
+  readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}
+  {{- end }}
+{{- end }}
+{{- end }}

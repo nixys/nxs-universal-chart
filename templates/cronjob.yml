@@ -181,34 +181,13 @@ spec:
             ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
             {{- $volMounts := list -}}
-            {{- if .volumeMounts -}}
-            {{- $volMounts = .volumeMounts -}}
-            {{- else if $general.extraVolumeMounts -}}
-            {{- $volMounts = $general.extraVolumeMounts -}}
-            {{- else if $.Values.generic.extraVolumeMounts -}}
-            {{- $volMounts = $.Values.generic.extraVolumeMounts -}}
-            {{- end -}}
+            {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}
+            {{- if $general.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $general.extraVolumeMounts -}}{{- end }}
+            {{- if $.Values.generic.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $.Values.generic.extraVolumeMounts -}}{{- end -}}
             {{- if not (empty $volMounts) }}
-            volumeMounts:
-              {{- range $volMounts }}
-              {{- if .extraFilesDirName }}
-            - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
-              {{- else if .pvcName }}
-            - name: {{ include "helpers.app.fullname" (dict "name" (.pvcName | replace "_" "-") "context" $) }}
-              {{- else }}
-            - name: {{ .name }}
-              {{- end }}
-              {{- with .subPath }}
-              subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-              {{- end }}
-              mountPath: {{ .mountPath }}
-              {{- with .readOnly }}
-              readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-              {{- end }}
-              {{- end }}
-              {{- end }}
+            volumeMounts: {{- include "helpers.volumes.mount" (dict "mounts" $volMounts "context" $) | indent 12 }}
             {{- end }}
-          {{- end }}
+          {{- end }}{{- end }}
           {{- $containers := list -}}
           {{- if .containers -}}{{- $containers = .containers -}}{{- else -}}{{- $containers = append list . -}}{{- end }}
           containers:
@@ -255,45 +234,17 @@ spec:
             resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
             {{- $volMounts := list -}}
-            {{- if .volumeMounts -}}
-            {{- $volMounts = .volumeMounts -}}
-            {{- else if $general.extraVolumeMounts -}}
-            {{- $volMounts = $general.extraVolumeMounts -}}
-            {{- else if $.Values.generic.extraVolumeMounts -}}
-            {{- $volMounts = $.Values.generic.extraVolumeMounts -}}
-            {{- end -}}
+            {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}
+            {{- if $general.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $general.extraVolumeMounts -}}{{- end }}
+            {{- if $.Values.generic.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $.Values.generic.extraVolumeMounts -}}{{- end -}}
             {{- if not (empty $volMounts) }}
-            volumeMounts:
-              {{- range $volMounts }}
-              {{- if .extraFilesDirName }}
-            - name: {{ include "helpers.app.fullname" (dict "name" (.extraFilesDirName | replace "_" "-" | replace "." "-") "context" $) }}
-              {{- else if .pvcName }}
-            - name: {{ include "helpers.app.fullname" (dict "name" (.pvcName | replace "_" "-") "context" $) }}
-              {{- else if .templatedName }}
-            - name: {{ include "helpers.app.fullname" (dict "name" .templatedName "context" $) }}
-              {{- else }}
-            - name: {{ .name }}
-              {{- end }}
-              {{- with .subPath }}
-              subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-              {{- end }}
-              mountPath: {{ .mountPath }}
-              {{- with .readOnly }}
-              readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
-              {{- end }}
-            {{- end }}
+            volumeMounts: {{- include "helpers.volumes.mount" (dict "mounts" $volMounts "context" $) | indent 12 }}
             {{- end }}
           {{- end }}
           volumes:
-          {{- if .volumes }}
-          {{- include "helpers.volumes.templated" ( dict "volumes" .volumes "context" $) | indent 10}}
-          {{- end }}
-          {{- if .extraVolumes }}
-          {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 10 }}
-          {{- end }}{{- if $general.extraVolumes }}
-          {{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 10 }}
-          {{- end }}{{- if $.Values.generic.extraVolumes }}
-          {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 10 }}
-          {{- end }}
+          {{- with .volumes }}{{- include "helpers.volumes.typed" ( dict "volumes" . "context" $) | indent 10}}{{- end }}
+          {{- if .extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 10 }}{{- end }}
+          {{- if $general.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 10 }}{{- end }}
+          {{- if $.Values.generic.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 10 }}{{- end }}
           restartPolicy: {{ .restartPolicy | default "Never" }}
 {{- end }}

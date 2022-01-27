@@ -61,15 +61,15 @@ deployments:
   extraSelectorLabels:
     app: app-extra-selector
   serviceAccountName: deployer
-#  affinity:
-#    nodeAffinity:
-#      requiredDuringSchedulingIgnoredDuringExecution:
-#        nodeSelectorTerms:
-#        - matchExpressions:
-#          - key: noderole/pay-dev
-#            operator: In
-#            values:
-#            - "true"
+  #  affinity:
+  #    nodeAffinity:
+  #      requiredDuringSchedulingIgnoredDuringExecution:
+  #        nodeSelectorTerms:
+  #        - matchExpressions:
+  #          - key: noderole/pay-dev
+  #            operator: In
+  #            values:
+  #            - "true"
   containers:
   - name: nginx
     image: nginx
@@ -99,16 +99,16 @@ services:
     app: app-extra-selector
 
 secrets:
-# --set secrets.test1.data.BAR=foo
+  # --set secrets.test1.data.BAR=foo
   test1:
     data:
       BAR: foo
-# --set "secrets.secret-file.data.api\.key=$SOME_ENV"
+  # --set "secrets.secret-file.data.api\.key=$SOME_ENV"
   secret-file:
     data:
       api.key: |-
         JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
-# --set "secrets.domain-tls.labels.blah=blah,secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
+  # --set "secrets.domain-tls.labels.blah=blah,secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
   domain-tls:
     labels:
       blah: blah
@@ -122,12 +122,12 @@ secrets:
         MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
         -----END RSA PRIVATE KEY-----
     type: kubernetes.io/tls
-# --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
+  # --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
   json-file:
     data:
       file.json: {
-          "arg": "value"
-        }
+        "arg": "value"
+      }
 
 configmaps:
 - name: some-cm
@@ -196,9 +196,16 @@ cronJobs:
     single_only: true
     duration_alert: 600
     max_duration: 800
+    volumeMounts:
+    - name: secret-file
+      mountPath: /etc/app
+      readOnly: true
     volumes:
     - name: secret-file
       type: secret
+      items:
+      - key: app.conf
+        mode: 0600
   - name: auto-sender
     schedule: "*/5 * * * *"
     command: "php yii crontab/auto-sender"
