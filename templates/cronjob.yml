@@ -285,21 +285,14 @@ spec:
             {{- end }}
           {{- end }}
           volumes:
-          {{- if .templatedVolumes }}
-          {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 10}}
-          {{- end }}
-          {{- range $.Values.pvcs }}
-          {{- $claimName := "" -}}
-          {{- if .nameOverride -}}{{- $claimName = .nameOverride -}}{{- else -}}{{- $claimName = include "helpers.app.fullname" (dict "name" .name "context" $) -}}{{- end }}
-          - name: {{ $claimName }}
-            persistentVolumeClaim:
-              claimName: {{ $claimName }}
+          {{- if .volumes }}
+          {{- include "helpers.volumes.templated" ( dict "volumes" .volumes "context" $) | indent 10}}
           {{- end }}
           {{- if .extraVolumes }}
           {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 10 }}
-          {{- else if $general.extraVolumes }}
+          {{- end }}{{- if $general.extraVolumes }}
           {{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 10 }}
-          {{- else if $.Values.generic.extraVolumes }}
+          {{- end }}{{- if $.Values.generic.extraVolumes }}
           {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 10 }}
           {{- end }}
           restartPolicy: {{ .restartPolicy | default "Never" }}

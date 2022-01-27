@@ -249,8 +249,8 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
-      {{- if .templatedVolumes }}
-      {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 6}}
+      {{- if .volumes }}
+      {{- include "helpers.volumes.templated" ( dict "volumes" .volumes "context" $) | indent 6}}
       {{- end }}
       {{- if .extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}
@@ -474,14 +474,14 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
-      {{- if .templatedVolumes }}
-      {{- include "helpers.volumes.templated" ( dict "volumes" .templatedVolumes "context" $) | indent 6}}
+      {{- if .volumes }}
+      {{- include "helpers.volumes.templated" ( dict "volumes" .volumes "context" $) | indent 6}}
       {{- end }}
       {{- if .extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}
-      {{- else if $general.extraVolumes }}
+      {{- end }}{{- if $general.extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 6 }}
-      {{- else if $.Values.global.extraVolumes }}
+      {{- end }}{{- if $.Values.global.extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.extraVolumes "context" $) | nindent 6 }}
       {{- end }}
       restartPolicy: {{ .restartPolicy | default "Never" }}
