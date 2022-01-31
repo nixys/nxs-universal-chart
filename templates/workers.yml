@@ -211,8 +211,8 @@ spec:
       {{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 6 }}
       {{- end }}{{- if $general.extraVolumes }}
       {{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 6 }}
-      {{- end }}{{- if $.Values.global.extraVolumes }}
-      {{- include "helpers.tplvalues.render" ( dict "value" $.Values.global.extraVolumes "context" $) | nindent 6 }}
+      {{- end }}{{- if $.Values.generic.extraVolumes }}
+      {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 6 }}
       {{- end }}
 {{- end }}
 {{- end }}

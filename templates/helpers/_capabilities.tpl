@@ -43,27 +43,11 @@
 {{- end -}}
 
 {{- define "helpers.capabilities.ingress.apiVersion" -}}
-{{- if .enabled -}}
-{{- if .apiVersion -}}
-{{- .apiVersion -}}
-{{- else if semverCompare "<1.14-0" (include "helpers.capabilities.kubeVersion" $) -}}
+{{- if semverCompare "<1.14-0" (include "helpers.capabilities.kubeVersion" $) -}}
 {{- print "extensions/v1beta1" -}}
 {{- else if semverCompare "<1.19-0" (include "helpers.capabilities.kubeVersion" $) -}}
 {{- print "networking.k8s.io/v1beta1" -}}
 {{- else -}}
 {{- print "networking.k8s.io/v1" -}}
 {{- end }}
-{{- else if semverCompare "<1.14-0" (include "helpers.capabilities.kubeVersion" $) -}}
-{{- print "extensions/v1beta1" -}}
-{{- else if semverCompare "<1.19-0" (include "helpers.capabilities.kubeVersion" $) -}}
-{{- print "networking.k8s.io/v1beta1" -}}
-{{- else -}}
-{{- print "networking.k8s.io/v1" -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "helpers.capabilities.supportsHelmVersion" -}}
-{{- if regexMatch "{(v[0-9])*[^}]*}}$" (.Capabilities | toString ) }}
-  {{- true -}}
-{{- end -}}
 {{- end -}}

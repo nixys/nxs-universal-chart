@@ -2,7 +2,7 @@
 ## global - values that uses by all charts
 #
 
-global:
+# global:
 
 
 #
@@ -35,7 +35,7 @@ ingresses:
     paths:
     - path: /
       pathType:
-      servicePort:
+      servicePort: api
 - annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:

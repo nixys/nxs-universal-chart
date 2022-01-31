@@ -21,22 +21,25 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.secrets.encode" -}}
+{{if hasPrefix "b64:" .value}}{{trimPrefix "b64:" .value}}{{else}}{{toString .value|b64enc}}{{end}}
+{{- end -}}
+
 {{- define "helpers.secrets.render" -}}
 {{- if typeIs "string" .value -}}
 {{- range $key, $value := fromYaml .value }}
-{{ printf "%s: %s" $key (toString $value | b64enc) }}
+{{ printf "%s: %s" $key (include "helpers.secrets.encode" (dict "value" $value)) }}
 {{- end -}}
 {{- else -}}
 {{- range $key, $value := .value }}
 {{- if kindIs "string" $value }}
-{{ printf "%s: %s" $key (toString $value | b64enc) }}
+{{ printf "%s: %s" $key (include "helpers.secrets.encode" (dict "value" $value)) }}
 {{- else }}
 {{ $key }}: {{$value | toJson | b64enc }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
-
 
 {{- define "helpers.secretFiles.subPaths" -}}
 {{- $str := "" -}}

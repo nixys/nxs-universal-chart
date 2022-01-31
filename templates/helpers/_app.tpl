@@ -1,5 +1,5 @@
 {{- define "helpers.app.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Release.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -15,37 +15,16 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "helpers.app.fullname" -}}
-{{- $values := .context.Values -}}
-{{- $release := .context.Release -}}
-{{- $chart := .context.Chart -}}
 {{- if .name -}}
-{{- if $values.fullnameOverride -}}
-{{- $values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" (include "helpers.app.name" .context) .name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- $appName := (include "helpers.app.name" .context) -}}
-{{- if contains $appName $release.Name -}}
-{{- printf "%s-%s" $release.Name .name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s-%s" $release.Name .name $appName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-{{- else -}}
-{{- if $values.fullnameOverride -}}
-{{- $values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- $appName := (include "helpers.app.name" .context) -}}
-{{- if contains $appName $release.Name -}}
-{{- $release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" $release.Name $appName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
+{{- include "helpers.app.name" .context -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "helpers.app.labels" -}}
-helm.sh/chart: {{ include "helpers.app.chart" . }}
 {{ include "helpers.app.selectorLabels" . }}
+helm.sh/chart: {{ include "helpers.app.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
