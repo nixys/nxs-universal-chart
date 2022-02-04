@@ -1,4 +1,3 @@
-{{/*Подключает секреты*/}}
 {{- define "helpers.secrets.include" -}}
 {{- if .Values.generic.secretEnvs }}
 {{- if typeIs "string" .Values.generic.secretEnvs -}}
@@ -21,14 +20,63 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.secrets.includeEnv" -}}
+{{- $ctx := .context -}}
+{{- if typeIs "string" .value -}}
+{{- range $sName, $envKeys := fromYaml .value -}}
+{{- range $envKeys }}
+{{ include "helpers.secrets.renderIncludeEnv" (dict "sName" $sName "envKey" . "context" $ctx) }}
+{{- end -}}
+{{- end -}}
+{{- else if kindIs "map" .value -}}
+{{- range $sName, $envKeys := .value -}}
+{{- range $envKeys }}
+{{ include "helpers.secrets.renderIncludeEnv" (dict "sName" $sName "envKey" . "context" $ctx) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.secrets.includeEnvSecret" -}}
+{{- $ctx := .context -}}
+{{- range $i, $sName := .value -}}
+- secretRef:
+    name: {{ include "helpers.app.fullname" (dict "name" $sName "context" $ctx) }}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.secrets.renderIncludeEnv" -}}
+{{- $sName := .sName -}}
+{{- $ctx := .context -}}
+{{- if kindIs "string" .envKey -}}
+- name: {{ .envKey }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "helpers.app.fullname" (dict "name" $sName "context" $ctx) }}
+      key: {{ .envKey }}
+{{- else if kindIs "map" .envKey -}}
+{{- range $envName, $sKey := .envKey -}}
+- name: {{ $envName }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "helpers.app.fullname" (dict "name" $sName "context" $ctx) }}
+      key: {{ $sKey }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.secrets.encode" -}}
 {{if hasPrefix "b64:" .value}}{{trimPrefix "b64:" .value}}{{else}}{{toString .value|b64enc}}{{end}}
 {{- end -}}
 
 {{- define "helpers.secrets.render" -}}
-{{- if typeIs "string" .value -}}
+{{- if kindIs "string" .value -}}
 {{- range $key, $value := fromYaml .value }}
+{{- if kindIs "string" $value }}
 {{ printf "%s: %s" $key (include "helpers.secrets.encode" (dict "value" $value)) }}
+{{- else }}
+{{ $key }}: {{$value | toJson | b64enc }}
+{{- end -}}
 {{- end -}}
 {{- else -}}
 {{- range $key, $value := .value }}

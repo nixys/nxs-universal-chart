@@ -162,15 +162,24 @@ spec:
         {{- end }}
         {{- end }}
         env:
-        {{- include "helpers.secrets.include" $ | nindent 10 }}
+        {{- with .envsFromSecrets }}
+        {{- include "helpers.secrets.includeEnv" ( dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
         {{- with .env }}
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+        envFrom:
+        {{- with .envsFromConfigmap }}
+        {{- include "helpers.configmaps.includeEnvConfigmap" ( dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+        {{- with .envSecrets }}
+        {{- include "helpers.secrets.includeEnvSecret" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- with .envFrom }}
-        envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- with .ports }}
-        ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- with .lifecycle }}
         lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
