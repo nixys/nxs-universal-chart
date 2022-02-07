@@ -1,7 +1,7 @@
 {{- define "helpers.secrets.include" -}}
 {{- if .Values.generic.secretEnvs }}
 {{- if typeIs "string" .Values.generic.secretEnvs -}}
-{{- range $key, $v := fromYaml .Values.generic.secretEnvs }}
+{{- range $key, $v := fromYaml .Values.generic.secretEnvs -}}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
@@ -9,7 +9,7 @@
       key: {{ $key }}
 {{- end -}}
 {{- else -}}
-{{- range $key, $v := .Values.generic.secretEnvs }}
+{{- range $key, $v := .Values.generic.secretEnvs -}}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
@@ -39,7 +39,7 @@
 
 {{- define "helpers.secrets.includeEnvSecret" -}}
 {{- $ctx := .context -}}
-{{- range $i, $sName := .value -}}
+{{- range $i, $sName := .value }}
 - secretRef:
     name: {{ include "helpers.app.fullname" (dict "name" $sName "context" $ctx) }}
 {{- end -}}

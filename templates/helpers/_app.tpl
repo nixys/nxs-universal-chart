@@ -29,9 +29,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+{{- with .Values.generic.labels }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
 {{- end }}
 
 {{- define "helpers.app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "helpers.app.hooksAnnotations" -}}
+helm.sh/hook: "pre-install,pre-upgrade"
+helm.sh/hook-weight: "-999"
+helm.sh/hook-delete-policy: before-hook-creation
 {{- end }}

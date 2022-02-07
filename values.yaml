@@ -1,34 +1,27 @@
-#
-## global - values that uses by all charts
-#
-
-# global:
-
-
-#
-## generic - values that uses by all nxs-chart templates
-#
-
+# generic - values that uses by all nxs-chart templates
 generic:
-  defaultImage: privat.registry.com/some-cool-app
-  defaultImageTag: latest
   domain: nixys.ru
-  labels:
-    general-label: lbl-value
-  annotations:
-    general-annotation: ant-value
-  # --set global.secretEnvs=$SECRET_ENVS
-  secretEnvsString: |
-    TEST: asdased
-  secretEnvs:
-    FOO: bar
-    BAR: foo
-  imagePullSecrets:
-    global: |
-      {
-        "docker": "auth"
-      }
-    test: b64:eyJkb2NrZXIiOiJhdXRoIn0=
+  labels: {}
+#    general-label: general-label-value
+  annotations: {}
+#    general-annotation: general-annotation-value
+
+# --set "secretEnvsString=$SECRET_ENVS"
+secretEnvsString: ""
+#secretEnvsString: |
+#  FOO: BAR
+
+# --set "secretEnvs.TEST=true"
+secretEnvs: {}
+#  FOO: BAR
+
+imagePullSecrets: {}
+#  registry.org: |
+#    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
+#  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+
+defaultImage: your.registry.com/some-cool-app
+defaultImageTag: latest
 
 ingresses:
 - annotations:
@@ -42,7 +35,7 @@ ingresses:
   - hostname:
     paths:
     - path: /
-      pathType:
+      pathType: prefix
       servicePort: api
 - annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -83,9 +76,13 @@ deployments:
     image: nginx
     imageTag: 1.19
     imagePullPolicy: Always
-    envsFromSecrets:
+    env:
+      MY_ENV: "1234"
+      QTE: safn8
+    envsFromSecret:
       testenv:
       - JAVA_OPTS: JVM_OPTS
+      - QWE
     envSecrets:
     - secret-envs
     ports:
@@ -112,8 +109,9 @@ services:
     app: app-extra-selector
 
 secrets:
-  testenv:
+  webadmin:
     data:
+      QWE: rty
       JVM_OPTS: |
         "-Duser.timezone=GMT+7" \
         "-Xmx${XMX}" \
@@ -128,36 +126,35 @@ secrets:
         "-javaagent:/elastic-apm-agent.jar" \
         "-Delastic.apm.enable_log_correlation=true" \
         "-Delastic.apm.server_urls=http://apm-server-apm-server.logging.svc:8200" \
-
-  # --set secrets.test1.data.BAR=foo
-  test1:
-    data:
-      BAR: foo
-  # --set "secrets.secret-file.data.api\.key=$SOME_ENV"
-  secret-file:
-    data:
-      api.key: |-
-        JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
-  # --set "secrets.domain-tls.labels.blah=blah,secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
-  domain-tls:
-    labels:
-      blah: blah
-    data:
-      tls.crt: |-
-        -----BEGIN CERTIFICATE-----
-        MIIC2DCCAcCgAwIBAgIBATANBgkqh
-        -----END CERTIFICATE-----
-      tls.key: |-
-        -----BEGIN RSA PRIVATE KEY-----
-        MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
-        -----END RSA PRIVATE KEY-----
-    type: kubernetes.io/tls
-  # --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
-  json-file:
-    data:
-      file.json: {
-        "arg": "value"
-      }
+  ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
+  # test1:
+  #   labels:
+  #     blah: blah
+  #   data:
+  #     BAR: foo
+  ## --set "secrets.secret-file.data.api\.key=$SOME_ENV"
+  # secret-file:
+  #   data:
+  #     api.key: |-
+  #       JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
+  ## --set "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
+  # domain-tls:
+  #   type: kubernetes.io/tls
+  #   data:
+  #     tls.crt: |-
+  #       -----BEGIN CERTIFICATE-----
+  #       MIIC2DCCAcCgAwIBAgIBATANBgkqh
+  #       -----END CERTIFICATE-----
+  #     tls.key: |-
+  #       -----BEGIN RSA PRIVATE KEY-----
+  #       MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
+  #       -----END RSA PRIVATE KEY-----
+  ## --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
+  # json-file:
+  #   data:
+  #     file.json: {
+  #       "arg": "value"
+  #     }
 
 configmaps:
 - name: some-cm

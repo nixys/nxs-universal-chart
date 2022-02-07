@@ -1,3 +1,5 @@
 README.md
 .idea/
 .gitignore
+tmp
+*.tgz

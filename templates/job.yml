@@ -23,9 +23,6 @@ metadata:
   {{- if .labels }}
   {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
   {{- end }}
-  {{- if $.Values.generic.labels }}
-  {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
-  {{- end }}
   annotations:
   {{- if $.Values.generic.annotations }}
   {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.annotations "context" $) | nindent 4 }}
@@ -128,7 +125,7 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name | default $jobName }}
-        image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
+        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
@@ -145,17 +142,11 @@ spec:
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
         {{- end }}
         {{- else -}}
-        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
+        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- end }}
-        env:
-        {{- include "helpers.secrets.include" $ | nindent 8 }}
-        {{- with .env }}
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        {{- with .envFrom }}
-        envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
+        {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 8 }}
+        {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 8 }}
         {{- with .ports }}
         ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
@@ -172,21 +163,15 @@ spec:
       containers:
       {{- range $containers }}
       - name: {{ .name | default $jobName }}
-        image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
+        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        env:
-        {{- include "helpers.secrets.include" $ | nindent 8 }}
-        {{- with .env }}
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        {{- with .envFrom }}
-        envFrom: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
+        {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 8 }}
+        {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 8 }}
         {{- if and .args (not $job.max_duration) }}
-        args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
+        args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- with .command }}
         {{- if typeIs "string" . }}
@@ -197,20 +182,20 @@ spec:
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
         {{- end }}
         {{- else -}}
-        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
+        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- end }}
         {{- with .lifecycle }}
-        lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .livenessProbe }}
-        livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .readinessProbe }}
-        readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- with .resources }}
-        resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
+        resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- $volMounts := list -}}
         {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}

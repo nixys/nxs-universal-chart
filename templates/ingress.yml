@@ -10,9 +10,6 @@ metadata:
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
     {{- end }}
-    {{- if $.Values.generic.labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
-    {{- end }}
   annotations:
     {{- if .certManager }}
     kubernetes.io/tls-acme: "true"

@@ -2,8 +2,7 @@
 {{- range .Values.deployments }}
 {{- if not (.disabled | default false) -}}
 ---
-{{/*apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}*/}}
-apiVersion: apps/v1
+apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
 kind: Deployment
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
@@ -12,9 +11,6 @@ metadata:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- if .labels }}
     {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-    {{- end }}
-    {{- if $.Values.generic.labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.labels "context" $) | nindent 4 }}
     {{- end }}
   annotations:
     {{- if .annotations }}
@@ -108,7 +104,7 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name }}
-        image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
+        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -123,17 +119,10 @@ spec:
         command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- end }}
-        env:
-          {{- include "helpers.secrets.include" $ | nindent 10 }}
-          {{- with .env }}
-          {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
-          {{- end }}
-        {{- with .envFrom }}
-        envFrom:
-          {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
-        {{- end }}
+        {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 8 }}
+        {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 8 }}
         {{- with .ports }}
-        ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
+        ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         {{- $volMounts := list -}}
         {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}
@@ -146,7 +135,7 @@ spec:
       containers:
       {{- range .containers }}
       - name: {{ .name }}
-        image: {{ .image | default $.Values.generic.defaultImage }}:{{ .imageTag | default  $.Values.generic.defaultImageTag }}
+        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
@@ -158,26 +147,11 @@ spec:
         {{- if typeIs "string" . }}
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .) "" )) }}
         {{- else }}
-        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+        command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- end }}
-        env:
-        {{- with .envsFromSecrets }}
-        {{- include "helpers.secrets.includeEnv" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        {{- with .env }}
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        envFrom:
-        {{- with .envsFromConfigmap }}
-        {{- include "helpers.configmaps.includeEnvConfigmap" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        {{- with .envSecrets }}
-        {{- include "helpers.secrets.includeEnvSecret" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
-        {{- with .envFrom }}
-        {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
+        {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 8 }}
+        {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 8 }}
         {{- with .ports }}
         ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
