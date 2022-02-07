@@ -3,7 +3,7 @@
 {{- $v := .value -}}
 {{- if or (or $v.envsFromConfigmap $v.envsFromSecret) $v.env }}
 env:
-{{- with $v.envsFromConfigmap }}{{- include "helpers.configmaps.includeEnvConfigmap" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- with $v.envsFromConfigmap }}{{- include "helpers.configmaps.includeEnv" ( dict "value" . "context" $ctx) }}{{- end }}
 {{- with $v.envsFromSecret }}{{- include "helpers.secrets.includeEnv" ( dict "value" . "context" $ctx) }}{{- end }}
 {{- with $v.env }}{{- include "helpers.workload.renderEnv" ( dict "value" .) }}{{- end }}
 {{- end }}

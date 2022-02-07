@@ -6,13 +6,23 @@ generic:
   annotations: {}
 #    general-annotation: general-annotation-value
 
-# --set "secretEnvsString=$SECRET_ENVS"
+# --set "envs.FOO=bar,envs.TEST=true"
+envs: {}
+#  BAR: foo
+#  TEST: true
+
+# --set "envsString=$ENVS_STRING"
+envsString: ""
+#envsString: |
+#  BAR2: foo2
+
+# --set "secretEnvs.FOO=bar"
+secretEnvs: {}
+#  FOO: bar
+
+# --set "secretEnvsString=$SECRET_ENVS_STRING"
 secretEnvsString: ""
 #secretEnvsString: |
-#  FOO: BAR
-
-# --set "secretEnvs.TEST=true"
-secretEnvs: {}
 #  FOO: BAR
 
 imagePullSecrets: {}
@@ -85,6 +95,11 @@ deployments:
       - QWE
     envSecrets:
     - secret-envs
+    envsFromConfigmap:
+      some-cm:
+      - LEL: LOL
+    envConfigmaps:
+    - envs
     ports:
     - name: http
       containerPort: 8080
@@ -127,41 +142,46 @@ secrets:
         "-Delastic.apm.enable_log_correlation=true" \
         "-Delastic.apm.server_urls=http://apm-server-apm-server.logging.svc:8200" \
   ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
-  # test1:
-  #   labels:
-  #     blah: blah
-  #   data:
-  #     BAR: foo
+  #test1:
+  #  labels:
+  #    blah: blah
+  #  data:
+  #    BAR: foo
   ## --set "secrets.secret-file.data.api\.key=$SOME_ENV"
-  # secret-file:
-  #   data:
-  #     api.key: |-
-  #       JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
+  #secret-file:
+  #  data:
+  #    api.key: |-
+  #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
   ## --set "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
-  # domain-tls:
-  #   type: kubernetes.io/tls
-  #   data:
-  #     tls.crt: |-
-  #       -----BEGIN CERTIFICATE-----
-  #       MIIC2DCCAcCgAwIBAgIBATANBgkqh
-  #       -----END CERTIFICATE-----
-  #     tls.key: |-
-  #       -----BEGIN RSA PRIVATE KEY-----
-  #       MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
-  #       -----END RSA PRIVATE KEY-----
+  #domain-tls:
+  #  type: kubernetes.io/tls
+  #  data:
+  #    tls.crt: |-
+  #      -----BEGIN CERTIFICATE-----
+  #      MIIC2DCCAcCgAwIBAgIBATANBgkqh
+  #      -----END CERTIFICATE-----
+  #    tls.key: |-
+  #      -----BEGIN RSA PRIVATE KEY-----
+  #      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
+  #      -----END RSA PRIVATE KEY-----
   ## --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
-  # json-file:
-  #   data:
-  #     file.json: {
-  #       "arg": "value"
-  #     }
+  #json-file:
+  #  data:
+  #    file.json: {
+  #      "arg": "value"
+  #    }
 
-configmaps:
-- name: some-cm
-  labels:
-    kek: lol
-  data:
-    LOL: kek
+configMaps:
+  some-cm:
+    labels:
+      kek: lol
+    data:
+      LOL: kek
+  json-file:
+   data:
+     file.json: {
+       "arg": "value"
+     }
 
 # All PVSs will be added to `volumes` block in each workload excluding hooks
 pvcs:

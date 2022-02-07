@@ -1,42 +1,32 @@
-{{- range .Values.configmaps }}
+{{- if or (not (empty .Values.envs)) (not (empty .Values.envsString)) }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
-  namespace: {{ $.Release.Namespace | quote }}
-  labels:
-    {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- if .labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-    {{- end }}
-  annotations:
-    "helm.sh/hook": "pre-install,pre-upgrade"
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation
+  name: {{ include "helpers.app.fullname" (dict "name" "envs" "context" $) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "helpers.app.labels" $ | nindent 4 }}
+  annotations: {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
 data:
-  {{- include "helpers.tplvalues.render" ( dict "value" .data "context" $ ) | nindent 2 }}
-{{- end -}}
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envs) | indent 2 }}
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envsString) | indent 2 }}
+{{- end }}
 
-{{- if $.Files.Glob ("extra-files/config/**") -}}
-{{- range $subPath := splitList "$" (include "helpers.configFiles.subPaths" $)}}
+{{- range $cName, $val := .Values.configMaps -}}
+{{- if not (eq $cName "envs") }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" ($subPath | replace "_" "-" | replace "." "-") "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" $cName "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $val.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
   annotations:
-    "helm.sh/hook": "pre-install,pre-upgrade"
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation
+    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
+    {{- with $val.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
 data:
-{{- if eq $subPath "extra-files" }}
-{{ ($.Files.Glob  "extra-files/config/*").AsConfig | indent 2 }}
-{{- else }}
-{{ ($.Files.Glob (printf "extra-files/config/%s/**" $subPath)).AsConfig | indent 2 }}
-{{- end -}}
+  {{- include "helpers.configmaps.renderConfigMap" ( dict "value" $val.data "context" $ ) | indent 2 }}
 {{- end -}}
 {{- end -}}
