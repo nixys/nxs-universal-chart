@@ -19,17 +19,11 @@ metadata:
   name: {{ $cronJobName }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
-  {{- include "helpers.app.labels" $ | nindent 4 }}
-  {{- if .labels }}
-  {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-  {{- end }}
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-  {{- if $.Values.generic.annotations }}
-  {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.annotations "context" $) | nindent 4 }}
-  {{- end }}
-  {{- if .annotations }}
-  {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
-  {{- end }}
+    {{- include "helpers.app.generalAnnotations" $ | indent 4 }}
+    {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   schedule: {{ include "helpers.tplvalues.render" (dict "value" .schedule "context" $) | quote }}
   {{- if .single_only }}
@@ -80,24 +74,11 @@ spec:
       template:
         metadata:
           labels:
-            {{- if .extraSelectorLabels }}
-            {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 12 }}
-            {{- else if $.Values.generic.extraSelectorLabels }}
-            {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.extraSelectorLabels "context" $) | nindent 12 }}
-            {{- end }}
-            {{- if .podLabels }}
-            {{- include "helpers.tplvalues.render" (dict "value" .podLabels "context" $) | nindent 12 }}
-            {{- end }}
-            {{- if $.Values.generic.podLabels }}
-            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.podLabels "context" $ ) | nindent 12 }}
-            {{- end }}
+            {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 12 }}{{- end }}
+            {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
           annotations:
-            {{- if $.Values.generic.podAnnotations }}
-            {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.podAnnotations "context" $ ) | nindent 12 }}
-            {{- end }}
-            {{- if .podAnnotations }}
-            {{- include "helpers.tplvalues.render" ( dict "value" .podAnnotations "context" $) | nindent 12 }}
-            {{- end }}
+            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 12 }}{{- end }}
+            {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}{{- end }}
         spec:
           {{- if .serviceAccountName }}
           serviceAccountName: {{ .serviceAccountName }}
@@ -171,13 +152,7 @@ spec:
             {{- with .ports }}
             ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
             {{- end }}
-            {{- $volMounts := list -}}
-            {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}
-            {{- if $general.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $general.extraVolumeMounts -}}{{- end }}
-            {{- if $.Values.generic.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $.Values.generic.extraVolumeMounts -}}{{- end -}}
-            {{- if not (empty $volMounts) }}
-            volumeMounts: {{- include "helpers.volumes.mount" (dict "mounts" $volMounts "context" $) | indent 12 }}
-            {{- end }}
+            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | indent 12 }}
           {{- end }}{{- end }}
           {{- $containers := list -}}
           {{- if .containers -}}{{- $containers = .containers -}}{{- else -}}{{- $containers = append list . -}}{{- end }}
@@ -218,18 +193,8 @@ spec:
             {{- with .resources }}
             resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- $volMounts := list -}}
-            {{- if .volumeMounts -}}{{- $volMounts = concat $volMounts .volumeMounts -}}{{- end }}
-            {{- if $general.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $general.extraVolumeMounts -}}{{- end }}
-            {{- if $.Values.generic.extraVolumeMounts -}}{{- $volMounts = concat $volMounts $.Values.generic.extraVolumeMounts -}}{{- end -}}
-            {{- if not (empty $volMounts) }}
-            volumeMounts: {{- include "helpers.volumes.mount" (dict "mounts" $volMounts "context" $) | indent 12 }}
-            {{- end }}
+            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | indent 12 }}
           {{- end }}
-          volumes:
-          {{- with .volumes }}{{- include "helpers.volumes.typed" ( dict "volumes" . "context" $) | indent 10}}{{- end }}
-          {{- if .extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" .extraVolumes "context" $) | nindent 10 }}{{- end }}
-          {{- if $general.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" $general.extraVolumes "context" $) | nindent 10 }}{{- end }}
-          {{- if $.Values.generic.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.extraVolumes "context" $) | nindent 10 }}{{- end }}
+          volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 10}}
           restartPolicy: {{ .restartPolicy | default "Never" }}
 {{- end }}

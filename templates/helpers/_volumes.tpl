@@ -48,3 +48,30 @@
   {{- end }}
 {{- end }}
 {{- end }}
+
+{{- define "helpers.volumes.renderVolume" -}}
+{{- $ctx := .context -}}
+{{- $general := .general -}}
+{{- $val := .value -}}
+{{- if or (or $val.volumes $val.extraVolumes) (or $general.extraVolumes $ctx.Values.generic.extraVolumes) }}
+{{- with $val.volumes }}{{- include "helpers.volumes.typed" ( dict "volumes" . "context" $ctx) }}{{- end }}
+{{- with $val.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- with $general.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- with $ctx.Values.generic.extraVolumes }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- else }}
+  []
+{{- end }}
+{{- end }}
+
+{{- define "helpers.volumes.renderVolumeMounts" -}}
+{{- $ctx := .context -}}
+{{- $general := .general -}}
+{{- $val := .value -}}
+{{- if or (or $val.volumeMounts $general.extraVolumeMounts) $ctx.Values.generic.extraVolumeMounts }}
+{{- with $val.volumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end }}
+{{- with $general.extraVolumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end }}
+{{- with $ctx.Values.generic.extraVolumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end -}}
+{{- else }}
+  []
+{{- end }}
+{{- end }}

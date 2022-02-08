@@ -2,9 +2,19 @@
 generic:
   domain: nixys.ru
   labels: {}
-#    general-label: general-label-value
+  #  general-label: general-label-value
   annotations: {}
-#    general-annotation: general-annotation-value
+  #  general-annotation: general-annotation-value
+  extraSelectorLabels: {}
+  #  label: special
+  podLabels: {}
+  #  pod-label: some
+  podAnnotations: {}
+  #  pod-annotation: true
+  extraVolumes: []
+  #- name: cache
+  #  emptyDir: {}
+
 
 # --set "envs.FOO=bar,envs.TEST=true"
 envs: {}
@@ -104,9 +114,9 @@ deployments:
     - name: http
       containerPort: 8080
     volumeMounts:
-    - templatedName: secret-file
+    - name: secret-file
       mountPath: /var/lib/secret
-    - pvcName: app-pvc
+    - name: app-pvc
       mountPath: /var/www/html/files
   volumes:
   - name: secret-file
@@ -128,19 +138,11 @@ secrets:
     data:
       QWE: rty
       JVM_OPTS: |
-        "-Duser.timezone=GMT+7" \
         "-Xmx${XMX}" \
         "-Dlog4j.configurationFile=/etc/ntk-myhome-auth/log4j2.xml" \
-        "-Dcom.sun.management.jmxremote" \
-        "-Dcom.sun.management.jmxremote.port=9038" \
-        "-Dcom.sun.management.jmxremote.local.only=false" \
-        "-Dcom.sun.management.jmxremote.authenticate=false" \
-        "-Dcom.sun.management.jmxremote.ssl=false" \
         "-Dnetworkaddress.cache.ttl=5s" \
         "-javaagent:/jmx_prometheus_javaagent.jar=7039:/prometheus.yaml" \
-        "-javaagent:/elastic-apm-agent.jar" \
-        "-Delastic.apm.enable_log_correlation=true" \
-        "-Delastic.apm.server_urls=http://apm-server-apm-server.logging.svc:8200" \
+        "-javaagent:/elastic-apm-agent.jar"
   ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
   #test1:
   #  labels:
@@ -171,17 +173,17 @@ secrets:
   #      "arg": "value"
   #    }
 
-configMaps:
-  some-cm:
-    labels:
-      kek: lol
-    data:
-      LOL: kek
-  json-file:
-   data:
-     file.json: {
-       "arg": "value"
-     }
+configMaps: {}
+  #some-cm:
+  #  labels:
+  #    kek: lol
+  #  data:
+  #    LOL: kek
+  #json-file:
+  # data:
+  #   file.json: {
+  #     "arg": "value"
+  #   }
 
 # All PVSs will be added to `volumes` block in each workload excluding hooks
 pvcs:
@@ -253,6 +255,7 @@ cronJobs:
       items:
       - key: app.conf
         mode: 0600
+        path: app.conf
   - name: auto-sender
     schedule: "*/5 * * * *"
     command: "php yii crontab/auto-sender"

@@ -32,12 +32,14 @@ requiredDuringSchedulingIgnoredDuringExecution:
 {{- end -}}
 
 {{- define "helpers.affinities.nodes" -}}
-{{- if .type -}}
-{{- if eq .type "soft" }}
+{{- with .type -}}
+{{- if eq . "soft" }}
 {{- include "helpers.affinities.nodes.soft" $ -}}
-{{- else if eq .type "hard" }}
+{{- else if eq . "hard" }}
 {{- include "helpers.affinities.nodes.hard" $ -}}
 {{- end -}}
+{{- else -}}
+  {}
 {{- end -}}
 {{- end -}}
 
