@@ -22,7 +22,7 @@ envFrom:
 
 {{- define "helpers.workload.renderEnv" -}}
 {{- range $name, $val := .value }}
-- name: {{$name}}
-  value: {{$val}}
+- name: {{ $name }}
+  value: {{ $val | quote }}
 {{- end }}
 {{- end }}

@@ -1,32 +1,27 @@
-{{- range .Values.ingresses }}
+{{- range $host, $ing := .Values.ingresses }}
 ---
 apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" $ing.name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- if .labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-    {{- end }}
+    {{- with $ing.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- if .certManager }}
+    {{- include "helpers.app.generalAnnotations" $ | indent 4 }}
+    {{- with $ing.certManager }}
     kubernetes.io/tls-acme: "true"
-    {{- if .certManager.issuerName }}
-    cert-manager.io/{{ .certManager.issuerType | default "cluster-issuer"}}: {{ .certManager.issuerName }}
+    {{- if .issuerName }}
+    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ .issuerName }}
     {{- end }}
     {{- end }}
-    {{- if .annotations -}}
-    {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
-    {{- end -}}
-    {{- if $.Values.generic.annotations -}}
-    {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
+    {{- with $ing.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
+  ingressClassName: {{ $ing.ingressClassName | default "nginx" }}
   rules:
-  {{- range .hosts }}
-  - host: {{ default $.Values.generic.domain .hostname | quote }}
+  {{- range $ing.hosts }}
+  - host: {{ default $host .hostname }}
     http:
       paths:
       {{- range .paths }}
@@ -38,14 +33,14 @@ spec:
           {{- include "helpers.ingress.backend" (dict "serviceName" (include "helpers.app.fullname" (dict "name" .serviceName "context" $)) "servicePort" .servicePort "context" $) | nindent 10 }}
       {{- end }}
   {{- end }}
-  {{- if or .tls .extraTls }}
+  {{- if or $ing.tls $ing.extraTls }}
   tls:
-  {{- if .tls }}
+  {{- if $ing.tls }}
   - hosts:
-    {{- range .hosts }}
-    - {{ default $.Values.generic.domain .hostname | quote }}
+    {{- range $ing.hosts }}
+    - {{ default $host .hostname }}
     {{- end }}
-    secretName: {{ .tlsName | default (printf "%s-tls" $.Release.Name) }}
+    secretName: {{ .tlsName | default (include "helpers.app.fullname" (dict "name" "tls" "context" $)) }}
   {{- end }}
   {{- if .extraTls }}
   {{- include "helpers.tplvalues.render" ( dict "value" .extraTls "context" $ ) | nindent 2 }}

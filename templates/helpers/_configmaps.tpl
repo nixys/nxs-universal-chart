@@ -11,7 +11,7 @@
 {{- else if empty $value }}
 {{ printf "%s: %s" $key ("" | quote) }}
 {{- else if kindIs "string" $value }}
-{{ printf "%s: %s" $key (include "helpers.secrets.encode" (dict "value" $value)) }}
+{{ printf "%s: %s" $key $value }}
 {{- else }}
 {{ $key }}: {{$value | toJson | quote }}
 {{- end -}}

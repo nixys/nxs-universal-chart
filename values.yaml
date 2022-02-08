@@ -1,6 +1,5 @@
 # generic - values that uses by all nxs-chart templates
 generic:
-  domain: nixys.ru
   labels: {}
   #  general-label: general-label-value
   annotations: {}
@@ -44,35 +43,35 @@ defaultImage: your.registry.com/some-cool-app
 defaultImageTag: latest
 
 ingresses:
-- annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "128m"
-  tls: true
-  certManager:
-    issuerType: cluster-issuer
-    issuerName: letsencrypt
-  hosts:
-  - hostname:
-    paths:
-    - path: /
-      pathType: prefix
-      servicePort: api
-- annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  hosts:
-  - hostname: nixys.org
-    paths:
-    - path: /api
-      servicePort: api
-  - hostname: nixys.com
-    paths:
-    - path: /api
-      servicePort: api
-  extraTls:
-  - hosts:
-    - nixys.com
-    - nixys.org
-    secretName: "{{ .Release.Name }}-domain-tls"
+  nixys.ru:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+    tls: true
+    certManager:
+      issuerType: cluster-issuer
+      issuerName: letsencrypt
+    hosts:
+    - paths:
+      - path: /
+        pathType: Prefix
+        servicePort: api
+  nixys.org:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+    - paths:
+      - path: /api
+        servicePort: api
+    - hostname: nixys.com
+      paths:
+      - path: /api
+        servicePort: api
+    extraTls:
+    - hosts:
+      - nixys.com
+      - nixys.org
+      secretName: "nixys-tls"
 
 deployments:
 - name:
@@ -100,7 +99,7 @@ deployments:
       MY_ENV: "1234"
       QTE: safn8
     envsFromSecret:
-      testenv:
+      webadmin:
       - JAVA_OPTS: JVM_OPTS
       - QWE
     envSecrets:
@@ -155,7 +154,7 @@ secrets:
   #    api.key: |-
   #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
   ## --set "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
-  #domain-tls:
+  #nixys-tls:
   #  type: kubernetes.io/tls
   #  data:
   #    tls.crt: |-
