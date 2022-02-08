@@ -1,16 +1,12 @@
-{{- $j := dict -}}
+{{- $j := list -}}
 {{- if .Values.jobs -}}
 {{- if kindIs "string" .Values.jobs -}}
-{{- $j = fromYaml .Values.jobs -}}
-{{- else if kindIs "map" .Values.jobs -}}
+{{- $j = fromYaml (printf "jobs:\n%s" .Values.jobs) -}}
+{{- else if kindIs "slice" .Values.jobs -}}
 {{- $j = .Values.jobs -}}
 {{- end -}}
-{{- else if .Values.jobsFileName -}}
-{{- $j = fromYaml (.Files.Get .Values.jobsFileName) -}}
-{{- end -}}
 {{- $general := $.Values.jobsGeneral -}}
-{{- range $j.jobs }}
-{{- $job := . -}}
+{{- range $i, $job := $j }}
 {{- $jobName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
 ---
 apiVersion: batch/v1
@@ -191,4 +187,5 @@ spec:
       {{- end }}
       volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 6}}
       restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- end }}
 {{- end }}

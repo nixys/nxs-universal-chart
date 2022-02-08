@@ -182,7 +182,7 @@ configMaps: {}
   # data:
   #   file.json: {
   #     "arg": "value"
-  #   }
+#   }
 
 # All PVSs will be added to `volumes` block in each workload excluding hooks
 pvcs:
@@ -237,31 +237,29 @@ nodeAffinityPreset:
   values: []
 
 cronJobs:
-  jobs:
-  - name: generate-data
-    schedule: "*/5 * * * *"
-    command: "php yii crontab/generate-data"
-    single_only: true
-    duration_alert: 600
-    max_duration: 800
-    volumeMounts:
-    - name: secret-file
-      mountPath: /etc/app
-      readOnly: true
-    volumes:
-    - name: secret-file
-      type: secret
-      items:
-      - key: app.conf
-        mode: 0600
-        path: app.conf
-  - name: auto-sender
-    schedule: "*/5 * * * *"
-    command: "php yii crontab/auto-sender"
+- name: generate-data
+  schedule: "*/5 * * * *"
+  command: "php yii crontab/generate-data"
+  single_only: true
+  duration_alert: 600
+  max_duration: 800
+  volumeMounts:
+  - name: secret-file
+    mountPath: /etc/app
+    readOnly: true
+  volumes:
+  - name: secret-file
+    type: secret
+    items:
+    - key: app.conf
+      mode: 0600
+      path: app.conf
+- name: auto-sender
+  schedule: "*/5 * * * *"
+  command: "php yii crontab/auto-sender"
 
 jobs:
-  jobs:
-  - name: refresh-cache
-    command: "php yii crontab/refresh-cache"
-    duration_alert: 30
-    max_duration: 60
+- name: refresh-cache
+  command: "php yii crontab/refresh-cache"
+  duration_alert: 30
+  max_duration: 60

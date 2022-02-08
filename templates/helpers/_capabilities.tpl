@@ -26,6 +26,14 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.capabilities.cronJob.apiVersion" -}}
+{{- if semverCompare "<1.21-0" (include "helpers.capabilities.kubeVersion" $) -}}
+{{- print "batch/v1beta1" -}}
+{{- else -}}
+{{- print "batch/v1" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.capabilities.deployment.apiVersion" -}}
 {{- if semverCompare "<1.14-0" (include "helpers.capabilities.kubeVersion" $) -}}
 {{- print "extensions/v1beta1" -}}
