@@ -1,11 +1,11 @@
 {{- $general := $.Values.deploymentsGeneral -}}
-{{- range .Values.deployments }}
+{{- range $name, $d := .Values.deployments }}
 {{- if not (.disabled | default false) -}}
 ---
 apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
 kind: Deployment
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
@@ -66,14 +66,12 @@ spec:
       {{- with .podSecurityContext }}
       securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 8 }}
       {{- end }}
-      {{ if or $.Values.generic.imagePullSecrets .imagePullSecrets }}
+      {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:
-        {{- range $sName, $v := $.Values.generic.imagePullSecrets }}
+      {{- range $sName, $v := $.Values.imagePullSecrets }}
       - name: {{ $sName }}
-        {{- end }}
-        {{- if .imagePullSecrets }}
-        {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
-        {{- end }}
+      {{- end }}
+      {{- with .imagePullSecrets }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 6 }}{{- end }}
       {{- end }}
       {{- if .terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
@@ -118,7 +116,7 @@ spec:
       {{- end }}{{- end }}
       containers:
       {{- range .containers }}
-      - name: {{ .name }}
+      - name: {{ .name | default (printf "%s-%s" $name (randAlphaNum 5)) }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
         {{- with .containerSecurityContext }}

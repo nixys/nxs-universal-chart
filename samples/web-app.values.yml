@@ -1,0 +1,111 @@
+# --set "envs.FOO=bar,envs.TEST=true"
+envs:
+  BAR: foo
+  TEST: "true"
+
+# --set "envsString=$ENVS_STRING"
+envsString: |
+  BAR2: foo2
+  TEST2: "false"
+
+# --set "secretEnvs.FOO=bar"
+secretEnvs:
+  FOO: bar
+
+# --set "secretEnvsString=$SECRET_ENVS_STRING"
+secretEnvsString: |
+  FOO2: BAR2
+  PASS: someP@s5
+
+imagePullSecrets:
+  registry.org: |
+    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
+  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+
+defaultImage: registry.org/my-app
+defaultImageTag: latest
+
+deployments:
+  api:
+    labels: {}
+    podLabels: {}
+    podAnnotations:
+      checksum/api-key: '{{ include "helpers.workload.checksum" (index $.Values.secrets "secret-files") }}'
+    replicas: 2
+    extraSelectorLabels:
+      app: my-app
+    serviceAccountName: deployer
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role
+              operator: In
+              values:
+              - prod
+    containers:
+    - env:
+        MY_ENV: "1234"
+      envSecrets:
+      - secret-envs
+      envConfigmaps:
+      - envs
+      volumeMounts:
+      - name: secret-files
+        mountPath: /var/lib/secret
+      - name: app-pvc
+        mountPath: /var/www/html/files
+    volumes:
+    - name: secret-files
+      type: secret
+    - name: app-pvc
+      type: pvc
+
+services:
+  nginx:
+    ports:
+    - name: api
+      protocol: TCP
+      port: 8080
+    extraSelectorLabels:
+      app: my-app
+
+ingresses:
+  web.app.ru:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+    tls: true
+    certManager:
+      issuerType: cluster-issuer
+      issuerName: letsencrypt
+    hosts:
+    - paths:
+      - serviceName: app
+        servicePort: 8080
+
+secrets:
+  # --set "secrets.secret-files.data.api\.key=$SOME_ENV"
+  secret-files:
+    data:
+      api.key: |-
+        JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
+
+# All PVSs will be added to `volumes` block in each workload excluding hooks
+pvcs:
+  app-data:
+    accessModes:
+    - ReadWriteOnce
+    - ReadWriteMany
+    size: 1Gi
+
+servicemonitors:
+- endpoints:
+  - interval: 30s
+    port: exporter
+    path: /metrics
+  extraSelectorLabels:
+    app: my-app
+  labels:
+    foo: foo

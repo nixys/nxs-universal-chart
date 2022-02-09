@@ -26,3 +26,7 @@ envFrom:
   value: {{ $val | quote }}
 {{- end }}
 {{- end }}
+
+{{- define "helpers.workload.checksum" -}}
+{{ . | toString | sha256sum }}
+{{- end -}}

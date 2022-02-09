@@ -89,14 +89,12 @@ spec:
       {{- with .tolerations }}
       tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}
       {{- end }}
-      {{ if or $.Values.generic.imagePullSecrets .imagePullSecrets }}
+      {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:
-        {{- range $sName, $v := $.Values.generic.imagePullSecrets }}
-        - name: {{ $sName }}
-        {{- end }}
-        {{- if .imagePullSecrets }}
-        {{- include "helpers.tplvalues.render" ( dict "value" .imagePullSecrets "context" $) | nindent 8 }}
-        {{- end }}
+      {{- range $sName, $v := $.Values.imagePullSecrets }}
+      - name: {{ $sName }}
+      {{- end }}
+      {{- with .imagePullSecrets }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 6 }}{{- end }}
       {{- end }}
       {{- with .initContainers}}
       initContainers:

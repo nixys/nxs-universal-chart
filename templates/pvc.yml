@@ -1,4 +1,4 @@
-{{- range .Values.pvcs }}
+{{- range $name, $p := .Values.pvcs }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -6,7 +6,7 @@ metadata:
   {{- with .claimNameOverride }}
   name: {{ . }}
   {{- else }}
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   {{- end }}
   namespace: {{ $.Release.Namespace }}
   labels:

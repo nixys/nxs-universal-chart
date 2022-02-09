@@ -8,7 +8,9 @@ generic:
   #  label: special
   podLabels: {}
   #  pod-label: some
-  podAnnotations: {}
+  podAnnotations:
+    checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
+    checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'
   #  pod-annotation: true
   extraVolumes: []
   #- name: cache
@@ -39,121 +41,113 @@ imagePullSecrets: {}
 #    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
-defaultImage: your.registry.com/some-cool-app
+defaultImage: nginx
 defaultImageTag: latest
 
-ingresses:
-  nixys.ru:
-    annotations:
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
-    tls: true
-    certManager:
-      issuerType: cluster-issuer
-      issuerName: letsencrypt
-    hosts:
-    - paths:
-      - path: /
-        pathType: Prefix
-        servicePort: api
-  nixys.org:
-    annotations:
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    hosts:
-    - paths:
-      - path: /api
-        servicePort: api
-    - hostname: nixys.com
-      paths:
-      - path: /api
-        servicePort: api
-    extraTls:
-    - hosts:
-      - nixys.com
-      - nixys.org
-      secretName: "nixys-tls"
+deployments: {}
+#  nginx:
+#    labels: {}
+#    podLabels: {}
+#    podAnnotations:
+#      checksum/api-key: '{{ include "helpers.workload.checksum" $.Values.secrets.webadmin }}'
+#    replicas: 2
+#    extraSelectorLabels:
+#      app: my-nginx
+#    serviceAccountName: deployer
+#    #affinity:
+#    #  nodeAffinity:
+#    #    requiredDuringSchedulingIgnoredDuringExecution:
+#    #      nodeSelectorTerms:
+#    #      - matchExpressions:
+#    #        - key: node-role
+#    #          operator: In
+#    #          values:
+#    #          - prod
+#    containers:
+#    - name: nginx
+#      #image: nginx
+#      #imageTag: 1.19
+#      #imagePullPolicy: Always
+#      env:
+#        MY_ENV: "1234"
+#        QTE: safn8
+#      envsFromSecret:
+#        webadmin:
+#        - JAVA_OPTS: JVM_OPTS
+#        - QWE
+#      envSecrets:
+#      - secret-envs
+#      envsFromConfigmap:
+#        some-cm:
+#        - LEL: LOL
+#      envConfigmaps:
+#      - envs
+#      #ports:
+#      #- name: http
+#      #  containerPort: 8080
+#      volumeMounts:
+#      - name: secret-file
+#        mountPath: /var/lib/secret
+#      - name: app-pvc
+#        mountPath: /var/www/html/files
+#    volumes:
+#    - name: secret-file
+#      type: secret
+#    - name: app-data
+#      type: pvc
 
-deployments:
-- name:
-  labels:
-  podLabels:
-  replicas: 2
-  extraSelectorLabels:
-    app: app-extra-selector
-  serviceAccountName: deployer
-  #  affinity:
-  #    nodeAffinity:
-  #      requiredDuringSchedulingIgnoredDuringExecution:
-  #        nodeSelectorTerms:
-  #        - matchExpressions:
-  #          - key: noderole/pay-dev
-  #            operator: In
-  #            values:
-  #            - "true"
-  containers:
-  - name: nginx
-    image: nginx
-    imageTag: 1.19
-    imagePullPolicy: Always
-    env:
-      MY_ENV: "1234"
-      QTE: safn8
-    envsFromSecret:
-      webadmin:
-      - JAVA_OPTS: JVM_OPTS
-      - QWE
-    envSecrets:
-    - secret-envs
-    envsFromConfigmap:
-      some-cm:
-      - LEL: LOL
-    envConfigmaps:
-    - envs
-    ports:
-    - name: http
-      containerPort: 8080
-    volumeMounts:
-    - name: secret-file
-      mountPath: /var/lib/secret
-    - name: app-pvc
-      mountPath: /var/www/html/files
-  volumes:
-  - name: secret-file
-    type: secret
-  - name: app-pvc
-    type: pvc
+services: {}
+#  nginx:
+#    ports:
+#    - name: http
+#      protocol: TCP
+#      port: 8080
+#    extraSelectorLabels:
+#      app: my-nginx
 
-services:
-- name: nginx
-  ports:
-  - name: http
-    protocol: TCP
-    port: 8080
-  extraSelectorLabels:
-    app: app-extra-selector
+ingresses: {}
+#  nixys.ru:
+#    annotations:
+#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+#    tls: true
+#    certManager:
+#      issuerType: cluster-issuer
+#      issuerName: letsencrypt
+#    hosts:
+#    - paths:
+#      - serviceName: nginx
+#        servicePort: http
+#  nixys.org:
+#    annotations:
+#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#    hosts:
+#    - paths:
+#      - path: /api
+#        servicePort: api
+#    - hostname: nixys.com
+#      paths:
+#      - path: /api
+#        servicePort: api
+#    extraTls:
+#    - hosts:
+#      - nixys.com
+#      - nixys.org
+#      secretName: "nixys-tls"
 
-secrets:
-  webadmin:
-    data:
-      QWE: rty
-      JVM_OPTS: |
-        "-Xmx${XMX}" \
-        "-Dlog4j.configurationFile=/etc/ntk-myhome-auth/log4j2.xml" \
-        "-Dnetworkaddress.cache.ttl=5s" \
-        "-javaagent:/jmx_prometheus_javaagent.jar=7039:/prometheus.yaml" \
-        "-javaagent:/elastic-apm-agent.jar"
+secrets: {}
+  # --set "secrets.secret-file.data.api\.key=$SOME_ENV"
+  #secret-file:
+  #  data:
+  #    api.key: |-
+  #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
   ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
   #test1:
   #  labels:
   #    blah: blah
   #  data:
   #    BAR: foo
-  ## --set "secrets.secret-file.data.api\.key=$SOME_ENV"
-  #secret-file:
-  #  data:
-  #    api.key: |-
-  #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
-  ## --set "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=$(cat tls.crt),secrets.domain-tls.data.tls\.key=$(cat tls.key)"
+  ## --set-file "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=path/to/tls.crt,secrets.domain-tls.data.tls\.key=path/to/tls.key"
   #nixys-tls:
   #  type: kubernetes.io/tls
   #  data:
@@ -166,6 +160,7 @@ secrets:
   #      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
   #      -----END RSA PRIVATE KEY-----
   ## --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
+  ## --set-file "secrets.json-file.data.file\.json=path/to/file.json"
   #json-file:
   #  data:
   #    file.json: {
@@ -185,22 +180,52 @@ configMaps: {}
 #   }
 
 # All PVSs will be added to `volumes` block in each workload excluding hooks
-pvcs:
-- name: app-pvc
-  accessModes:
-  - ReadWriteOnce
-  - ReadWriteMany
-  size: 8Gi
+pvcs: {}
+#  app-data:
+#    accessModes:
+#    - ReadWriteOnce
+#    - ReadWriteMany
+#    size: 8Gi
 
-servicemonitors:
-- endpoints:
-  - interval: 30s
-    port: exporter
-    path: /metrics
-  extraSelectorLabels:
-    app: nginx
-  labels:
-    foo: foo
+hooks: []
+
+cronJobs: []
+#- name: generate-data
+#  schedule: "*/5 * * * *"
+#  command: "php yii crontab/generate-data"
+#  single_only: true
+#  duration_alert: 600
+#  max_duration: 800
+#  volumeMounts:
+#  - name: secret-file
+#    mountPath: /etc/app
+#    readOnly: true
+#  volumes:
+#  - name: secret-file
+#    type: secret
+#    items:
+#    - key: app.conf
+#      mode: 0600
+#      path: app.conf
+#- name: auto-sender
+#  schedule: "*/5 * * * *"
+#  command: "php yii crontab/auto-sender"
+
+jobs: []
+#- name: refresh-cache
+#  command: "php yii crontab/refresh-cache"
+#  duration_alert: 30
+#  max_duration: 60
+
+servicemonitors: []
+#- endpoints:
+#  - interval: 30s
+#    port: exporter
+#    path: /metrics
+#  extraSelectorLabels:
+#    app: nginx
+#  labels:
+#    foo: foo
 
 ## Pod affinity preset
 ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -235,31 +260,3 @@ nodeAffinityPreset:
   ##   - e2e-az2
   ##
   values: []
-
-cronJobs:
-- name: generate-data
-  schedule: "*/5 * * * *"
-  command: "php yii crontab/generate-data"
-  single_only: true
-  duration_alert: 600
-  max_duration: 800
-  volumeMounts:
-  - name: secret-file
-    mountPath: /etc/app
-    readOnly: true
-  volumes:
-  - name: secret-file
-    type: secret
-    items:
-    - key: app.conf
-      mode: 0600
-      path: app.conf
-- name: auto-sender
-  schedule: "*/5 * * * *"
-  command: "php yii crontab/auto-sender"
-
-jobs:
-- name: refresh-cache
-  command: "php yii crontab/refresh-cache"
-  duration_alert: 30
-  max_duration: 60

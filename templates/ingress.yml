@@ -3,7 +3,7 @@
 apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" $ing.name "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" ($ing.name | default $host) "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
@@ -27,7 +27,7 @@ spec:
       {{- range .paths }}
       - path: {{ default "/" .path }}
         {{- if eq "true" (include "helpers.ingress.supportsPathType" $) }}
-        pathType: {{ default "ImplementationSpecific" .pathType }}
+        pathType: {{ default "Prefix" .pathType }}
         {{- end }}
         backend:
           {{- include "helpers.ingress.backend" (dict "serviceName" (include "helpers.app.fullname" (dict "name" .serviceName "context" $)) "servicePort" .servicePort "context" $) | nindent 10 }}
@@ -40,7 +40,7 @@ spec:
     {{- range $ing.hosts }}
     - {{ default $host .hostname }}
     {{- end }}
-    secretName: {{ .tlsName | default (include "helpers.app.fullname" (dict "name" "tls" "context" $)) }}
+    secretName: {{ .tlsName | default (include "helpers.app.fullname" (dict "name" ($ing.name | default $host) "context" $)) }}-tls
   {{- end }}
   {{- if .extraTls }}
   {{- include "helpers.tplvalues.render" ( dict "value" .extraTls "context" $ ) | nindent 2 }}
