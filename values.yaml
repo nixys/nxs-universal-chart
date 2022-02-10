@@ -8,14 +8,40 @@ generic:
   #  label: special
   podLabels: {}
   #  pod-label: some
-  podAnnotations:
-    checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
-    checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'
+  podAnnotations: {}
+  #  checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
+  #  checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'
   #  pod-annotation: true
   extraVolumes: []
   #- name: cache
   #  emptyDir: {}
 
+# Pod affinity preset
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+# Allowed values: soft, hard, nil
+podAffinityPreset: soft
+
+# Pod anti-affinity preset
+# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+# Allowed values: soft, hard, nil
+podAntiAffinityPreset: soft
+
+# Node affinity preset
+# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+nodeAffinityPreset:
+  # Node affinity type
+  # Allowed values: soft, hard
+  type: ""
+  # Node label key to match
+  # E.g.
+  # key: "kubernetes.io/e2e-az-name"
+  key: ""
+  # Node label values to match
+  # E.g.
+  # values:
+  #   - e2e-az1
+  #   - e2e-az2
+  values: []
 
 # --set "envs.FOO=bar,envs.TEST=true"
 envs: {}
@@ -226,37 +252,3 @@ servicemonitors: []
 #    app: nginx
 #  labels:
 #    foo: foo
-
-## Pod affinity preset
-## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-## Allowed values: soft, hard, nil
-##
-podAffinityPreset: soft
-
-## Pod anti-affinity preset
-## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-## Allowed values: soft, hard, nil
-##
-podAntiAffinityPreset: soft
-
-## Node affinity preset
-## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
-## Allowed values: soft, hard
-##
-nodeAffinityPreset:
-  ## Node affinity type
-  ## Allowed values: soft, hard
-  ##
-  type: ""
-  ## Node label key to match
-  ## E.g.
-  ## key: "kubernetes.io/e2e-az-name"
-  ##
-  key: ""
-  ## Node label values to match
-  ## E.g.
-  ## values:
-  ##   - e2e-az1
-  ##   - e2e-az2
-  ##
-  values: []
