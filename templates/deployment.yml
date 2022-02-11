@@ -9,9 +9,10 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.generalAnnotations" $ | indent 4 }}
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   replicas: {{ .replicas | default 1 }}
@@ -50,6 +51,9 @@ spec:
         nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 10 }}
         podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 10 }}
         podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 10 }}
+      {{- end }}
+      {{- with .podSecurityContext }}
+      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 6 }}
       {{- end }}
       {{- if .dnsPolicy }}
       dnsPolicy: {{ .dnsPolicy }}

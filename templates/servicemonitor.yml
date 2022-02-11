@@ -7,17 +7,12 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- if .labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-    {{- end }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   endpoints:
     {{- include "helpers.tplvalues.render" (dict "value" .endpoints "context" $) | nindent 4 }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
-    {{- if .extraSelectorLabels }}
-    {{- include "helpers.tplvalues.render" (dict "value" .extraSelectorLabels "context" $) | nindent 4 }}
-    {{- else if $.Values.generic.extraSelectorLabels }}
-    {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.extraSelectorLabels "context" $) | nindent 4 }}
-    {{- end -}}
+    {{- with $.Values.generic.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end -}}
+    {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end -}}
 {{- end -}}

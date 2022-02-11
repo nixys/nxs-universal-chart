@@ -37,16 +37,16 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- define "helpers.app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- include "helpers.app.generalSelectorLabels" $ }}
+{{- include "helpers.app.genericSelectorLabels" $ }}
 {{- end }}
 
-{{- define "helpers.app.generalSelectorLabels" -}}
+{{- define "helpers.app.genericSelectorLabels" -}}
 {{- with .Values.generic.extraSelectorLabels }}
 {{- include "helpers.tplvalues.render" (dict "value" . "context" .) }}
 {{- end }}
 {{- end }}
 
-{{- define "helpers.app.generalAnnotations" -}}
+{{- define "helpers.app.genericAnnotations" -}}
 {{- with .Values.generic.annotations }}
 {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}

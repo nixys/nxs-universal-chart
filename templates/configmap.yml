@@ -18,7 +18,11 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- if $val.saveOriginalName }}
+  name: {{ $cName }}
+  {{- else }}
   name: {{ include "helpers.app.fullname" (dict "name" $cName "context" $) }}
+  {{- end }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}

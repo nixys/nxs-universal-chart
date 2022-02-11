@@ -16,13 +16,15 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.generalAnnotations" $ | indent 4 }}
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   schedule: {{ include "helpers.tplvalues.render" (dict "value" .schedule "context" $) | quote }}
-  {{- if .single_only }}
+  {{- if .singleOnly }}
   concurrencyPolicy: Forbid
   {{- end }}
   {{- if .startingDeadlineSeconds }}

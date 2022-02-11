@@ -9,7 +9,7 @@ metadata:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with $ing.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.generalAnnotations" $ | indent 4 }}
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with $ing.certManager }}
     kubernetes.io/tls-acme: "true"
     {{- if .issuerName }}

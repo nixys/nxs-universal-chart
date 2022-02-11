@@ -3,27 +3,20 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  {{- with .claimNameOverride }}
-  name: {{ . }}
+  {{- if .saveOriginalName }}
+  name: {{ $name }}
   {{- else }}
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   {{- end }}
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- if .labels }}
-    {{- include "helpers.tplvalues.render" (dict "value" .labels "context" $) | nindent 4 }}
-    {{- end }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- if .annotations }}
-    {{- include "helpers.tplvalues.render" (dict "value" .annotations "context" $) | nindent 4 }}
-    {{- end }}
-    {{- if $.Values.generic.annotations }}
-    {{- include "helpers.tplvalues.render" ( dict "value" $.Values.generic.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
+    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
+    {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  accessModes:
-    {{- include "helpers.tplvalues.render" ( dict "value" .accessModes "context" $ ) | nindent 4 }}
+  accessModes: {{- include "helpers.tplvalues.render" ( dict "value" .accessModes "context" $ ) | nindent 4 }}
   {{- with .volumeMode }}
   volumeMode: {{ . }}
   {{- end }}

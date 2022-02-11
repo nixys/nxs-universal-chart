@@ -35,20 +35,6 @@
 {{- end }}
 {{- end }}
 
-{{- define "helpers.volumes.mount" -}}
-{{- $ctx := .context -}}
-{{- range .mounts }}
-- name: {{ .name }}
-  mountPath: {{ .mountPath }}
-  {{- with .subPath }}
-  subPath: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}
-  {{- end }}
-  {{- with .readOnly }}
-  readOnly: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}
-  {{- end }}
-{{- end }}
-{{- end }}
-
 {{- define "helpers.volumes.renderVolume" -}}
 {{- $ctx := .context -}}
 {{- $general := .general -}}
@@ -68,10 +54,9 @@
 {{- $general := .general -}}
 {{- $val := .value -}}
 {{- if or (or $val.volumeMounts $general.extraVolumeMounts) $ctx.Values.generic.extraVolumeMounts }}
-{{- with $val.volumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end }}
-{{- with $val.extraVolumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end }}
-{{- with $general.extraVolumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end }}
-{{- with $ctx.Values.generic.extraVolumeMounts -}}{{- include "helpers.volumes.mount" (dict "mounts" . "context" $ctx) }}{{- end -}}
+{{- with $val.volumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- with $general.extraVolumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
+{{- with $ctx.Values.generic.extraVolumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end -}}
 {{- else }}
   []
 {{- end }}

@@ -7,7 +7,7 @@
 {{- end -}}
 {{- range $key, $value := $v }}
 {{- if eq (typeOf $value) "float64" }}
-{{ printf "%s: %s" $key (toString (int64 $value)) }}
+{{ printf "%s: %s" $key (toString $value) }}
 {{- else if empty $value }}
 {{ printf "%s: %s" $key ("" | quote) }}
 {{- else if kindIs "string" $value }}
