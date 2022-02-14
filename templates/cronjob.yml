@@ -8,6 +8,29 @@
 {{- $general := $.Values.cronJobsGeneral -}}
 {{- range $i, $job := $CJ }}
 {{- $cjName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
+{{- if .commandDurationAlert }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cronjob-{{ $cjName }}
+  labels:
+    prometheus: k8s
+    role: alert-rules
+  namespace: nxs-monitoring
+spec:
+  groups:
+  - name: "cronJobs_rules"
+    interval: 1m # period check for alerts
+    rules:
+    - alert: "cronjob-{{ $cjName }}-too-long-execution"
+      expr: '((time() - kube_job_status_start_time{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"}) and kube_job_status_active{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"} == 1) > {{ .commandDurationAlert }}'
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        message: "CronJob {{ $.Release.Namespace }}/{{ $cjName }} is taking more than {{ .commandDurationAlert }} to complete"
+{{- end }}
 ---
 apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
 kind: CronJob
@@ -128,19 +151,21 @@ spec:
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- if and .args (not $job.max_duration) }}
-            args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
+            {{- if $.Values.diagnosticMode.enbled }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 12 }}
+            {{- else if and .args (not $job.commandMaxDuration) }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 12 }}
             {{- end }}
-            {{- with .command }}
-            {{- if typeIs "string" . }}
-            {{- if $job.max_duration }}
+            {{- if $.Values.diagnosticMode.enbled }}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 12 }}
+            {{- else if .command }}
+            {{- if $job.commandMaxDuration }}
             command: ["/bin/bash"]
-            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.max_duration }} {{ . }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.max_duration }} seconds (Added by task #91828)!'; fi; exit $exit_status"]
-            {{- else }}
-            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
-            {{- end }}
+            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.commandMaxDuration }} {{ .command }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.commandMaxDuration }} seconds!'; fi; exit $exit_status"]
+            {{- else if typeIs "string" .command }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .command ) "" )) }}
             {{- else -}}
-            command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" .command "context" $) | nindent 12 }}
             {{- end }}
             {{- end }}
             {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 12 }}
@@ -172,19 +197,21 @@ spec:
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- if and .args (not $job.max_duration) }}
-            args: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            {{- if $.Values.diagnosticMode.enbled }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 12 }}
+            {{- else if and .args (not $job.commandMaxDuration) }}
+            args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 12 }}
             {{- end }}
-            {{- with .command }}
-            {{- if typeIs "string" . }}
-            {{- if $job.max_duration }}
+            {{- if $.Values.diagnosticMode.enbled }}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 12 }}
+            {{- else if .command }}
+            {{- if $job.commandMaxDuration }}
             command: ["/bin/bash"]
-            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.max_duration }} {{ . }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.max_duration }} seconds (Added by task #91828)!'; fi; exit $exit_status"]
-            {{- else }}
-            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " . ) "" )) }}
-            {{- end }}
+            args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.commandMaxDuration }} {{ .command }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.commandMaxDuration }} seconds!'; fi; exit $exit_status"]
+            {{- else if typeIs "string" .command }}
+            command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .command ) "" )) }}
             {{- else -}}
-            command: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}
+            command: {{- include "helpers.tplvalues.render" ( dict "value" .command "context" $) | nindent 12 }}
             {{- end }}
             {{- end }}
             {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 12 }}

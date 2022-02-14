@@ -219,9 +219,9 @@ cronJobs: []
 #- name: generate-data
 #  schedule: "*/5 * * * *"
 #  command: "php yii crontab/generate-data"
-#  single_only: true
-#  duration_alert: 600
-#  max_duration: 800
+#  singleOnly: true
+#  commandDurationAlert: 600
+#  commandMaxDuration: 800
 #  volumeMounts:
 #  - name: secret-file
 #    mountPath: /etc/app
@@ -240,8 +240,8 @@ cronJobs: []
 jobs: []
 #- name: refresh-cache
 #  command: "php yii crontab/refresh-cache"
-#  duration_alert: 30
-#  max_duration: 60
+#  commandDurationAlert: 30
+#  commandMaxDuration: 60
 
 servicemonitors: []
 #- endpoints:
@@ -252,3 +252,8 @@ servicemonitors: []
 #    app: nginx
 #  labels:
 #    foo: foo
+
+diagnosticMode:
+  enbled: false
+  command: ["sleep"]
+  args: ["infinity"]

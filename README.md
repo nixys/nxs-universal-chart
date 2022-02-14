@@ -114,27 +114,29 @@ The command removes all the Kubernetes components associated with the chart and 
 
 #### Container object parameters
 
-| Name                       | Description                                     | Value            |
-|----------------------------|-------------------------------------------------|------------------|
-| `name`                     | The name of the container                       | `""`             |
-| `image`                    | Docker image of the container                   | `""`             |
-| `imageTag`                 | Docker image tag of the container               | `"latest"`       |
-| `imagePullPolicy`          | Docker image pull policy                        | `"IfNotPresent"` |
-| `containerSecurityContext` | Security Context for container                  | `{}`             |
-| `command`                  | Container command override (list or string)     | `[]`             |
-| `args`                     | Container arguments override                    | `[]`             |
-| `envsFromConfigmap`        | Map of ConfigMaps and envs from it              | `{}`             |
-| `envsFromSecret`           | Map of Secrets and envs from it                 | `{}`             |
-| `env`                      | Map of extra environment variables              | `{}`             |
-| `envConfigmaps`            | Array of Configmaps names with extra envs       | `[]`             |
-| `envSecrets`               | Array of Secrets names with extra envs          | `[]`             |
-| `envFrom`                  | Array of extra envFrom objects                  | `[]`             |
-| `ports`                    | Array of ports to be exposed from container     | `[]`             |
-| `lifecycle`                | Containers lifecycle hooks                      | `{}`             |
-| `livenessProbe`            | Liveness probe object for container             | `{}`             |
-| `readinessProbe`           | Readiness probe object for container            | `{}`             |
-| `resources`                | The resources requests and limits for container | `{}`             |
-| `volumeMounts`             | Array of the volume mounts                      | `[]`             |
+| Name                       | Description                                                           | Value            |
+|----------------------------|-----------------------------------------------------------------------|------------------|
+| `name`                     | The name of the container                                             | `""`             |
+| `image`                    | Docker image of the container                                         | `""`             |
+| `imageTag`                 | Docker image tag of the container                                     | `"latest"`       |
+| `imagePullPolicy`          | Docker image pull policy                                              | `"IfNotPresent"` |
+| `containerSecurityContext` | Security Context for container                                        | `{}`             |
+| `command`                  | Container command override (list or string)                           | `[]`             |
+| `commandMaxDuration`       | Duration of command execution (for jobs and cronJobs only)            | ``               |
+| `commandDurationAlert`     | Alert on command execution time exceeded (for jobs and cronJobs only) | ``               |
+| `args`                     | Container arguments override                                          | `[]`             |
+| `envsFromConfigmap`        | Map of ConfigMaps and envs from it                                    | `{}`             |
+| `envsFromSecret`           | Map of Secrets and envs from it                                       | `{}`             |
+| `env`                      | Map of extra environment variables                                    | `{}`             |
+| `envConfigmaps`            | Array of Configmaps names with extra envs                             | `[]`             |
+| `envSecrets`               | Array of Secrets names with extra envs                                | `[]`             |
+| `envFrom`                  | Array of extra envFrom objects                                        | `[]`             |
+| `ports`                    | Array of ports to be exposed from container                           | `[]`             |
+| `lifecycle`                | Containers lifecycle hooks                                            | `{}`             |
+| `livenessProbe`            | Liveness probe object for container                                   | `{}`             |
+| `readinessProbe`           | Readiness probe object for container                                  | `{}`             |
+| `resources`                | The resources requests and limits for container                       | `{}`             |
+| `volumeMounts`             | Array of the volume mounts                                            | `[]`             |
 
 ### Services parameters
 
