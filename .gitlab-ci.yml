@@ -1,0 +1,4 @@
+include:
+- project: 'nxs-internal/gitlab-ci-templates'
+  ref: v1
+  file: 'deploy-helm.gitlab-ci.yml'
