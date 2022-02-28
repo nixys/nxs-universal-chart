@@ -185,7 +185,7 @@ spec:
             {{- with .resources }}
             resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | indent 12 }}
+            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | nindent 12 }}
           {{- end }}{{- end }}
           {{- $containers := list -}}
           {{- if .containers -}}{{- $containers = .containers -}}{{- else -}}{{- $containers = append list . -}}{{- end }}
@@ -231,7 +231,7 @@ spec:
             {{- with .resources }}
             resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | indent 12 }}
+            volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | nindent 12 }}
           {{- end }}
           volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 10}}
           restartPolicy: {{ .restartPolicy | default "Never" }}

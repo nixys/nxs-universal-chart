@@ -100,12 +100,12 @@ pvcs:
     - ReadWriteMany
     size: 1Gi
 
-servicemonitors:
-- endpoints:
-  - interval: 30s
-    port: exporter
-    path: /metrics
-  extraSelectorLabels:
-    app: my-app
-  labels:
-    foo: foo
+#servicemonitors:
+#- endpoints:
+#  - interval: 30s
+#    port: exporter
+#    path: /metrics
+#  extraSelectorLabels:
+#    app: my-app
+#  labels:
+#    foo: foo

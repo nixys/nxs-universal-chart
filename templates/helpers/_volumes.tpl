@@ -1,6 +1,6 @@
 {{- define "helpers.volumes.typed" -}}
 {{- $ctx := .context -}}
-{{- range .volumes }}
+{{- range .volumes -}}
 {{- if eq .type "configMap" }}
 - name: {{ .name }}
   configMap:
@@ -56,7 +56,7 @@
 {{- if or (or $val.volumeMounts $general.extraVolumeMounts) $ctx.Values.generic.extraVolumeMounts }}
 {{- with $val.volumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
 {{- with $general.extraVolumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
-{{- with $ctx.Values.generic.extraVolumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end -}}
+{{- with $ctx.Values.generic.extraVolumeMounts -}}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{- end }}
 {{- else }}
   []
 {{- end }}
