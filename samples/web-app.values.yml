@@ -1,4 +1,4 @@
-# --set "envs.FOO=bar,envs.TEST=true"
+# --set "envs.BAR=foo,envs.TEST=true"
 envs:
   BAR: foo
   TEST: "true"
@@ -82,7 +82,7 @@ ingresses:
       issuerName: letsencrypt
     hosts:
     - paths:
-      - serviceName: app
+      - serviceName: nginx
         servicePort: 8080
 
 secrets:
