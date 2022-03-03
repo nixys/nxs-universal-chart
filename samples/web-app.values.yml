@@ -25,6 +25,15 @@ imagePullSecrets:
 defaultImage: registry.org/my-app
 defaultImageTag: latest
 
+deploymentsGeneral:
+  extraVolumes:
+  - name: extra-app-vol2
+    persistentVolumeClaim:
+      claimName: extra-app-pvc2
+  extraVolumeMounts:
+  - name: extra-app-vol2
+    mountPath: /var/app/data
+
 deployments:
   api:
     labels: {}
