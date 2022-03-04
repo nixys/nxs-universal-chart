@@ -18,9 +18,9 @@ service:
 {{- end -}}
 
 {{- define "helpers.ingress.supportsPathType" -}}
-{{- if (semverCompare "<1.18-0" (include "helpers.capabilities.kubeVersion" .)) -}}
-{{- print "false" -}}
-{{- else -}}
-{{- print "true" -}}
+{{- not (semverCompare "<1.18-0" (include "helpers.capabilities.kubeVersion" .)) -}}
 {{- end -}}
+
+{{- define "helpers.ingress.supportsIngressClass" -}}
+{{- not (semverCompare "<1.18-0" (include "helpers.capabilities.kubeVersion" .)) -}}
 {{- end -}}

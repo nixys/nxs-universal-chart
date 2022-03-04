@@ -144,20 +144,20 @@ The command removes all the Kubernetes components associated with the chart and 
 
 `services` is a map of the service parameters, where key is a name of service.
 
-| Name                       | Description                                                          | Value       |
-|----------------------------|----------------------------------------------------------------------|-------------|
-| `labels`                   | Extra labels for service                                             | `{}`        |
-| `annotations`              | Extra annotations for service                                        | `{}`        |
-| `type`                     | Type of a service                                                    | `""`        |
-| `loadBalancerIP`           | IP of a service with LoadBalancer type                               | `""`        |
-| `loadBalancerSourceRanges` | Service Load Balancer sources                                        | `[]`        |
-| `externalTrafficPolicy`    | Service external traffic policy                                      | `"Cluster"` |
-| `healthCheckNodePort`      | Health check node port (numeric port number) for the service         | ``          |
-| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes    | `[]`        | 
-| `ports`                    | Array of the service [port](#service-port-object-parameters) objects | `[]`        | 
-| `extraSelectorLabels`      | Extra selectorLabels for select workload                             | `{}`        | 
+| Name                       | Description                                                           | Value       |
+|----------------------------|-----------------------------------------------------------------------|-------------|
+| `labels`                   | Extra labels for service                                              | `{}`        |
+| `annotations`              | Extra annotations for service                                         | `{}`        |
+| `type`                     | Type of a service                                                     | `""`        |
+| `loadBalancerIP`           | IP of a service with LoadBalancer type                                | `""`        |
+| `loadBalancerSourceRanges` | Service Load Balancer sources                                         | `[]`        |
+| `externalTrafficPolicy`    | Service external traffic policy                                       | `"Cluster"` |
+| `healthCheckNodePort`      | Health check node port (numeric port number) for the service          | ``          |
+| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
+| `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        | 
+| `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        | 
 
-#### Service `port` object parameters:
+#### Service `ports` object parameters:
 
 | Name         | Description                  | Value   |
 |--------------|------------------------------|---------|
@@ -165,6 +165,39 @@ The command removes all the Kubernetes components associated with the chart and 
 | `protocol`   | Protocol of the service port | `"TCP"` | 
 | `port`       | Service port number          | ``      | 
 | `targetPort` | Service target port number   | ``      | 
+
+### Ingresses parameters
+
+`ingresses` is a map of the ingress parameters, where key is a hostname (domain) of ingress.
+
+| Name                     | Description                                                                                             | Value              |
+|--------------------------|---------------------------------------------------------------------------------------------------------|--------------------|
+| `name`                   | Custom name of the ingress, if empty ingress hostname will be used                                      | `""`               |
+| `labels`                 | Extra labels for ingress                                                                                | `{}`               |
+| `annotations`            | Extra annotations for ingress                                                                           | `{}`               |
+| `certManager.issuerName` | CertManager issuer name for ingress TLS                                                                 | `""`               |
+| `certManager.issuerType` | CertManager issuer type for ingress TLS                                                                 | `"cluster-issuer"` |
+| `ingressClassName`       | The name of ingressClass to use                                                                         | `""`               |
+| `tlsName`                | The name of secret to use for CertManager generated TLS                                                 | `""`               |
+| `hosts`                  | Array of the ingress [hosts](#ingress-hosts-object-parameters) objects                                  | `[]`               |
+| `extraTls`               | Array of the ingress [tls params](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) | `[]`               |
+
+### Ingress `hosts` object parameters
+
+| Name       | Description                                                            | Value |
+|------------|------------------------------------------------------------------------|-------|
+| `hostname` | Hostname to serve by ingress, if empty ingress hostname will be used   | `""`  |
+| `paths`    | Array of the ingress [paths](#ingress-paths-object-parameters) objects | `[]`  |
+
+### Ingress `paths` object parameters
+
+
+| Name          | Description                                                                                                             | Value |
+|---------------|-------------------------------------------------------------------------------------------------------------------------|-------|
+| `path`        | URL path                                                                                                                | `"/"` |
+| `pathType`    | Type of the ingress path [see for details](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) | `[]`  |
+| `serviceName` | Name of the service to route requests                                                                                   | `""`  |
+| `servicePort` | Name or number of the service port to route requests                                                                    | `""`  |
 
 ### Secrets parameters
 
@@ -378,3 +411,102 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `name`         | Name of the resource that will be used with release name prefix | `""`  | 
 | `nameOverride` | Name of the resource                                            | `""`  | 
 | `items`        | Array of volume items                                           | `[]`  | 
+
+## Configuration and installation details
+
+### Using private registries
+
+To use images from private registers, add your ".dockerauthconfig" to `imagePullSecrets` in the common block. This will
+create secrets that include auth from the register and will be used in all workloads.
+
+```yaml
+imagePullSecrets:
+  my-registry: |
+    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
+  some-private-hub: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+```
+
+If a secret with auth was added earlier, you can use `imagePullSecrets` directly in the workload as in the k8s manifest
+by specifying the name of the corresponding secret.
+
+```yaml
+deployments:
+  my-app:
+    ...
+    imagePullSecrets:
+    - name: my-registry-secret-name
+    ...
+```
+
+## Additional features
+
+### Secrets features
+
+Working with the secrets data you can use values with the next types
+
+* string - usual string values will be encoded to base64 string
+* base64 encoded string with `b64:` prefix - value will be used as is without prefix
+* json - json will be encoded to base64 string
+
+#### Secret from string
+
+Values file:
+
+```yaml
+secrets:
+  secret-file:
+    data:
+      api.key: "JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk"
+  extra-envs:
+    data:
+      BAR: foo
+```
+
+`--set` analog:
+
+```bash
+--set "secrets.secret-file.data.api\.key=$SOME_ENV_WITH_STRING"
+--set "secrets.extra-envs.data.BAR=foo"
+```
+
+#### Secret from base64 encoded string
+
+Values file:
+
+```yaml
+secrets:
+  secret-file:
+    data:
+      api.key: "b64:SkZjelp3UmVCa0pGY3pad1JlQmtKRmN6WndSZUJrSkZjelp3UmVCaw=="
+```
+
+`--set` analog:
+
+```bash
+--set "secrets.secret-file.data.api\.key=b64:$(echo -n $SOME_ENV|base64 -w0)"
+```
+
+#### Secret from json
+
+Values file:
+
+```yaml
+secrets:
+  json-file:
+    data:
+      file.json: {
+        "arg": "value"
+      }
+```
+
+`--set` analog:
+
+```bash
+--set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
+```
+
+or
+
+```bash
+--set-file "secrets.json-file.data.file\.json=path/to/file.json"
+```

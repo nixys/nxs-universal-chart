@@ -18,7 +18,9 @@ metadata:
     {{- end }}
     {{- with $ing.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  ingressClassName: {{ $ing.ingressClassName | default "nginx" }}
+  {{- if and (eq "true" (include "helpers.ingress.supportsIngressClass" $)) ($ing.ingressClassName) }}
+  ingressClassName: {{ $ing.ingressClassName }}
+  {{- end }}
   rules:
   {{- range $ing.hosts }}
   - host: {{ default $host .hostname }}
@@ -33,9 +35,9 @@ spec:
           {{- include "helpers.ingress.backend" (dict "serviceName" (include "helpers.app.fullname" (dict "name" .serviceName "context" $)) "servicePort" .servicePort "context" $) | nindent 10 }}
       {{- end }}
   {{- end }}
-  {{- if or $ing.tls $ing.extraTls }}
+  {{- if or $ing.certManager $ing.extraTls }}
   tls:
-  {{- if $ing.tls }}
+  {{- if $ing.certManager }}
   - hosts:
     {{- range $ing.hosts }}
     - {{ default $host .hostname }}
