@@ -95,8 +95,10 @@ deployments: {}
 #      #imageTag: 1.19
 #      #imagePullPolicy: Always
 #      env:
-#        MY_ENV: "1234"
-#        QTE: safn8
+#      - name: MY_ENV
+#        value: "1234"
+#      - name: QTE
+#        value: safn8
 #      envsFromSecret:
 #        webadmin:
 #        - JAVA_OPTS: JVM_OPTS

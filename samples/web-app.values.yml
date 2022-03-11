@@ -55,7 +55,8 @@ deployments:
               - prod
     containers:
     - env:
-        MY_ENV: "1234"
+      - name: MY_ENV
+        value: "1234"
       envSecrets:
       - secret-envs
       envConfigmaps:

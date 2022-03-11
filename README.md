@@ -129,7 +129,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `args`                     | Container arguments override                                          | `[]`             |
 | `envsFromConfigmap`        | Map of ConfigMaps and envs from it                                    | `{}`             |
 | `envsFromSecret`           | Map of Secrets and envs from it                                       | `{}`             |
-| `env`                      | Map of extra environment variables                                    | `{}`             |
+| `env`                      | Array of extra environment variables                                  | `[]`             |
 | `envConfigmaps`            | Array of Configmaps names with extra envs                             | `[]`             |
 | `envSecrets`               | Array of Secrets names with extra envs                                | `[]`             |
 | `envFrom`                  | Array of extra envFrom objects                                        | `[]`             |
