@@ -25,6 +25,17 @@ imagePullSecrets:
 defaultImage: registry.org/my-app
 defaultImageTag: latest
 
+configMaps:
+  corp-main-nginx-config:
+    data:
+      nginx.conf: |
+        worker_processes  1;
+        load_module modules/ngx_http_js_module.so;
+  
+        events {
+            worker_connections  1024;
+        }
+
 deploymentsGeneral:
   extraVolumes:
   - name: extra-app-vol2

@@ -31,6 +31,6 @@ metadata:
     {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
     {{- with $val.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
 data:
-  {{- include "helpers.configmaps.renderConfigMap" ( dict "value" $val.data "context" $ ) | indent 2 }}
+  {{- include "helpers.tplvalues.render" ( dict "value" $val.data "context" $ ) | nindent 2 }}
 {{- end -}}
 {{- end -}}
