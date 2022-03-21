@@ -77,6 +77,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `diagnosticMode.enabled`    | Enable diagnostic mode (all probes will be disabled and the command will be overridden)                       | `false`        |
 | `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`    |
 | `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]` |
+| `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`           |
 
 ### Deployments parameters
 
@@ -206,7 +207,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
 | `type`             | Secret type                                  | `"Opaque"` | 
-| `saveOriginalName` | Don't add release name prefix to secret name | `"false"`  | 
 | `labels`           | Extra secret labels                          | `{}`       | 
 | `annotations`      | Extra secret annotations                     | `{}`       | 
 | `data`             | Map of Secret data                           | `{}`       | 
@@ -219,7 +219,6 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                     | Value     |
 |--------------------|-------------------------------------------------|-----------|
-| `saveOriginalName` | Don't add release name prefix to ConfigMap name | `"false"` | 
 | `labels`           | Extra ConfigMap labels                          | `{}`      | 
 | `annotations`      | Extra ConfigMap annotations                     | `{}`      | 
 | `data`             | Map of ConfigMap data                           | `{}`      | 
@@ -230,7 +229,6 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                          | Value          |
 |--------------------|------------------------------------------------------|----------------|
-| `saveOriginalName` | Don't add release name prefix to ConfigMap name      | `"false"`      | 
 | `labels`           | Extra Persistent Volume Claim labels                 | `{}`           | 
 | `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
 | `accessModes`      | Persistent Volume access modes                       | `[]`           | 
@@ -405,12 +403,12 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 ### typed Volumes parameters
 
-| Name           | Description                                                     | Value |
-|----------------|-----------------------------------------------------------------|-------|
-| `type`         | Resource type of the volume ("configMap","secret","pvc")        | `""`  | 
-| `name`         | Name of the resource that will be used with release name prefix | `""`  | 
-| `nameOverride` | Name of the resource                                            | `""`  | 
-| `items`        | Array of volume items                                           | `[]`  | 
+| Name           | Description                                                | Value |
+|----------------|------------------------------------------------------------|-------|
+| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  | 
+| `name`         | Name of the resource that will be used with release prefix | `""`  | 
+| `originalName` | Original name of the resource                              | `""`  | 
+| `items`        | Array of volume items                                      | `[]`  | 
 
 ## Configuration and installation details
 

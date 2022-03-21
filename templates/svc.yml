@@ -22,15 +22,14 @@ spec:
   loadBalancerSourceRanges:
     {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
   {{- end }}
-  {{- end }}
-  {{- if (or (eq .type "LoadBalancer") (eq .type "NodePort")) }}
-  {{- if and (not (empty .externalTrafficPolicy)) (eq .externalTrafficPolicy "Local" ) }}
-  externalTrafficPolicy: {{ .externalTrafficPolicy | quote }}
-  {{- if not (empty .healthCheckNodePort) }}
-  healthCheckNodePort: {{ .healthCheckNodePort | quote }}
-  {{- end }}
-  {{- else }}
+  {{- else if (eq .type "NodePort") }}
+  {{- if empty .externalTrafficPolicy }}
   externalTrafficPolicy: "Cluster"
+  {{- else }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy }}
+  {{- end }}
+  {{- if not (empty .healthCheckNodePort) }}
+  healthCheckNodePort: {{ .healthCheckNodePort }}
   {{- end }}
   {{- end }}
   {{- if .externalIPs }}

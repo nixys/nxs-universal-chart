@@ -14,7 +14,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  name: {{ $hookName }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
@@ -54,7 +54,7 @@ spec:
   {{- end }}
   template:
     metadata:
-      name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+      name: {{ $hookName }}
       labels:
         {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}{{- end }}
         {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}

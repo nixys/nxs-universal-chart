@@ -26,7 +26,7 @@ defaultImage: registry.org/my-app
 defaultImageTag: latest
 
 configMaps:
-  corp-main-nginx-config:
+  main-nginx-config:
     data:
       nginx.conf: |
         worker_processes  1;
@@ -77,14 +77,23 @@ deployments:
         mountPath: /var/lib/secret
       - name: app-pvc
         mountPath: /var/www/html/files
+      - name: main-nginx-config
+        mountPath: /etc/nginx/nginx.conf
+        subPath: nginx.conf
     volumes:
     - name: secret-files
       type: secret
     - name: app-pvc
       type: pvc
+    - type: configMap
+      name: main-nginx-config
+      items:
+      - key: nginx.conf
+        path: nginx.conf
 
 services:
   nginx:
+    type: "NodePort"
     ports:
     - name: api
       protocol: TCP

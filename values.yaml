@@ -43,6 +43,9 @@ nodeAffinityPreset:
   #   - e2e-az2
   values: []
 
+# Release name used by default. To make it empty use "-"
+releasePrefix: "ebula"
+
 # --set "envs.FOO=bar,envs.TEST=true"
 envs: {}
 #  BAR: foo
