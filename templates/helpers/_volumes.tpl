@@ -29,7 +29,7 @@
     {{- with .originalName }}
     claimName: {{ . }}
     {{- else }}
-    claimName:  {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
 {{- end }}
 {{- end }}

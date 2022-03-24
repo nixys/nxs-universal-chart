@@ -1,6 +1,6 @@
 {{- $general := $.Values.deploymentsGeneral -}}
 {{- range $name, $d := .Values.deployments }}
-{{- if not (.disabled | default false) -}}
+{{- if not (.disabled | default false) }}
 ---
 apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
 kind: Deployment
@@ -162,6 +162,6 @@ spec:
         {{- end }}
         volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | nindent 8 }}
       {{- end }}
-      volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 6}}
+      volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 6 -}}
 {{- end }}
 {{- end }}
