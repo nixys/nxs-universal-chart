@@ -3,6 +3,8 @@ name: Helm chart release workflow
 on:
   push:
     branches: [main]
+    tags:
+      - 'v*'
 
 jobs:
   release-chart:
