@@ -24,14 +24,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v2.0
 
-      - name: workaround for helm/chart-releaser-action
-        run: |
-          mkdir -p charts/universal-chart
-          pushd charts/universal-chart
-          for i in values.yaml templates Chart.yaml .helmignore;do ln -s ../../$i .;done
-          popd
-
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.4.0
+        uses: stecky/yet-another-chart-releaser-action@v1
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          YACR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
