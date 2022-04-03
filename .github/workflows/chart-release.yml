@@ -21,12 +21,10 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      # - name: Install Helm
-      #   uses: azure/setup-helm@v2.0
+      - name: Install Helm
+        uses: azure/setup-helm@v2.0
 
       - name: Run chart-releaser
-        uses: parrajustin/chart-releaser-action@v1.0.0-alpha.5
-        with:
-          charts_dir: "."
+        uses: helm/chart-releaser-action@v1
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
