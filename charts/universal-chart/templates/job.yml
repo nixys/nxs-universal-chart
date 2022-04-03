@@ -124,7 +124,7 @@ spec:
       {{- range . }}
       - name: {{ .name | default $jobName }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
@@ -170,7 +170,7 @@ spec:
       {{- range $containers }}
       - name: {{ .name | default $jobName }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}

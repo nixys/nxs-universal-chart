@@ -84,7 +84,7 @@ spec:
       {{- range . }}
       - name: {{ .name | default (printf "%s-init-%s" $name (randAlphaNum 5)) }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
@@ -125,7 +125,7 @@ spec:
       {{- range .containers }}
       - name: {{ .name | default (printf "%s-%s" $name (randAlphaNum 5)) }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}

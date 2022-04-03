@@ -68,6 +68,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`           |
 | `defaultImage`              | Docker image that will be used by default                                                                     | `[]`           |
 | `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`           |
+| `defaultImagePullPolicy`    | Docker image pull policy that will be used by default                                                         |`"IfNotPresent"`|
 | `podAffinityPreset`         | Pod affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`                  | `soft`         |
 | `podAntiAffinityPreset`     | Pod anti-affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`             | `soft`         |
 | `nodeAffinityPreset.type`   | Node affinity preset type. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`            | `""`           |
