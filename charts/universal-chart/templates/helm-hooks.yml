@@ -1,15 +1,6 @@
-{{- $hooks := list -}}
-{{- if .Values.hooks -}}
-{{- if kindIs "string" .Values.hooks -}}
-{{- $HD := fromYaml (printf "hooks:\n%s" .Values.hooks) -}}
-{{- $hooks = $HD.hooks -}}
-{{- else if kindIs "slice" .Values.hooks -}}
-{{- $hooks = .Values.hooks -}}
-{{- end -}}
-{{- end -}}
 {{- $general := $.Values.hooksGeneral -}}
-{{- range $hooks }}
-{{- $hookName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
+{{- range $name, $hook := .Values.hooks }}
+{{- $hookName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 ---
 apiVersion: batch/v1
 kind: Job

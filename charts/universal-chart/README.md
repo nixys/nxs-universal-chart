@@ -257,11 +257,10 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`  |
 | `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`  |
 
-`hooks` is a list of the Helm Hooks Jobs parameters.
+`hooks` is a map of the Helm Hooks Jobs parameters, where key is a name of job.
 
 | Name                      | Description                                                                              | Value                       |
 |---------------------------|------------------------------------------------------------------------------------------|-----------------------------|
-| `name`                    | Name of the Hook Job                                                                     | `""`                        | 
 | `labels`                  | Extra Hook Job labels                                                                    | `{}`                        | 
 | `annotations`             | Extra Hook Job annotations                                                               | `{}`                        | 
 | `kind`                    | Kind of the Helm Hook                                                                    | `"pre-install,pre-upgrade"` | 

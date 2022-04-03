@@ -218,7 +218,7 @@ pvcs: {}
 #    - ReadWriteMany
 #    size: 8Gi
 
-hooks: []
+hooks: {}
 
 cronJobs: []
 #- name: generate-data
