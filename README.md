@@ -3,8 +3,8 @@
 ## TL;DR
 
 ```bash
-$ helm repo add nixys https://registry.nixys.ru/chartrepo/public
-$ helm install my-release nixys/universal-chart
+$ helm repo add evgkrsk-universal-chart https://evgkrsk.github.io/nxs-universal-chart
+$ helm install my-release evgkrsk-universal-chart/universal-chart
 ```
 
 Use the `--devel` flag to access release candidate versions.
@@ -14,7 +14,7 @@ Use the `--devel` flag to access release candidate versions.
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm install my-release nixys/universal-chart -f values.yaml
+$ helm install my-release evgkrsk-universal-chart/universal-chart -f values.yaml
 ```
 
 The command deploys your app with custom values on the Kubernetes cluster. The [Parameters](#parameters) section lists
