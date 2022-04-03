@@ -128,12 +128,12 @@ spec:
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if and .args (not $job.commandMaxDuration) }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if $job.commandMaxDuration }}
@@ -174,18 +174,18 @@ spec:
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if and .args (not $job.commandMaxDuration) }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if $job.commandMaxDuration }}
         command: ["/bin/bash"]
         args: ["-c", "/usr/bin/timeout --preserve-status {{ $job.commandMaxDuration }} {{ .command }}; exit_status=$?; if [[ $exit_status -eq 143 ]]; then echo 'Max execution exceeded after {{ $job.commandMaxDuration }} seconds!'; fi; exit $exit_status"]
-        {{- else if typeIs "string" . }}
+        {{- else if typeIs "string" .command }}
         command: {{ printf "[\"%s\"]" (join ("\", \"") (without (splitList " " .command ) "" )) }}
         {{- else -}}
         command: {{- include "helpers.tplvalues.render" ( dict "value" .command "context" $) | nindent 8 }}

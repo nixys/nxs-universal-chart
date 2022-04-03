@@ -5,3 +5,6 @@ tmp
 *.tgz
 docs/
 samples/
+.github/
+.git/
+.yamllint

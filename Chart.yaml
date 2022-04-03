@@ -1,9 +1,11 @@
 apiVersion: v2
 description: Nixys universal Helm chart for deploy your apps to Kubernetes
 name: universal-chart
-version: 1.0.0
+version: 1.0.1
 maintainers:
 - name: Roman Andreev
   email: r.andreev@nixys.ru
 - name: Anton Zhideev
   email: a.zhideev@nixys.ru
+- name: Evgenii Tereshkov
+  email: evg.krsk@gmail.com

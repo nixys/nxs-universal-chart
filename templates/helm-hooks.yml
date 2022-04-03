@@ -112,12 +112,12 @@ spec:
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if .args }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if typeIs "string" .command }}
@@ -155,12 +155,12 @@ spec:
         {{- with .containerSecurityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if .args }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if typeIs "string" .command }}

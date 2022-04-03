@@ -258,7 +258,7 @@ servicemonitors: []
 #    foo: foo
 
 diagnosticMode:
-  enbled: false
+  enabled: false
   command: ["sleep"]
   args: ["infinity"]
 

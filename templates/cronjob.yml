@@ -151,12 +151,12 @@ spec:
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- if $.Values.diagnosticMode.enbled }}
+            {{- if $.Values.diagnosticMode.enabled }}
             args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 12 }}
             {{- else if and .args (not $job.commandMaxDuration) }}
             args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 12 }}
             {{- end }}
-            {{- if $.Values.diagnosticMode.enbled }}
+            {{- if $.Values.diagnosticMode.enabled }}
             command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 12 }}
             {{- else if .command }}
             {{- if $job.commandMaxDuration }}
@@ -197,12 +197,12 @@ spec:
             {{- with .containerSecurityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
-            {{- if $.Values.diagnosticMode.enbled }}
+            {{- if $.Values.diagnosticMode.enabled }}
             args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 12 }}
             {{- else if and .args (not $job.commandMaxDuration) }}
             args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 12 }}
             {{- end }}
-            {{- if $.Values.diagnosticMode.enbled }}
+            {{- if $.Values.diagnosticMode.enabled }}
             command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 12 }}
             {{- else if .command }}
             {{- if $job.commandMaxDuration }}
