@@ -7,3 +7,6 @@ samples/
 .github/
 .git/
 .yamllint
+tests/
+results/
+testit.sh
