@@ -43,5 +43,7 @@ rules:
     level: warning
     allowed-values: ['true', 'false', 'yes', 'no', 'True', 'False', 'on']
 ignore: |
-  templates/
+  charts/universal-chart/templates/
+  charts/universal-chart/results/
+  charts/universal-chart/tests/
 ...

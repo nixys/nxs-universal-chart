@@ -1,0 +1,134 @@
+nameOverride: sample
+podAffinityPreset: nil
+
+defaultImage: busybox
+defaultImageTag: latest
+defaultImagePullPolicy: Always
+
+generic:
+  podAnnotations:
+    checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
+    checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'
+    checksum/nginx-conf: '{{ include "helpers.workload.checksum" (index $.Values.configMaps "nginx-conf") }}'
+
+envs:
+  ENV_NAME: dev
+
+secretEnvs:
+  DB_PASSWORD: password
+
+deployments:
+  api:
+    containers:
+    - name: api
+      envSecrets:
+      - secret-envs
+      envConfigmaps:
+      - envs
+      ports:
+      - name: http
+        containerPort: 8000
+      resources:
+        limits:
+          cpu: 250m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    - name: nginx
+      image: nginx
+      imageTag: 1.20-alpine
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+      - name: nginx-conf
+        mountPath: /etc/nginx/nginx.conf
+        subPath: nginx.conf
+      ports:
+      - name: http
+        containerPort: 8080
+      resources:
+        limits:
+          cpu: 200m
+          memory: 64Mi
+        requests:
+          cpu: 10m
+          memory: 32Mi
+    volumes:
+    - type: configMap
+      name: nginx-conf
+      items:
+      - key: nginx.conf
+        path: nginx.conf
+
+services:
+  api:
+    ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+
+ingresses:
+  local.test:
+    hosts:
+    - paths:
+      - serviceName: api
+        servicePort: 80
+
+hooks:
+  migrations:
+    activeDeadlineSeconds: 120
+    backoffLimit: 2
+    command: "alembic upgrade head"
+    envSecrets:
+    - secret-envs
+    envConfigmaps:
+    - envs
+
+configMaps:
+  nginx-conf:
+    data:
+      nginx.conf: |
+        user nginx;
+        worker_processes 1;
+        pid /run/nginx.pid;
+        events {
+            worker_connections 1024;
+        }
+        http {
+            include /etc/nginx/mime.types;
+            default_type application/octet-stream;
+            upstream backend {
+                server 127.0.0.1:8000 fail_timeout=0;
+            }
+
+            server {
+                listen 8080;
+                server_name _;
+                root /app;
+                client_max_body_size 100M;
+                keepalive_timeout 10s;
+                # По пути /static отдадим ассеты напрямую из файловой системы NGINX-контейнера.
+                location /static {
+                    # В силу особенностей механизма сборки ассетов с Webpack клиент может хранить кэш ассетов сколь
+                    # угодно долго, не беспокоясь об их инвалидации.
+                    expires 1y;
+                    add_header Cache-Control public;
+                    add_header Last-Modified "";
+                    add_header ETag "";
+                    # Когда есть возможность, отдаём заранее сжатые файлы (вместо сжатия на лету).
+                    gzip_static on;
+                    access_log off;
+                    try_files $uri =404;
+                }
+                # Все запросы, кроме запросов на получение ассетов, отправляются на Node.js-бэкенд.
+                location / {
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_set_header Host $http_host;
+                    proxy_redirect off;
+                    proxy_pass http://backend;
+                }
+            }
+        }

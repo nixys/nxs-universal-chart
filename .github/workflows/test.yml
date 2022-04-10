@@ -1,0 +1,23 @@
+name: Helm chart test workflow
+
+on:
+  push:
+    branches:
+      - '**'
+    pull_request:
+      branches: [main]
+
+jobs:
+  test:
+    name: test helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/setup-helm@v2.0
+      - name: helm lint
+        run: helm lint charts/universal-chart
+      - name: testsuite
+        run: |
+          cd charts/universal-chart
+          ./testit.sh

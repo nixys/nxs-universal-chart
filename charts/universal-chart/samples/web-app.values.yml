@@ -80,6 +80,7 @@ deployments:
       - name: main-nginx-config
         mountPath: /etc/nginx/nginx.conf
         subPath: nginx.conf
+      name: test
     volumes:
     - name: secret-files
       type: secret

@@ -1,0 +1,277 @@
+---
+# Source: universal-chart/templates/svc.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-nginx
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  type: NodePort
+  externalTrafficPolicy: "Cluster"
+  ports:
+  - name: api
+    protocol: TCP
+    port: 8080
+  selector:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app: my-app
+---
+# Source: universal-chart/templates/deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-api
+  namespace: default
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test
+      app.kubernetes.io/instance: test
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: test
+        app.kubernetes.io/instance: test
+        app: my-app
+      annotations:
+        checksum/api-key: 'a2a751fbc8842d56b4b40ca6e42221884782fccb20fb4681aa9ce80231774a7a'
+    spec:
+      serviceAccountName: deployer
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role
+                operator: In
+                values:
+                - prod
+      
+      imagePullSecrets:
+      - name: registry.org
+      - name: registry.org-rw
+      containers:
+      - name: test
+        image: registry.org/my-app:latest
+        imagePullPolicy: IfNotPresent        
+        env:
+        - name: MY_ENV
+          value: "1234"        
+        envFrom:
+        
+        - configMapRef:
+            name: test-envs
+        - secretRef:
+            name: test-secret-envs
+        volumeMounts:
+        - mountPath: /var/lib/secret
+          name: secret-files
+        - mountPath: /var/www/html/files
+          name: app-pvc
+        - mountPath: /etc/nginx/nginx.conf
+          name: main-nginx-config
+          subPath: nginx.conf
+        - mountPath: /var/app/data
+          name: extra-app-vol2
+        
+      volumes:      
+      - name: secret-files
+        secret:
+          secretName: test-secret-files
+      - name: app-pvc
+        persistentVolumeClaim:
+          claimName: test-app-pvc
+      - name: main-nginx-config
+        configMap:
+          name: test-main-nginx-config
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      
+      - name: extra-app-vol2
+        persistentVolumeClaim:
+          claimName: extra-app-pvc2
+---
+# Source: universal-chart/templates/ingress.yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-web.app.ru
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 128m
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: web.app.ru
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-nginx
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - web.app.ru
+    secretName: test-web.app.ru-tls
+---
+# Source: universal-chart/templates/secret.yml
+kind: Secret
+apiVersion: v1
+type: Opaque
+metadata:
+  name: test-secret-envs
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  FOO2: QkFSMg==
+  PASS: c29tZVBAczU=  
+  FOO: YmFy
+---
+# Source: universal-chart/templates/secret.yml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: test-secret-files
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  api.key: SkZjelp3UmVCa0pGY3pad1JlQmtKRmN6WndSZUJrSkZjelp3UmVCaw==
+---
+# Source: universal-chart/templates/secret.yml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: registry.org
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+---
+# Source: universal-chart/templates/secret.yml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: registry.org-rw
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  .dockerconfigjson: eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+---
+# Source: universal-chart/templates/configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-envs
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  BAR: foo
+  TEST: true  
+  BAR2: foo2
+  TEST2: false
+---
+# Source: universal-chart/templates/configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-main-nginx-config
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  nginx.conf: |
+    worker_processes  1;
+    load_module modules/ngx_http_js_module.so;
+  
+    events {
+        worker_connections  1024;
+    }
+---
+# Source: universal-chart/templates/pvc.yml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-app-data
+  namespace: default
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,294 @@
+---
+# Source: universal-chart/templates/svc.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: sample-api
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+---
+# Source: universal-chart/templates/deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-api
+  namespace: default
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sample
+      app.kubernetes.io/instance: test
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sample
+        app.kubernetes.io/instance: test
+      annotations:
+        checksum/envs: '2347281ba83a94909858f822c4013a66c1092a02692edadbaf1a14b5cc24c90d'
+        checksum/nginx-conf: '779ba1a7c7293982cfffe0a2b3fa74cb9be799fee1c0f6e698a75671c0938d8a'
+        checksum/secret-envs: '214d1657985c1fa6165e2a5e9c51a4b5df815a55cf2025116ae7ad5b312fe408'
+    spec:
+      affinity:
+        nodeAffinity:
+          {}
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: sample
+                  app.kubernetes.io/instance: test
+              namespaces:
+              - "default"
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      
+      containers:
+      - name: api
+        image: busybox:latest
+        imagePullPolicy: Always                
+        envFrom:
+        
+        - configMapRef:
+            name: sample-envs
+        - secretRef:
+            name: sample-secret-envs
+        ports:
+        - containerPort: 8000
+          name: http
+        resources:
+          limits:
+            cpu: 250m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        
+          []
+      - name: nginx
+        image: nginx:1.20-alpine
+        imagePullPolicy: IfNotPresent                
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: 200m
+            memory: 64Mi
+          requests:
+            cpu: 10m
+            memory: 32Mi
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: nginx-conf
+          subPath: nginx.conf
+        
+        
+      volumes:      
+      - name: nginx-conf
+        configMap:
+          name: sample-nginx-conf
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+# Source: universal-chart/templates/ingress.yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-local.test
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+spec:
+  rules:
+  - host: local.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sample-api
+            port:
+              number: 80
+---
+# Source: universal-chart/templates/secret.yml
+kind: Secret
+apiVersion: v1
+type: Opaque
+metadata:
+  name: sample-secret-envs
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:    
+  DB_PASSWORD: cGFzc3dvcmQ=
+---
+# Source: universal-chart/templates/configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-envs
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:  
+  ENV_NAME: dev
+---
+# Source: universal-chart/templates/configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-nginx-conf
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes 1;
+    pid /run/nginx.pid;
+    events {
+        worker_connections 1024;
+    }
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        upstream backend {
+            server 127.0.0.1:8000 fail_timeout=0;
+        }
+  
+        server {
+            listen 8080;
+            server_name _;
+            root /app;
+            client_max_body_size 100M;
+            keepalive_timeout 10s;
+            # По пути /static отдадим ассеты напрямую из файловой системы NGINX-контейнера.
+            location /static {
+                # В силу особенностей механизма сборки ассетов с Webpack клиент может хранить кэш ассетов сколь
+                # угодно долго, не беспокоясь об их инвалидации.
+                expires 1y;
+                add_header Cache-Control public;
+                add_header Last-Modified "";
+                add_header ETag "";
+                # Когда есть возможность, отдаём заранее сжатые файлы (вместо сжатия на лету).
+                gzip_static on;
+                access_log off;
+                try_files $uri =404;
+            }
+            # Все запросы, кроме запросов на получение ассетов, отправляются на Node.js-бэкенд.
+            location / {
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                proxy_pass http://backend;
+            }
+        }
+    }
+---
+# Source: universal-chart/templates/helm-hooks.yml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sample-migrations
+  labels:
+    app.kubernetes.io/name: sample
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation    
+spec:
+  activeDeadlineSeconds: 120
+  backoffLimit: 2
+  template:
+    metadata:
+      name: sample-migrations
+      labels:
+      annotations:
+        checksum/envs: '2347281ba83a94909858f822c4013a66c1092a02692edadbaf1a14b5cc24c90d'
+        checksum/nginx-conf: '779ba1a7c7293982cfffe0a2b3fa74cb9be799fee1c0f6e698a75671c0938d8a'
+        checksum/secret-envs: '214d1657985c1fa6165e2a5e9c51a4b5df815a55cf2025116ae7ad5b312fe408'
+    spec:
+      affinity:
+        nodeAffinity:
+          {}
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: sample
+                  app.kubernetes.io/instance: test
+              namespaces:
+              - "default"
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      
+      containers:
+      - name: sample-migrations
+        image: busybox:latest
+        imagePullPolicy: Always
+        command: ["alembic", "upgrade", "head"]                
+        envFrom:
+        
+        - configMapRef:
+            name: sample-envs
+        - secretRef:
+            name: sample-secret-envs
+        volumeMounts:
+        
+          []
+      volumes:      
+        []
+      restartPolicy: Never
