@@ -6,6 +6,8 @@ on:
       - '**'
     pull_request:
       branches: [main]
+    paths:
+      - "charts/universal-chart/**"
 
 jobs:
   test:
