@@ -6,6 +6,8 @@ defaultImageTag: latest
 defaultImagePullPolicy: Always
 
 generic:
+  annotations:
+    key: value
   podAnnotations:
     checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
     checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'

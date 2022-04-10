@@ -10,6 +10,7 @@ metadata:
     app.kubernetes.io/instance: test
     app.kubernetes.io/managed-by: Helm
   annotations:
+    key: value
 spec:
   ports:
   - name: http
@@ -31,6 +32,7 @@ metadata:
     app.kubernetes.io/instance: test
     app.kubernetes.io/managed-by: Helm
   annotations:    
+    key: value
 spec:
   replicas: 1
   selector:
@@ -125,6 +127,7 @@ metadata:
     app.kubernetes.io/instance: test
     app.kubernetes.io/managed-by: Helm
   annotations:    
+    key: value
 spec:
   rules:
   - host: local.test
@@ -246,6 +249,7 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation    
+    key: value
 spec:
   activeDeadlineSeconds: 120
   backoffLimit: 2
