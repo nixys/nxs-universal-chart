@@ -1,0 +1,22 @@
+---
+# Source: universal-chart/templates/servicemonitor.yml
+kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: test-test
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+    foo: foo
+spec:
+  endpoints:
+    - interval: 30s
+      path: /metrics
+      port: exporter
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test
+      app.kubernetes.io/instance: test
+      app: nginx

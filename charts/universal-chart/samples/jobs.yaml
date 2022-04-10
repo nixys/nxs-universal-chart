@@ -1,0 +1,9 @@
+jobs:
+  - name: migrations
+    activeDeadlineSeconds: 120
+    backoffLimit: 2
+    command: "alembic upgrade head"
+    envSecrets:
+    - secret-envs
+    envConfigmaps:
+    - envs

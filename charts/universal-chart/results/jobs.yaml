@@ -1,0 +1,63 @@
+---
+# Source: universal-chart/templates/job.yml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-migrations
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+spec:
+  activeDeadlineSeconds: 120
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+      annotations:
+    spec:
+      affinity:
+        nodeAffinity:
+          {}
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: test
+                  app.kubernetes.io/instance: test
+              namespaces:
+              - "default"
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: test
+                  app.kubernetes.io/instance: test
+              namespaces:
+              - "default"
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      
+      containers:
+      - name: migrations
+        image: nginx:latest
+        imagePullPolicy: IfNotPresent
+        command: ["alembic", "upgrade", "head"]                
+        envFrom:
+        
+        - configMapRef:
+            name: test-envs
+        - secretRef:
+            name: test-secret-envs
+        volumeMounts:
+        
+          []
+      volumes:      
+        []
+      restartPolicy: Never

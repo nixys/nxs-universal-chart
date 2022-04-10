@@ -1,0 +1,10 @@
+servicemonitors:
+  - name: test
+    endpoints:
+      - interval: 30s
+        port: exporter
+        path: /metrics
+    extraSelectorLabels:
+      app: nginx
+    labels:
+      foo: foo

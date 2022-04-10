@@ -1,0 +1,7 @@
+cronJobs:
+  - name: check
+    command: "just check"
+    envSecrets:
+    - secret-envs
+    envConfigmaps:
+    - envs
