@@ -8,6 +8,8 @@ on:
       branches: [main]
     paths:
       - "charts/universal-chart/**"
+  schedule:
+    - cron: "0 3 * * 5" # Every friday at 3 AM
 
 jobs:
   test:
