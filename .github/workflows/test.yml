@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: azure/setup-helm@v2.0
+      - uses: azure/setup-helm@v2.1
       - name: helm lint
         run: helm lint charts/universal-chart
       - name: testsuite
