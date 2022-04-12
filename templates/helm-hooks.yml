@@ -20,9 +20,9 @@ metadata:
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    "helm.sh/hook": {{ .kind | default "pre-install,pre-upgrade" }}
-    "helm.sh/hook-weight": {{ .weight | default "5" }}
-    "helm.sh/hook-delete-policy": {{ .deletePolicy | default "before-hook-creation" }}
+    "helm.sh/hook": {{ .kind | default "pre-install,pre-upgrade" | quote }}
+    "helm.sh/hook-weight": {{ .weight | default "5" | quote }}
+    "helm.sh/hook-delete-policy": {{ .deletePolicy | default "before-hook-creation" | quote }}
     {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
