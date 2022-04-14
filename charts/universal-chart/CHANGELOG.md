@@ -1,4 +1,7 @@
 # Changelog
+## 3.0.3 - April 14, 2022
+
+* fix: nindent in securityContext:
 
 ## 3.0.2 - April 14, 2022
 
