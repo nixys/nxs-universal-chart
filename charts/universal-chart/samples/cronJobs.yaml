@@ -8,3 +8,25 @@ cronJobs:
   check2:
     name: check22
     command: "just check2"
+    podSecurityContext:
+      capabilities:
+        drop: # ref: https://raw.githubusercontent.com/FairwindsOps/polaris/master/checks/insecureCapabilities.yaml
+        - AUDIT_WRITE
+        - CHOWN
+        - DAC_OVERRIDE
+        - FOWNER
+        - FSETID
+        - KILL
+        - MKNOD
+        - NET_ADMIN
+        - NET_BIND_SERVICE
+        - NET_RAW
+        - SETFCAP
+        - SETGID
+        - SETPCAP
+        - SETUID
+        - SYS_CHROOT
+      runAsNonRoot: true
+      runAsUser: 1000
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false

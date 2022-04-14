@@ -52,9 +52,6 @@ spec:
         podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 10 }}
         podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 10 }}
       {{- end }}
-      {{- with .podSecurityContext }}
-      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 6 }}
-      {{- end }}
       {{- if .dnsPolicy }}
       dnsPolicy: {{ .dnsPolicy }}
       {{- else if $.Values.generic.dnsPolicy }}
@@ -67,7 +64,7 @@ spec:
       tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
       {{- with .podSecurityContext }}
-      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 8 }}
+      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
       {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:

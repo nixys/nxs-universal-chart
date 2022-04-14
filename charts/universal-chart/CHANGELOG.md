@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.2 - April 14, 2022
+
+* fix: typos in podSecurityContext/containerSecurityContext
+
+## 3.0.1 - April 14, 2022
+
+* technical release without changes
+
 ## 3.0.0 - April 14, 2022
 
 * `jobs`, `cronJobs` and `servicemonitors` now is maps, where key is a name
