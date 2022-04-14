@@ -1,13 +1,6 @@
-{{- $CJ := list -}}
-{{- if .Values.cronJobs -}}
-{{- if kindIs "string" .Values.cronJobs -}}
-{{- $CJ = fromYaml (printf "cronJobs:\n%s" .Values.cronJobs) -}}
-{{- else if kindIs "slice" .Values.cronJobs -}}
-{{- $CJ = .Values.cronJobs -}}
-{{- end -}}
 {{- $general := $.Values.cronJobsGeneral -}}
-{{- range $i, $job := $CJ }}
-{{- $cjName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
+{{- range $name, $job := .Values.cronJobs }}
+{{- $cjName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 {{- if .commandDurationAlert }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -145,7 +138,7 @@ spec:
           {{- with .initContainers}}
           initContainers:
           {{- range . }}
-          - name: {{ .name | default $cjName }}
+          - name: {{ .name | default $name }}
             image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
             {{- with .containerSecurityContext }}
@@ -191,7 +184,7 @@ spec:
           {{- if .containers -}}{{- $containers = .containers -}}{{- else -}}{{- $containers = append list . -}}{{- end }}
           containers:
           {{- range $containers }}
-          - name: {{ .name | default $cjName }}
+          - name: {{ .name | default $name }}
             image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
             {{- with .containerSecurityContext }}
@@ -235,5 +228,4 @@ spec:
           {{- end }}
           volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 10}}
           restartPolicy: {{ .restartPolicy | default "Never" }}
-{{- end }}
 {{- end }}

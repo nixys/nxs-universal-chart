@@ -62,3 +62,61 @@ spec:
           volumes:          
             []
           restartPolicy: Never
+---
+# Source: universal-chart/templates/cronjob.yml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test-check2
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:    
+spec:
+  schedule: "null"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+          annotations:
+        spec:
+          affinity:
+            nodeAffinity:
+              {}
+            podAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: test
+                      app.kubernetes.io/instance: test
+                  namespaces:
+                  - "default"
+                  topologyKey: kubernetes.io/hostname
+                weight: 1
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: test
+                      app.kubernetes.io/instance: test
+                  namespaces:
+                  - "default"
+                  topologyKey: kubernetes.io/hostname
+                weight: 1
+          
+          containers:
+          - name: check22
+            image: nginx:latest
+            imagePullPolicy: IfNotPresent
+            command: ["just", "check2"]                        
+            volumeMounts:
+            
+              []
+          volumes:          
+            []
+          restartPolicy: Never

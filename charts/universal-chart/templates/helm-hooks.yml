@@ -97,7 +97,7 @@ spec:
       {{- with .initContainers}}
       initContainers:
       {{- range . }}
-      - name: {{ .name | default $hookName }}
+      - name: {{ .name | default $name }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}
@@ -140,7 +140,7 @@ spec:
       {{- if .containers -}}{{- $containers = .containers -}}{{- else -}}{{- $containers = append list . -}}{{- end }}
       containers:
       {{- range $containers }}
-      - name: {{ .name | default $hookName }}
+      - name: {{ .name | default $name }}
         image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .containerSecurityContext }}

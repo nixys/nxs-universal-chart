@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.0 - April 14, 2022
+
+* `jobs`, `cronJobs` and `servicemonitors` now is maps, where key is a name
+
 ## 2.0.1 - April 8, 2022
 
 * quote integer/float values in configmaps

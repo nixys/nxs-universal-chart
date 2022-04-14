@@ -1,7 +1,10 @@
 cronJobs:
-  - name: check
+  check:
     command: "just check"
     envSecrets:
     - secret-envs
     envConfigmaps:
     - envs
+  check2:
+    name: check22
+    command: "just check2"

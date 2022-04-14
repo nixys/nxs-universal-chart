@@ -1,9 +1,9 @@
 servicemonitors:
-  - name: test
+  mysm:
     endpoints:
-      - interval: 30s
-        port: exporter
-        path: /metrics
+    - interval: 30s
+      port: exporter
+      path: /metrics
     extraSelectorLabels:
       app: nginx
     labels:

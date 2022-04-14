@@ -257,7 +257,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`  |
 | `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`  |
 
-`hooks` is a map of the Helm Hooks Jobs parameters, where key is a name of job.
+`hooks` is a map of the Helm Hooks Jobs parameters, where key is a name of hook.
 
 | Name                      | Description                                                                              | Value                       |
 |---------------------------|------------------------------------------------------------------------------------------|-----------------------------|
@@ -307,7 +307,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `jobsGeneral.affinity`                | Affinity for Job; replicas pods assignment (ignored if defined on Job level)           | `{}`  |
 | `jobsGeneral.dnsPolicy`               | DnsPolicy for Job pods (ignored if defined on Job level)                               | `""`  |
 
-`jobs` is a list of the Jobs parameters.
+`jobs` is a map of the Jobs parameters, where key is a name of job.
 
 | Name                      | Description                                                                              | Value     |
 |---------------------------|------------------------------------------------------------------------------------------|-----------|
@@ -358,7 +358,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `cronJobsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`  |
 | `cronJobsGeneral.dnsPolicy`                  | DnsPolicy for CronJob pods (ignored if defined on CronJob level)                           | `""`  |
 
-`cronJobs` is a list of the Jobs parameters.
+`cronJobs` is a map of the Cronjobs parameters, where key is a name of cronjob.
 
 | Name                         | Description                                                                             | Value     |
 |------------------------------|-----------------------------------------------------------------------------------------|-----------|
@@ -392,11 +392,10 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 ### ServiceMonitors parameters
 
-`servicemonitors` is a list of the ServiceMonitor parameters.
+`servicemonitors` is a map of the ServiceMonitor parameters, where key is a name.
 
 | Name                  | Description                              | Value |
 |-----------------------|------------------------------------------|-------|
-| `name`                | Name of the ServiceMonitor               | `""`  | 
 | `labels`              | Extra ServiceMonitor labels              | `{}`  | 
 | `endpoints`           | Array of ServiceMonitor endpoints        | `[]`  | 
 | `extraSelectorLabels` | Extra selectorLabels for select workload | `{}`  | 

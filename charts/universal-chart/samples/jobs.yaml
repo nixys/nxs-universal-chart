@@ -1,5 +1,5 @@
 jobs:
-  - name: migrations
+  migrations:
     activeDeadlineSeconds: 120
     backoffLimit: 2
     command: "alembic upgrade head"

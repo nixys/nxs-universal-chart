@@ -1,9 +1,9 @@
-{{- range $.Values.servicemonitors }}
+{{- range $name, $sm := .Values.servicemonitors }}
 ---
 kind: ServiceMonitor
 apiVersion: monitoring.coreos.com/v1
 metadata:
-  name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}

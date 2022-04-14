@@ -3,7 +3,7 @@
 kind: ServiceMonitor
 apiVersion: monitoring.coreos.com/v1
 metadata:
-  name: test-test
+  name: test-mysm
   namespace: "default"
   labels:
     app.kubernetes.io/name: test

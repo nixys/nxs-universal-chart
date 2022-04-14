@@ -220,43 +220,45 @@ pvcs: {}
 
 hooks: {}
 
-cronJobs: []
-#- name: generate-data
-#  schedule: "*/5 * * * *"
-#  command: "php yii crontab/generate-data"
-#  singleOnly: true
-#  commandDurationAlert: 600
-#  commandMaxDuration: 800
-#  volumeMounts:
-#  - name: secret-file
-#    mountPath: /etc/app
-#    readOnly: true
-#  volumes:
-#  - name: secret-file
-#    type: secret
-#    items:
-#    - key: app.conf
-#      mode: 0600
-#      path: app.conf
-#- name: auto-sender
-#  schedule: "*/5 * * * *"
-#  command: "php yii crontab/auto-sender"
+cronJobs: {}
+  # generate-data:
+  #  schedule: "*/5 * * * *"
+  #  command: "php yii crontab/generate-data"
+  #  singleOnly: true
+  #  commandDurationAlert: 600
+  #  commandMaxDuration: 800
+  #  volumeMounts:
+  #  - name: secret-file
+  #    mountPath: /etc/app
+  #    readOnly: true
+  #  volumes:
+  #  - name: secret-file
+  #    type: secret
+  #    items:
+  #    - key: app.conf
+  #      mode: 0600
+  #      path: app.conf
+  # auto-sender:
+  #   name: auto-sender
+  #   schedule: "*/5 * * * *"
+  #   command: "php yii crontab/auto-sender"
 
-jobs: []
-#- name: refresh-cache
-#  command: "php yii crontab/refresh-cache"
-#  commandDurationAlert: 30
-#  commandMaxDuration: 60
+jobs: {}
+  # refresh-cache:
+  #   command: "php yii crontab/refresh-cache"
+  #   commandDurationAlert: 30
+  #   commandMaxDuration: 60
 
-servicemonitors: []
-#- endpoints:
-#  - interval: 30s
-#    port: exporter
-#    path: /metrics
-#  extraSelectorLabels:
-#    app: nginx
-#  labels:
-#    foo: foo
+servicemonitors: {}
+  # sm:
+  #   endpoints:
+  #   - interval: 30s
+  #     port: exporter
+  #     path: /metrics
+  #   extraSelectorLabels:
+  #     app: nginx
+  #   labels:
+  #     foo: foo
 
 diagnosticMode:
   enabled: false
