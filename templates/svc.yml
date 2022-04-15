@@ -44,6 +44,9 @@ spec:
     {{- if not (empty .targetPort) }}
     targetPort: {{ .targetPort }}
     {{- end }}
+    {{- if not (empty .nodePort) }}
+    nodePort: {{ .nodePort }}
+    {{- end }}
   {{- end }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}

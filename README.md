@@ -166,6 +166,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `protocol`   | Protocol of the service port | `"TCP"` | 
 | `port`       | Service port number          | ``      | 
 | `targetPort` | Service target port number   | ``      | 
+| `nodePort`   | Service NodePort number      | ``      | 
 
 ### Ingresses parameters
 
@@ -191,7 +192,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `paths`    | Array of the ingress [paths](#ingress-paths-object-parameters) objects | `[]`  |
 
 ### Ingress `paths` object parameters
-
 
 | Name          | Description                                                                                                             | Value |
 |---------------|-------------------------------------------------------------------------------------------------------------------------|-------|
