@@ -1,4 +1,4 @@
-#!/bin/sh -eux
+#!/bin/sh -eu
 dname=$(dirname $0)
 tests="$dname/tests"
 rm -rf --one-file-system $tests

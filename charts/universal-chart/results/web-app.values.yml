@@ -1,4 +1,23 @@
 ---
+# Source: universal-chart/templates/pvc.yml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-app-data
+  namespace: default
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
 # Source: universal-chart/templates/svc.yml
 kind: Service
 apiVersion: v1
@@ -17,6 +36,7 @@ spec:
   - name: api
     protocol: TCP
     port: 8080
+    nodePort: 30036
   selector:
     app.kubernetes.io/name: test
     app.kubernetes.io/instance: test
@@ -275,25 +295,3 @@ data:
     events {
         worker_connections  1024;
     }
----
-# Source: universal-chart/templates/pvc.yml
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: test-app-data
-  namespace: default
-  labels:
-    app.kubernetes.io/name: test
-    app.kubernetes.io/instance: test
-    app.kubernetes.io/managed-by: Helm
-  annotations:
-    helm.sh/hook: "pre-install,pre-upgrade"
-    helm.sh/hook-weight: "-999"
-    helm.sh/hook-delete-policy: before-hook-creation
-spec:
-  accessModes:
-    - ReadWriteOnce
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
