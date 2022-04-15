@@ -1,4 +1,10 @@
 # Changelog
+## 3.0.4 - April 15, 2022
+
+* Fix Helm hooks custom annotations
+* Fix Service nodePort
+* Removed helm hooks annotations for PVC
+
 ## 3.0.3 - April 14, 2022
 
 * fix: nindent in securityContext:
