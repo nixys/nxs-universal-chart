@@ -9,7 +9,6 @@ metadata:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   accessModes: {{- include "helpers.tplvalues.render" ( dict "value" .accessModes "context" $ ) | nindent 4 }}
