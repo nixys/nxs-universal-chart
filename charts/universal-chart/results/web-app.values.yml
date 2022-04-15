@@ -36,6 +36,7 @@ spec:
   - name: api
     protocol: TCP
     port: 8080
+    nodePort: 30036
   selector:
     app.kubernetes.io/name: test
     app.kubernetes.io/instance: test

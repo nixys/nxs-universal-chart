@@ -121,6 +121,7 @@ services:
     - name: api
       protocol: TCP
       port: 8080
+      nodePort: 30036
     extraSelectorLabels:
       app: my-app
 
