@@ -409,6 +409,17 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `originalName` | Original name of the resource                              | `""`  | 
 | `items`        | Array of volume items                                      | `[]`  | 
 
+### PodDisruptionBudget parameters
+
+`pdbs` is a map of the PDB parameters, where key is a name
+
+| Name                  | Description                                     | Value |
+|-----------------------|-------------------------------------------------|-------|
+| `labels`              | Extra PDB labels                                | `{}`  |
+| `minAvailable`        | Pods that must be available after the eviction  | `""`  |
+| `maxUnavailable`      | Pods that can be unavailable after the eviction | `""`  |
+| `extraSelectorLabels` | Extra selectorLabels for select workload        | `{}`  |
+
 ## Configuration and installation details
 
 ### Using private registries
