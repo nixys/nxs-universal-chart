@@ -59,3 +59,11 @@
 {{- print "networking.k8s.io/v1" -}}
 {{- end }}
 {{- end -}}
+
+{{- define "helpers.capabilities.pdb.apiVersion" -}}
+{{- if semverCompare "<1.21-0" (include "helpers.capabilities.kubeVersion" $) -}}
+{{- print "policy/v1beta1" -}}
+{{- else -}}
+{{- print "policy/v1" -}}
+{{- end -}}
+{{- end -}}

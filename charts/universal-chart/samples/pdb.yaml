@@ -1,0 +1,14 @@
+pdbs:
+  pdb1:
+    labels:
+      foo: bar
+    minAvailable: 1
+    maxUnavailable: 2
+    extraSelectorLabels:
+      foo: bar
+  pdb2:
+    labels:
+      bar: foo
+    maxUnavailable: 2
+    extraSelectorLabels:
+      bar: foo
