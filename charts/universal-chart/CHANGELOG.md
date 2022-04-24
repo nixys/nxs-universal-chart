@@ -1,4 +1,8 @@
 # Changelog
+## 3.1.0 - April 24, 2022
+
+* feat: add PDB support and tests
+
 ## 3.0.4 - April 15, 2022
 
 * Fix Helm hooks custom annotations
