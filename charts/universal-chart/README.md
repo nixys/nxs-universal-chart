@@ -434,6 +434,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |
 | `targetCPU`      | target CPU utilization percentage                                       | `""`                    |
 | `targetMemory`   | target memory utilization percentage                                    | `""`                    |
+| `metrics`        | list of custom metrics                                                  | `[]`                        |
 
 ### HPA `scaleTargetRef` object parameters
 

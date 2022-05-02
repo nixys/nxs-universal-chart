@@ -21,11 +21,15 @@ spec:
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: 10
+        targetAverageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 50
 ---
 # Source: universal-chart/templates/hpa.yaml
 kind: HorizontalPodAutoscaler
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 metadata:
   name: test-hpa1
   namespace: "default"
@@ -44,11 +48,37 @@ spec:
   minReplicas: 1
   maxReplicas: 2
   metrics:
-    - type: Resource
-      resource:
+    - resource:
         name: cpu
-        targetAverageUtilization: 50
-    - type: Resource
-      resource:
-        name: memory
-        targetAverageUtilization: 50
+        target:
+          averageUtilization: 50
+          type: Utilization
+      type: Resource
+    - pods:
+        metric:
+          name: packets-per-second
+        target:
+          averageValue: 1k
+          type: AverageValue
+      type: Pods
+    - object:
+        describedObject:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          name: main-route
+        metric:
+          name: requests-per-second
+        target:
+          type: Value
+          value: 10k
+      type: Object
+    - external:
+        metric:
+          name: queue_messages_ready
+          selector:
+            matchLabels:
+              queue: worker_tasks
+        target:
+          averageValue: 30
+          type: AverageValue
+      type: External

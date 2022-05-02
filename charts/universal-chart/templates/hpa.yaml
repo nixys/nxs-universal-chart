@@ -32,4 +32,7 @@ spec:
         name: memory
         targetAverageUtilization: {{ .targetMemory }}
     {{- end }}
+    {{- if .metrics }}
+    {{- toYaml .metrics | nindent 4 }}
+    {{- end }}
 {{- end -}}
