@@ -1,0 +1,84 @@
+---
+# Source: universal-chart/templates/hpa.yaml
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+  name: test-hpa0
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: test-dep
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: 50
+---
+# Source: universal-chart/templates/hpa.yaml
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+metadata:
+  name: test-hpa1
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/managed-by: Helm
+    foo: bar
+  annotations:
+    bar.io/bar: foo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: test-deploy
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 50
+          type: Utilization
+      type: Resource
+    - pods:
+        metric:
+          name: packets-per-second
+        target:
+          averageValue: 1k
+          type: AverageValue
+      type: Pods
+    - object:
+        describedObject:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          name: main-route
+        metric:
+          name: requests-per-second
+        target:
+          type: Value
+          value: 10k
+      type: Object
+    - external:
+        metric:
+          name: queue_messages_ready
+          selector:
+            matchLabels:
+              queue: worker_tasks
+        target:
+          averageValue: 30
+          type: AverageValue
+      type: External

@@ -420,6 +420,30 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `maxUnavailable`      | Pods that can be unavailable after the eviction | `""`  |
 | `extraSelectorLabels` | Extra selectorLabels for select workload        | `{}`  |
 
+### HorizontalPodAutoscaler parameters
+
+`hpas` is map of HPA parameters, where key is a name
+
+| Name             | Description                                                             | Value                   |
+|------------------|-------------------------------------------------------------------------|-------------------------|
+| `labels`         | Extra HPA labels                                                        | `{}`                    |
+| `annotations`    | Extra HPA annotations                                                   | `{}`                    |
+| `apiVersion`     | apiVersion for HPA object                                               | `"autoscaling/v2beta1"` |
+| `minReplicas`    | minimum replicas for HPA                                                | `2`                     |
+| `maxReplicas`    | maximum replicas for HPA                                                | `3`                     |
+| `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |
+| `targetCPU`      | target CPU utilization percentage                                       | `""`                    |
+| `targetMemory`   | target memory utilization percentage                                    | `""`                    |
+| `metrics`        | list of custom metrics                                                  | `[]`                        |
+
+### HPA `scaleTargetRef` object parameters
+
+| Name       | Description                      | Value        |
+|------------|----------------------------------|--------------|
+| apiVersion | apiVersion for target HPA object | "apps/v1"    |
+| kind       | kind for target HPA object       | "Deployment" |
+| name       | Required name of target object   | ""           |
+
 ## Configuration and installation details
 
 ### Using private registries

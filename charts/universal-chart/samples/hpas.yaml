@@ -1,0 +1,53 @@
+hpas:
+  hpa0:
+    scaleTargetRef:
+      name: dep
+    targetCPU: 50
+    targetMemory: 50
+  hpa1:
+    apiVersion: autoscaling/v2
+    labels:
+      foo: bar
+    annotations:
+      bar.io/bar: foo
+    minReplicas: 1
+    maxReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: deploy
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Pods
+      pods:
+        metric:
+          name: packets-per-second
+        target:
+          type: AverageValue
+          averageValue: 1k
+    - type: Object
+      object:
+        metric:
+          name: requests-per-second
+        describedObject:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          name: main-route
+        target:
+          type: Value
+          value: 10k
+    - type: External
+      external:
+        metric:
+          name: queue_messages_ready
+          selector:
+            matchLabels:
+              queue: "worker_tasks"
+        target:
+          type: AverageValue
+          averageValue: 30
