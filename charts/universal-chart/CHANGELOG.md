@@ -1,4 +1,8 @@
 # Changelog
+## 3.2.0 - May 2, 2022
+
+* feat: add HPA support and tests
+
 ## 3.1.0 - April 24, 2022
 
 * feat: add PDB support and tests
