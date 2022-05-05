@@ -92,54 +92,54 @@ The command removes all the Kubernetes components associated with the chart and 
 
 `deployments` is a map of the deployment parameters, where key is a name of deployment.
 
-| Name                            | Description                                                                                | Value |
-|---------------------------------|--------------------------------------------------------------------------------------------|-------|
-| `labels`                        | Extra labels for deployment                                                                | `{}`  |
-| `annotations`                   | Extra annotations for deployment                                                           | `{}`  |
-| `replicas`                      | Deployment replicas count                                                                  | `1`   |
-| `strategy`                      | Deployment strategy                                                                        | `{}`  |
-| `extraSelectorLabels`           | Extra selectorLabels for deployment                                                        | `{}`  |
-| `podLabels`                     | Extra pod labels for deployment                                                            | `{}`  |
-| `podAnnotations`                | Extra pod annotations for deployment                                                       | `{}`  |
-| `serviceAccountName`            | The name of the ServiceAccount to use by deployment                                        | `""`  |
-| `hostAliases`                   | Pods host aliases                                                                          | `[]`  |
-| `affinity`                      | Affinity for deployment; replicas pods assignment                                          | `{}`  |
-| `podSecurityContext`            | Security Context for deployment pods                                                       | `{}`  |
-| `dnsPolicy`                     | DnsPolicy for deployment pods                                                              | `""`  |
-| `nodeSelector`                  | Node labels for deployment; pods assignment                                                | `{}`  |
-| `tolerations`                   | Tolerations for deployment; replicas pods assignment                                       | `[]`  |
-| `imagePullSecrets`              | Docker registry secret names as an array                                                   | `[]`  |
-| `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                  | `30`  |
-| `initContainers`                | Array of the deployment initContainers ([container](#container-object-parameters) objects) | `[]`  |
-| `containers`                    | Array of the deployment Containers ([container](#container-object-parameters) objects)     | `[]`  |
-| `volumes`                       | Array of the deployment typed [volume](#typed-volumes-parameters) objects                  | `[]`  |
-| `extraVolumes`                  | Array of k8s Volumes to add to deployments                                                 | `[]`  |
+| Name                            | Description                                                                                                                       | Value |
+|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|-------|
+| `labels`                        | Extra labels for deployment                                                                                                       | `{}`  |
+| `annotations`                   | Extra annotations for deployment                                                                                                  | `{}`  |
+| `replicas`                      | Deployment replicas count                                                                                                         | `1`   |
+| `strategy`                      | Deployment strategy                                                                                                               | `{}`  |
+| `extraSelectorLabels`           | Extra selectorLabels for deployment                                                                                               | `{}`  |
+| `podLabels`                     | Extra pod labels for deployment                                                                                                   | `{}`  |
+| `podAnnotations`                | Extra pod annotations for deployment                                                                                              | `{}`  |
+| `serviceAccountName`            | The name of the ServiceAccount to use by deployment                                                                               | `""`  |
+| `hostAliases`                   | Pods host aliases                                                                                                                 | `[]`  |
+| `affinity`                      | Affinity for deployment; replicas pods assignment                                                                                 | `{}`  |
+| `securityContext`               | Security Context for deployment pods                                                                                              | `{}`  |
+| `dnsPolicy`                     | DnsPolicy for deployment pods                                                                                                     | `""`  |
+| `nodeSelector`                  | Node labels for deployment; pods assignment                                                                                       | `{}`  |
+| `tolerations`                   | Tolerations for deployment; replicas pods assignment                                                                              | `[]`  |
+| `imagePullSecrets`              | Docker registry secret names as an array                                                                                          | `[]`  |
+| `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                                                         | `30`  |
+| `initContainers`                | Array of the deployment initContainers ([container](#container-object-parameters) objects)                                        | `[]`  |
+| `containers`                    | Array of the deployment Containers ([container](#container-object-parameters) objects)                                            | `[]`  |
+| `volumes`                       | Array of the deployment typed [volume](#typed-volumes-parameters) objects                                                         | `[]`  |
+| `extraVolumes`                  | Array of [k8s Volumes](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volume-v1-core) to add to deployments | `[]`  |
 
 #### Container object parameters
 
-| Name                       | Description                                                           | Value            |
-|----------------------------|-----------------------------------------------------------------------|------------------|
-| `name`                     | The name of the container                                             | `""`             |
-| `image`                    | Docker image of the container                                         | `""`             |
-| `imageTag`                 | Docker image tag of the container                                     | `"latest"`       |
-| `imagePullPolicy`          | Docker image pull policy                                              | `"IfNotPresent"` |
-| `containerSecurityContext` | Security Context for container                                        | `{}`             |
-| `command`                  | Container command override (list or string)                           | `[]`             |
-| `commandMaxDuration`       | Duration of command execution (for jobs and cronJobs only)            | ``               |
-| `commandDurationAlert`     | Alert on command execution time exceeded (for jobs and cronJobs only) | ``               |
-| `args`                     | Container arguments override                                          | `[]`             |
-| `envsFromConfigmap`        | Map of ConfigMaps and envs from it                                    | `{}`             |
-| `envsFromSecret`           | Map of Secrets and envs from it                                       | `{}`             |
-| `env`                      | Array of extra environment variables                                  | `[]`             |
-| `envConfigmaps`            | Array of Configmaps names with extra envs                             | `[]`             |
-| `envSecrets`               | Array of Secrets names with extra envs                                | `[]`             |
-| `envFrom`                  | Array of extra envFrom objects                                        | `[]`             |
-| `ports`                    | Array of ports to be exposed from container                           | `[]`             |
-| `lifecycle`                | Containers lifecycle hooks                                            | `{}`             |
-| `livenessProbe`            | Liveness probe object for container                                   | `{}`             |
-| `readinessProbe`           | Readiness probe object for container                                  | `{}`             |
-| `resources`                | The resources requests and limits for container                       | `{}`             |
-| `volumeMounts`             | Array of the volume mounts                                            | `[]`             |
+| Name                   | Description                                                                                                                | Value            |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------|------------------|
+| `name`                 | The name of the container                                                                                                  | `""`             |
+| `image`                | Docker image of the co<br/>ntainer                                                                                         | `""`             |
+| `imageTag`             | Docker image tag of the container                                                                                          | `"latest"`       |
+| `imagePullPolicy`      | Docker image pull policy                                                                                                   | `"IfNotPresent"` |
+| `securityContext`      | Security Context for container                                                                                             | `{}`             |
+| `command`              | Container command override (list or string)                                                                                | `[]`             |
+| `commandMaxDuration`   | Duration of command execution (for jobs and cronJobs only)                                                                 | ``               |
+| `commandDurationAlert` | Alert on command execution time exceeded (for jobs and cronJobs only)                                                      | ``               |
+| `args`                 | Container arguments override                                                                                               | `[]`             |
+| `envsFromConfigmap`    | Map of ConfigMaps and envs from it                                                                                         | `{}`             |
+| `envsFromSecret`       | Map of Secrets and envs from it                                                                                            | `{}`             |
+| `env`                  | Array of extra environment variables                                                                                       | `[]`             |
+| `envConfigmaps`        | Array of Configmaps names with extra envs                                                                                  | `[]`             |
+| `envSecrets`           | Array of Secrets names with extra envs                                                                                     | `[]`             |
+| `envFrom`              | Array of extra envFrom objects                                                                                             | `[]`             |
+| `ports`                | Array of ports to be exposed from container                                                                                | `[]`             |
+| `lifecycle`            | Containers lifecycle hooks                                                                                                 | `{}`             |
+| `livenessProbe`        | Liveness probe object for container                                                                                        | `{}`             |
+| `readinessProbe`       | Readiness probe object for container                                                                                       | `{}`             |
+| `resources`            | The resources requests and limits for container                                                                            | `{}`             |
+| `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
 
 ### Services parameters
 
@@ -184,14 +184,14 @@ The command removes all the Kubernetes components associated with the chart and 
 | `hosts`                  | Array of the ingress [hosts](#ingress-hosts-object-parameters) objects                                  | `[]`               |
 | `extraTls`               | Array of the ingress [tls params](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) | `[]`               |
 
-### Ingress `hosts` object parameters
+#### Ingress `hosts` object parameters
 
 | Name       | Description                                                            | Value |
 |------------|------------------------------------------------------------------------|-------|
 | `hostname` | Hostname to serve by ingress, if empty ingress hostname will be used   | `""`  |
 | `paths`    | Array of the ingress [paths](#ingress-paths-object-parameters) objects | `[]`  |
 
-### Ingress `paths` object parameters
+#### Ingress `paths` object parameters
 
 | Name          | Description                                                                                                             | Value |
 |---------------|-------------------------------------------------------------------------------------------------------------------------|-------|
@@ -276,7 +276,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `serviceAccountName`      | The name of the ServiceAccount to use by Hook Job                                        | `""`                        |
 | `hostAliases`             | Pods host aliases                                                                        | `[]`                        |
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`                        |
-| `podSecurityContext`      | Security Context for Hook Job pods                                                       | `{}`                        |
+| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`                        |
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`                        |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`                        |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`                        |
@@ -324,7 +324,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
 | `hostAliases`             | Pods host aliases                                                                        | `[]`      |
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
-| `podSecurityContext`      | Security Context for Hook Job pods                                                       | `{}`      |
+| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
@@ -379,7 +379,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `serviceAccountName`         | The name of the ServiceAccount to use by CronJob                                        | `""`      |
 | `hostAliases`                | Pods host aliases                                                                       | `[]`      |
 | `affinity`                   | Affinity for CronJob; replicas pods assignment                                          | `{}`      |
-| `podSecurityContext`         | Security Context for CronJob pods                                                       | `{}`      |
+| `securityContext`            | Security Context for CronJob pods                                                       | `{}`      |
 | `dnsPolicy`                  | DnsPolicy for CronJob pods                                                              | `""`      |
 | `nodeSelector`               | Node labels for CronJob; pods assignment                                                | `{}`      |
 | `tolerations`                | Tolerations for CronJob; replicas pods assignment                                       | `[]`      |
