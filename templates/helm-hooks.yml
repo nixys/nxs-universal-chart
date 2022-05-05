@@ -1,15 +1,13 @@
-{{- $hooks := list -}}
 {{- if .Values.hooks -}}
+{{- $general := $.Values.hooksGeneral -}}
+{{- $hooks := list -}}
 {{- if kindIs "string" .Values.hooks -}}
-{{- $HD := fromYaml (printf "hooks:\n%s" .Values.hooks) -}}
-{{- $hooks = $HD.hooks -}}
-{{- else if kindIs "slice" .Values.hooks -}}
+{{- $hooks = fromYaml .Values.hooks -}}
+{{- else if kindIs "map" .Values.hooks -}}
 {{- $hooks = .Values.hooks -}}
 {{- end -}}
-{{- end -}}
-{{- $general := $.Values.hooksGeneral -}}
-{{- range $hooks }}
-{{- $hookName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
+{{- range $name, $hook := $hooks }}
+{{- $hookName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -194,4 +192,5 @@ spec:
       {{- end }}
       volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 6}}
       restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- end -}}
 {{- end -}}

@@ -1,36 +1,13 @@
-{{- $CJ := list -}}
 {{- if .Values.cronJobs -}}
-{{- if kindIs "string" .Values.cronJobs -}}
-{{- $CJ = fromYaml (printf "cronJobs:\n%s" .Values.cronJobs) -}}
-{{- else if kindIs "slice" .Values.cronJobs -}}
-{{- $CJ = .Values.cronJobs -}}
-{{- end -}}
 {{- $general := $.Values.cronJobsGeneral -}}
-{{- range $i, $job := $CJ }}
-{{- $cjName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
-{{- if .commandDurationAlert }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: cronjob-{{ $cjName }}
-  labels:
-    prometheus: k8s
-    role: alert-rules
-  namespace: nxs-monitoring
-spec:
-  groups:
-  - name: "cronJobs_rules"
-    interval: 1m # period check for alerts
-    rules:
-    - alert: "cronjob-{{ $cjName }}-too-long-execution"
-      expr: '((time() - kube_job_status_start_time{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"}) and kube_job_status_active{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"} == 1) > {{ .commandDurationAlert }}'
-      for: 3m
-      labels:
-        severity: warning
-      annotations:
-        message: "CronJob {{ $.Release.Namespace }}/{{ $cjName }} is taking more than {{ .commandDurationAlert }} to complete"
-{{- end }}
+{{- $cronJobs := list -}}
+{{- if kindIs "string" .Values.cronJobs -}}
+{{- $cronJobs = fromYaml .Values.cronJobs -}}
+{{- else if kindIs "map" .Values.cronJobs -}}
+{{- $cronJobs = .Values.cronJobs -}}
+{{- end -}}
+{{- range $name, $job := $cronJobs }}
+{{- $cjName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 ---
 apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
 kind: CronJob
@@ -239,5 +216,28 @@ spec:
           {{- end }}
           volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 10}}
           restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- if .commandDurationAlert }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cronjob-{{ $cjName }}
+  labels:
+    prometheus: k8s
+    role: alert-rules
+  namespace: nxs-monitoring
+spec:
+  groups:
+  - name: "cronJobs_rules"
+    interval: 1m # period check for alerts
+    rules:
+    - alert: "cronjob-{{ $cjName }}-too-long-execution"
+      expr: '((time() - kube_job_status_start_time{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"}) and kube_job_status_active{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $cjName }}-.*"} == 1) > {{ .commandDurationAlert }}'
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        message: "CronJob {{ $.Release.Namespace }}/{{ $cjName }} is taking more than {{ .commandDurationAlert }} to complete"
+{{- end }}
 {{- end }}
 {{- end }}

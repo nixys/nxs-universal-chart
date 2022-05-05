@@ -1,4 +1,4 @@
-{{- range .Values.extraDeploy }}
+{{- range $key, $val := .Values.extraDeploy }}
 ---
-{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{ include "helpers.tplvalues.render" (dict "value" $val "context" $) }}
 {{- end }}

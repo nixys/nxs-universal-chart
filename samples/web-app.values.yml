@@ -1,3 +1,5 @@
+releasePrefix: "-"
+
 # --set "envs.BAR=foo,envs.TEST=true"
 envs:
   BAR: foo
@@ -141,22 +143,14 @@ pvcs:
 #    foo: foo
 
 hooks:
-- name: migration-up
-  kind: "pre-install,pre-upgrade"
-  weight: "5"
-  deletePolicy: "before-hook-creation"
-  affinity:
-    nodeAffinity: {}
-    podAntiAffinity: {}
-    podAffinity: {}
-  containers:
-  - name: migration-up
-    image: registry.app.ru/app-migration
-    nodeSelector:
-      kind: infrastructure-apps
-    args:
-    - migrate
-    - up
-    envFrom:
-    - secretRef:
-        name: nixy-server-env
+  migration-up: 
+    containers:
+    - image: registry.app.ru/app-migration
+      nodeSelector:
+        kind: infrastructure-apps
+      args:
+      - migrate
+      - up
+      envFrom:
+      - secretRef:
+          name: server-env

@@ -217,84 +217,93 @@ pvcs: {}
 #    - ReadWriteMany
 #    size: 8Gi
 
-hooks: []
+hooks: {}
+#  migration-up:
+#    containers:
+#    - image: registry.app.ru/app-migration
+#      args:
+#      - up
+#      envFrom:
+#      - secretRef:
+#          name: server-env
 
-cronJobs: []
-#- name: generate-data
-#  schedule: "*/5 * * * *"
-#  command: "php yii crontab/generate-data"
-#  singleOnly: true
-#  commandDurationAlert: 600
-#  commandMaxDuration: 800
-#  volumeMounts:
-#  - name: secret-file
-#    mountPath: /etc/app
-#    readOnly: true
-#  volumes:
-#  - name: secret-file
-#    type: secret
-#    items:
-#    - key: app.conf
-#      mode: 0600
-#      path: app.conf
-#- name: auto-sender
-#  schedule: "*/5 * * * *"
-#  command: "php yii crontab/auto-sender"
+cronJobs: {}
+#  generate-data:
+#    schedule: "*/5 * * * *"
+#    command: "php yii crontab/generate-data"
+#    singleOnly: true
+#    commandDurationAlert: 600
+#    commandMaxDuration: 800
+#    volumeMounts:
+#    - name: secret-file
+#      mountPath: /etc/app
+#      readOnly: true
+#    volumes:
+#    - name: secret-file
+#      type: secret
+#      items:
+#      - key: app.conf
+#        mode: 0600
+#        path: app.conf
+#  auto-sender:
+#    schedule: "*/5 * * * *"
+#    command: "php yii crontab/auto-sender"
 
-jobs: []
-#- name: refresh-cache
-#  command: "php yii crontab/refresh-cache"
-#  commandDurationAlert: 30
-#  commandMaxDuration: 60
+jobs: {}
+#  refresh-cache:
+#    command: "php yii crontab/refresh-cache"
+#    commandDurationAlert: 30
+#    commandMaxDuration: 60
 
-servicemonitors: []
-#- endpoints:
-#  - interval: 30s
-#    port: exporter
-#    path: /metrics
-#  extraSelectorLabels:
-#    app: nginx
-#  labels:
-#    foo: foo
+serviceMonitors: {}
+#  app-sm:
+#    endpoints:
+#    - interval: 30s
+#      port: exporter
+#      path: /metrics
+#    extraSelectorLabels:
+#      app: nginx
+#    labels:
+#      foo: foo
 
 diagnosticMode:
   enbled: false
   command: ["sleep"]
   args: ["infinity"]
 
-extraDeploy: []
-#- |
-#  apiVersion: networking.k8s.io/v1
-#  kind: NetworkPolicy
-#  metadata:
-#    name: {{ include "helpers.app.fullname" (dict "name" "nw-policy" "context" $) }}
-#    namespace: {{ .Release.Namespace | quote }}
-#  spec:
-#    podSelector:
-#      matchLabels:
-#        role: db
-#    policyTypes:
-#    - Ingress
-#    - Egress
-#    ingress:
-#    - from:
-#      - ipBlock:
-#          cidr: 172.17.0.0/16
-#          except:
-#          - 172.17.1.0/24
-#      - namespaceSelector:
-#          matchLabels:
-#            project: myproject
-#      - podSelector:
-#          matchLabels:
-#            role: frontend
-#      ports:
-#      - protocol: TCP
-#        port: 6379
-#    egress:
-#    - to:
-#      - ipBlock:
-#          cidr: 10.0.0.0/24
-#      ports:
-#      - protocol: TCP
-#        port: 5978
+extraDeploy: {}
+#  net-pol: |-
+#    apiVersion: networking.k8s.io/v1
+#    kind: NetworkPolicy
+#    metadata:
+#      name: {{ include "helpers.app.fullname" (dict "name" "nw-policy" "context" $) }}
+#      namespace: {{ .Release.Namespace | quote }}
+#    spec:
+#      podSelector:
+#        matchLabels:
+#          role: db
+#      policyTypes:
+#      - Ingress
+#      - Egress
+#      ingress:
+#      - from:
+#        - ipBlock:
+#            cidr: 172.17.0.0/16
+#            except:
+#            - 172.17.1.0/24
+#        - namespaceSelector:
+#            matchLabels:
+#              project: myproject
+#        - podSelector:
+#            matchLabels:
+#              role: frontend
+#        ports:
+#        - protocol: TCP
+#          port: 6379
+#      egress:
+#      - to:
+#        - ipBlock:
+#            cidr: 10.0.0.0/24
+#        ports:
+#        - protocol: TCP
+#          port: 5978
