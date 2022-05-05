@@ -121,7 +121,7 @@ spec:
             podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 14 }}
             podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 14 }}
           {{- end }}
-          {{- with .podSecurityContext }}
+          {{- with .securityContext }}
           securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 12 }}
           {{- end }}
           {{- if .dnsPolicy }}
@@ -146,9 +146,11 @@ spec:
           initContainers:
           {{- range . }}
           - name: {{ .name | default $cjName }}
-            image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
+            {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+            {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+            image: {{ $image }}:{{ $imageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
-            {{- with .containerSecurityContext }}
+            {{- with .securityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
             {{- if $.Values.diagnosticMode.enbled }}
@@ -192,9 +194,11 @@ spec:
           containers:
           {{- range $containers }}
           - name: {{ .name | default $cjName }}
-            image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
+            {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+            {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+            image: {{ $image }}:{{ $imageTag }}
             imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
-            {{- with .containerSecurityContext }}
+            {{- with .securityContext }}
             securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 14 }}
             {{- end }}
             {{- if $.Values.diagnosticMode.enbled }}

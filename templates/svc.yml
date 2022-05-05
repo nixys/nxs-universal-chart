@@ -38,8 +38,8 @@ spec:
   {{- end }}
   ports:
   {{- range .ports }}
-  - name: {{ .name }}
-    protocol: {{ .protocol }}
+  - name: {{ .name | default $name}}
+    protocol: {{ .protocol | default "TCP"}}
     port: {{ .port }}
     {{- if not (empty .targetPort) }}
     targetPort: {{ .targetPort }}

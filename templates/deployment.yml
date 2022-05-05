@@ -52,9 +52,6 @@ spec:
         podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 10 }}
         podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 10 }}
       {{- end }}
-      {{- with .podSecurityContext }}
-      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 6 }}
-      {{- end }}
       {{- if .dnsPolicy }}
       dnsPolicy: {{ .dnsPolicy }}
       {{- else if $.Values.generic.dnsPolicy }}
@@ -66,7 +63,7 @@ spec:
       {{- with .tolerations }}
       tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
-      {{- with .podSecurityContext }}
+      {{- with .securityContext }}
       securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 8 }}
       {{- end }}
       {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
@@ -83,9 +80,11 @@ spec:
       initContainers:
       {{- range . }}
       - name: {{ .name | default (printf "%s-init-%s" $name (randAlphaNum 5)) }}
-        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
+        {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+        {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+        image: {{ $image }}:{{ $imageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
-        {{- with .containerSecurityContext }}
+        {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- if $.Values.diagnosticMode.enbled }}
@@ -124,9 +123,11 @@ spec:
       containers:
       {{- range .containers }}
       - name: {{ .name | default (printf "%s-%s" $name (randAlphaNum 5)) }}
-        image: {{ .image | default $.Values.defaultImage }}:{{ .imageTag | default  $.Values.defaultImageTag }}
+        {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+        {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+        image: {{ $image }}:{{ $imageTag }}
         imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
-        {{- with .containerSecurityContext }}
+        {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
         {{- if $.Values.diagnosticMode.enbled }}
