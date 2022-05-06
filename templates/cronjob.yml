@@ -122,7 +122,7 @@ spec:
             podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 14 }}
           {{- end }}
           {{- with .securityContext }}
-          securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 12 }}
+          securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
           {{- end }}
           {{- if .dnsPolicy }}
           dnsPolicy: {{ .dnsPolicy }}

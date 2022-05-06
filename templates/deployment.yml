@@ -64,7 +64,7 @@ spec:
       tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
       {{- with .securityContext }}
-      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) nindent 8 }}
+      securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
       {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
       imagePullSecrets:
