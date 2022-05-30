@@ -341,14 +341,14 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |----------------------------------------------|--------------------------------------------------------------------------------------------|-------|
 | `cronJobsGeneral.labels`                     | Extra labels for all CronJobs                                                              | `{}`  |
 | `cronJobsGeneral.annotations`                | Extra annotations for all CronJobs                                                         | `{}`  |
-| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    | 
-| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   | 
+| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    |
+| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   |
 | `cronJobsGeneral.failedJobsHistoryLimit`     | Limitation of failed jobs should be kept (ignored if defined on CronJob level)             | `1`   |
-| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`   | 
-| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`   | 
-| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100` | 
-| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`   | 
-| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100` | 
+| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`   |
+| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`   |
+| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100` |
+| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`   |
+| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100` |
 | `cronJobsGeneral.podLabels`                  | Extra pod labels for CronJob (ignored if defined on CronJob level)                         | `{}`  |
 | `cronJobsGeneral.podAnnotations`             | Extra pod annotations for CronJob (ignored if defined on CronJob level)                    | `{}`  |
 | `cronJobsGeneral.serviceAccountName`         | The name of the ServiceAccount to use by Job (ignored if defined on CronJob level)         | `""`  |
@@ -393,18 +393,53 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name                  | Description                              | Value |
 |-----------------------|------------------------------------------|-------|
-| `labels`              | Extra ServiceMonitor labels              | `{}`  | 
-| `endpoints`           | Array of ServiceMonitor endpoints        | `[]`  | 
-| `extraSelectorLabels` | Extra selectorLabels for select workload | `{}`  | 
+| `labels`              | Extra ServiceMonitor labels              | `{}`  |
+| `endpoints`           | Array of ServiceMonitor endpoints        | `[]`  |
+| `extraSelectorLabels` | Extra selectorLabels for select workload | `{}`  |
 
 ### typed Volumes parameters
 
 | Name           | Description                                                | Value |
 |----------------|------------------------------------------------------------|-------|
-| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  | 
-| `name`         | Name of the resource that will be used with release prefix | `""`  | 
-| `originalName` | Original name of the resource                              | `""`  | 
-| `items`        | Array of volume items                                      | `[]`  | 
+| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  |
+| `name`         | Name of the resource that will be used with release prefix | `""`  |
+| `originalName` | Original name of the resource                              | `""`  |
+| `items`        | Array of volume items                                      | `[]`  |
+
+### PodDisruptionBudget parameters
+
+`pdbs` is a map of the PDB parameters, where key is a name
+
+| Name                  | Description                                     | Value |
+|-----------------------|-------------------------------------------------|-------|
+| `labels`              | Extra PDB labels                                | `{}`  |
+| `minAvailable`        | Pods that must be available after the eviction  | `""`  |
+| `maxUnavailable`      | Pods that can be unavailable after the eviction | `""`  |
+| `extraSelectorLabels` | Extra selectorLabels for select workload        | `{}`  |
+
+### HorizontalPodAutoscaler parameters
+
+`hpas` is map of HPA parameters, where key is a name
+
+| Name             | Description                                                             | Value                   |
+|------------------|-------------------------------------------------------------------------|-------------------------|
+| `labels`         | Extra HPA labels                                                        | `{}`                    |
+| `annotations`    | Extra HPA annotations                                                   | `{}`                    |
+| `apiVersion`     | apiVersion for HPA object                                               | `"autoscaling/v2beta1"` |
+| `minReplicas`    | minimum replicas for HPA                                                | `2`                     |
+| `maxReplicas`    | maximum replicas for HPA                                                | `3`                     |
+| `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |
+| `targetCPU`      | target CPU utilization percentage                                       | `""`                    |
+| `targetMemory`   | target memory utilization percentage                                    | `""`                    |
+| `metrics`        | list of custom metrics                                                  | `[]`                        |
+
+### HPA `scaleTargetRef` object parameters
+
+| Name       | Description                      | Value        |
+|------------|----------------------------------|--------------|
+| apiVersion | apiVersion for target HPA object | "apps/v1"    |
+| kind       | kind for target HPA object       | "Deployment" |
+| name       | Required name of target object   | ""           |
 
 ## Configuration and installation details
 
