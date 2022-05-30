@@ -1,0 +1,38 @@
+{{- range $name, $hpa := .Values.hpas }}
+---
+kind: HorizontalPodAutoscaler
+apiVersion: {{ .apiVersion | default "autoscaling/v2beta1" }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- with .scaleTargetRef }}
+  scaleTargetRef:
+    apiVersion: {{ .apiVersion | default "apps/v1" }}
+    kind: {{ .kind | default "Deployment" }}
+    name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  {{- end }}
+  minReplicas: {{ .minReplicas | default "2" }}
+  maxReplicas: {{ .maxReplicas | default "3" }}
+  metrics:
+    {{- if not (empty .targetCPU) }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .targetCPU }}
+    {{- end }}
+    {{- if not (empty .targetMemory) }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .targetMemory }}
+    {{- end }}
+    {{- if .metrics }}
+    {{- toYaml .metrics | nindent 4 }}
+    {{- end }}
+{{- end -}}

@@ -73,7 +73,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `nodeAffinityPreset.type`   | Node affinity preset type. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`            | `""`           |
 | `nodeAffinityPreset.key`    | Node label key to match. Ignored if workload `affinity` is set                                                | `""`           |
 | `nodeAffinityPreset.values` | Node label values to match. Ignored if workload `affinity` is set                                             | `[]`           |
-| `extraDeploy`               | Array of extra objects to deploy with the release                                                             | `[]`           |
+| `extraDeploy`               | Map of extra objects (k8s manifests or Helm templates) to deploy with the release. [Example](#example-3)      | `[]`           |
 | `diagnosticMode.enabled`    | Enable diagnostic mode (all probes will be disabled and the command will be overridden)                       | `false`        |
 | `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`    |
 | `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]` |
@@ -81,7 +81,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Deployments parameters
 
-`deploymentsGeneral` is a map of the deployments parameters, which uses for all deployments
+`deploymentsGeneral` is a map of the Deployments parameters, which uses for all Deployments.
 
 | Name                                   | Description                                         | Value |
 |----------------------------------------|-----------------------------------------------------|-------|
@@ -90,7 +90,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `deploymentsGeneral.extraVolumes`      | Array of k8s Volumes to add to all deployments      | `[]`  |
 | `deploymentsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all deployments | `[]`  |
 
-`deployments` is a map of the deployment parameters, where key is a name of deployment.
+`deployments` is a map of the Deployment parameters, where key is a name of the Deployment.
 
 | Name                            | Description                                                                                                                       | Value |
 |---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|-------|
@@ -126,7 +126,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `securityContext`      | Security Context for container                                                                                             | `{}`             |
 | `command`              | Container command override (list or string)                                                                                | `[]`             |
 | `commandMaxDuration`   | Duration of command execution (for jobs and cronJobs only)                                                                 | ``               |
-| `commandDurationAlert` | Alert on command execution time exceeded (for jobs and cronJobs only)                                                      | ``               |
+| `commandDurationAlert` | Create Prometheus Alert on command execution time exceeded (for jobs and cronJobs only)                                    | ``               |
 | `args`                 | Container arguments override                                                                                               | `[]`             |
 | `envsFromConfigmap`    | Map of ConfigMaps and envs from it                                                                                         | `{}`             |
 | `envsFromSecret`       | Map of Secrets and envs from it                                                                                            | `{}`             |
@@ -143,7 +143,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Services parameters
 
-`services` is a map of the service parameters, where key is a name of service.
+`services` is a map of the Service parameters, where key is a name of Service.
 
 | Name                       | Description                                                           | Value       |
 |----------------------------|-----------------------------------------------------------------------|-------------|
@@ -170,7 +170,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Ingresses parameters
 
-`ingresses` is a map of the ingress parameters, where key is a hostname (domain) of ingress.
+`ingresses` is a map of the Ingress parameters, where key is a hostname (domain) of Ingress.
 
 | Name                     | Description                                                                                             | Value              |
 |--------------------------|---------------------------------------------------------------------------------------------------------|--------------------|
@@ -202,7 +202,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Secrets parameters
 
-`secrets` is a map of the secret parameters, where key is a name of secret.
+`secrets` is a map of the Secret parameters, where key is a name of Secret.
 
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
@@ -256,11 +256,10 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`  |
 | `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`  |
 
-`hooks` is a list of the Helm Hooks Jobs parameters.
+`hooks` is a map of the Helm Hooks Jobs parameters, where key is name of the Helm Hook job.
 
 | Name                      | Description                                                                              | Value                       |
 |---------------------------|------------------------------------------------------------------------------------------|-----------------------------|
-| `name`                    | Name of the Hook Job                                                                     | `""`                        | 
 | `labels`                  | Extra Hook Job labels                                                                    | `{}`                        | 
 | `annotations`             | Extra Hook Job annotations                                                               | `{}`                        | 
 | `kind`                    | Kind of the Helm Hook                                                                    | `"pre-install,pre-upgrade"` | 
@@ -307,50 +306,49 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `jobsGeneral.affinity`                | Affinity for Job; replicas pods assignment (ignored if defined on Job level)           | `{}`  |
 | `jobsGeneral.dnsPolicy`               | DnsPolicy for Job pods (ignored if defined on Job level)                               | `""`  |
 
-`jobs` is a list of the Jobs parameters.
+`jobs` is a map of the Jobs parameters, where key is a name of the Job.
 
-| Name                      | Description                                                                              | Value     |
-|---------------------------|------------------------------------------------------------------------------------------|-----------|
-| `name`                    | Name of the Job                                                                          | `""`      | 
-| `labels`                  | Extra Job labels                                                                         | `{}`      | 
-| `annotations`             | Extra Job annotations                                                                    | `{}`      | 
-| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`       | 
-| `completions`             | How much pods should finish to finish Job                                                | `1`       | 
-| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`     | 
-| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`       | 
-| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`     | 
-| `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`      |
-| `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`      |
-| `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
-| `hostAliases`             | Pods host aliases                                                                        | `[]`      |
-| `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
-| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
-| `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
-| `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
-| `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
-| `imagePullSecrets`        | Docker registry secret names as an array                                                 | `[]`      |
-| `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
-| `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
-| `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`      |
-| `extraVolumes`            | Array of k8s Volumes to add to Hook Job                                                  | `[]`      |
-| `restartPolicy`           | Restart Policy of the Job                                                                | `"Never"` |
+| Name                       | Description                                                                              | Value     |
+|----------------------------|------------------------------------------------------------------------------------------|-----------|
+| `labels`                   | Extra Job labels                                                                         | `{}`      | 
+| `annotations`              | Extra Job annotations                                                                    | `{}`      | 
+| `parallelism`              | How much pods of Job can be run in parallel                                              | `1`       | 
+| `completions`              | How much pods should finish to finish Job                                                | `1`       | 
+| `activeDeadlineSeconds`    | Duration of the Job                                                                      | `100`     | 
+| `backoffLimit`             | Number of retries before considering a Job as failed                                     | `6`       | 
+| `ttlSecondsAfterFinished`  | TTL for delete finished Hook Job                                                         | `100`     | 
+| `podLabels`                | Extra pod labels for Hook Job                                                            | `{}`      |
+| `podAnnotations`           | Extra pod annotations for Hook Job                                                       | `{}`      |
+| `serviceAccountName`       | The name of the ServiceAccount to use by deployment                                      | `""`      |
+| `hostAliases`              | Pods host aliases                                                                        | `[]`      |
+| `affinity`                 | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
+| `securityContext`          | Security Context for Hook Job pods                                                       | `{}`      |
+| `dnsPolicy`                | DnsPolicy for Hook Job pods                                                              | `""`      |
+| `nodeSelector`             | Node labels for Hook Job; pods assignment                                                | `{}`      |
+| `tolerations`              | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
+| `imagePullSecrets`         | Docker registry secret names as an array                                                 | `[]`      |
+| `initContainers`           | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
+| `containers`               | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
+| `volumes`                  | Array of the Hook Job typed volumes                                                      | `[]`      |
+| `extraVolumes`             | Array of k8s Volumes to add to Hook Job                                                  | `[]`      |
+| `restartPolicy`            | Restart Policy of the Job                                                                | `"Never"` |
 
 ### CronJobs parameters
 
-`cronJobsGeneral` is a map of the Jobs parameters, which uses for all Jobs.
+`cronJobsGeneral` is a map of the CronJobs parameters, which uses for all CronJobs.
 
 | Name                                         | Description                                                                                | Value |
 |----------------------------------------------|--------------------------------------------------------------------------------------------|-------|
 | `cronJobsGeneral.labels`                     | Extra labels for all CronJobs                                                              | `{}`  |
 | `cronJobsGeneral.annotations`                | Extra annotations for all CronJobs                                                         | `{}`  |
-| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    | 
-| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   | 
+| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    |
+| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   |
 | `cronJobsGeneral.failedJobsHistoryLimit`     | Limitation of failed jobs should be kept (ignored if defined on CronJob level)             | `1`   |
-| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`   | 
-| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`   | 
-| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100` | 
-| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`   | 
-| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100` | 
+| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`   |
+| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`   |
+| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100` |
+| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`   |
+| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100` |
 | `cronJobsGeneral.podLabels`                  | Extra pod labels for CronJob (ignored if defined on CronJob level)                         | `{}`  |
 | `cronJobsGeneral.podAnnotations`             | Extra pod annotations for CronJob (ignored if defined on CronJob level)                    | `{}`  |
 | `cronJobsGeneral.serviceAccountName`         | The name of the ServiceAccount to use by Job (ignored if defined on CronJob level)         | `""`  |
@@ -358,11 +356,10 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `cronJobsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`  |
 | `cronJobsGeneral.dnsPolicy`                  | DnsPolicy for CronJob pods (ignored if defined on CronJob level)                           | `""`  |
 
-`cronJobs` is a list of the Jobs parameters.
+`cronJobs` is a map of the CronJobs parameters, where key is name of the CronJob.
 
 | Name                         | Description                                                                             | Value     |
 |------------------------------|-----------------------------------------------------------------------------------------|-----------|
-| `name`                       | Name of the CronJob                                                                     | `""`      | 
 | `labels`                     | Extra CronJob labels                                                                    | `{}`      | 
 | `annotations`                | Extra CronJob annotations                                                               | `{}`      | 
 | `singleOnly`                 | Forbid concurrency policy                                                               | `"false"` | 
@@ -392,23 +389,57 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 ### ServiceMonitors parameters
 
-`servicemonitors` is a list of the ServiceMonitor parameters.
+`serviceMonitors` is a map of the Prometheus ServiceMonitor parameters, where key is name of ServiceMonitor.
 
 | Name                  | Description                              | Value |
 |-----------------------|------------------------------------------|-------|
-| `name`                | Name of the ServiceMonitor               | `""`  | 
-| `labels`              | Extra ServiceMonitor labels              | `{}`  | 
-| `endpoints`           | Array of ServiceMonitor endpoints        | `[]`  | 
-| `extraSelectorLabels` | Extra selectorLabels for select workload | `{}`  | 
+| `labels`              | Extra ServiceMonitor labels              | `{}`  |
+| `endpoints`           | Array of ServiceMonitor endpoints        | `[]`  |
+| `extraSelectorLabels` | Extra selectorLabels for select workload | `{}`  |
 
 ### typed Volumes parameters
 
 | Name           | Description                                                | Value |
 |----------------|------------------------------------------------------------|-------|
-| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  | 
-| `name`         | Name of the resource that will be used with release prefix | `""`  | 
-| `originalName` | Original name of the resource                              | `""`  | 
-| `items`        | Array of volume items                                      | `[]`  | 
+| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  |
+| `name`         | Name of the resource that will be used with release prefix | `""`  |
+| `originalName` | Original name of the resource                              | `""`  |
+| `items`        | Array of volume items                                      | `[]`  |
+
+### PodDisruptionBudget parameters
+
+`pdbs` is a map of the PDB parameters, where key is a name
+
+| Name                  | Description                                     | Value |
+|-----------------------|-------------------------------------------------|-------|
+| `labels`              | Extra PDB labels                                | `{}`  |
+| `minAvailable`        | Pods that must be available after the eviction  | `""`  |
+| `maxUnavailable`      | Pods that can be unavailable after the eviction | `""`  |
+| `extraSelectorLabels` | Extra selectorLabels for select workload        | `{}`  |
+
+### HorizontalPodAutoscaler parameters
+
+`hpas` is map of HPA parameters, where key is a name
+
+| Name             | Description                                                             | Value                   |
+|------------------|-------------------------------------------------------------------------|-------------------------|
+| `labels`         | Extra HPA labels                                                        | `{}`                    |
+| `annotations`    | Extra HPA annotations                                                   | `{}`                    |
+| `apiVersion`     | apiVersion for HPA object                                               | `"autoscaling/v2beta1"` |
+| `minReplicas`    | minimum replicas for HPA                                                | `2`                     |
+| `maxReplicas`    | maximum replicas for HPA                                                | `3`                     |
+| `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |
+| `targetCPU`      | target CPU utilization percentage                                       | `""`                    |
+| `targetMemory`   | target memory utilization percentage                                    | `""`                    |
+| `metrics`        | list of custom metrics                                                  | `[]`                        |
+
+### HPA `scaleTargetRef` object parameters
+
+| Name       | Description                      | Value        |
+|------------|----------------------------------|--------------|
+| apiVersion | apiVersion for target HPA object | "apps/v1"    |
+| kind       | kind for target HPA object       | "Deployment" |
+| name       | Required name of target object   | ""           |
 
 ## Configuration and installation details
 
@@ -507,4 +538,87 @@ or
 
 ```bash
 --set-file "secrets.json-file.data.file\.json=path/to/file.json"
+```
+
+### Values Templating features
+
+You can use go-templates as part of your values.
+
+#### Example 1.
+
+Add a pod annotation wih the check sum of the application configuration.
+
+```yaml
+deployments:
+  api:
+    podAnnotations:
+      checksum/app-cfg: '{{ include "helpers.workload.checksum" (index $.Values.configMaps "app-config") }}'
+```
+
+#### Example 2.
+
+Specify docker images via the `--set` flag for multiple deployments.
+
+```yaml
+deployments:
+  app1:
+    containers:
+    - name: app1
+      image: '{{ $.Values.imageRepo1 }}/{{ $.Values.imageApp1 }}'
+      imageTag: '{{ $.Values.imageTagApp1 }}'
+  ...
+  app2:
+    containers:
+    - name: app1
+      image: '{{ $.Values.imageRepo2 }}/{{ $.Values.imageApp2 }}'
+      imageTag: '{{ $.Values.imageTagApp2 }}'
+```
+
+Create release with `--set` flag
+
+```bash
+helm install my-apps nixys/universal-chart -f values.yaml --set imageRepo1=reg.app.com,imageRepo2=reg.app.net,imageApp1=my-app1,imageTagApp1=v1,imageApp2=my-app2,imageTagApp2=v2
+```
+
+#### Example 3.
+
+Deploy of `NetworkPolicy` using `extraDeploy`.
+
+```yaml
+extraDeploy:
+  net-pol: |-
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: {{ include "helpers.app.fullname" (dict "name" "nw-policy" "context" $) }}
+      namespace: {{ .Release.Namespace | quote }}
+    spec:
+      podSelector:
+        matchLabels:
+          role: db
+      policyTypes:
+      - Ingress
+      - Egress
+      ingress:
+      - from:
+        - ipBlock:
+            cidr: 172.17.0.0/16
+            except:
+            - 172.17.1.0/24
+        - namespaceSelector:
+            matchLabels:
+              project: myproject
+        - podSelector:
+            matchLabels:
+              role: frontend
+        ports:
+        - protocol: TCP
+          port: 6379
+      egress:
+      - to:
+        - ipBlock:
+            cidr: 10.0.0.0/24
+        ports:
+        - protocol: TCP
+          port: 5978
 ```

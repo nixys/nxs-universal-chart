@@ -1,0 +1,55 @@
+cronJobs:
+
+  mailing:
+    affinity:
+      nodeAffinity: {}
+      podAntiAffinity: {}
+      podAffinity: {}
+    schedule: "00 05 * * *"
+    containers:
+    - command: send-mail
+      volumeMounts:
+      - mountPath: /app/issues-mailing.conf
+        name: config
+        subPath: issues-mailing.conf
+    volumes:
+    - name: config
+      type: secret
+      originalName: app-config
+    restartPolicy: OnFailure
+
+  flush-cache:
+    affinity:
+      nodeAffinity: {}
+      podAntiAffinity: {}
+      podAffinity: {}
+    schedule: "00 * * * *"
+    containers:
+    - command: flush-cache
+      volumeMounts:
+      - mountPath: /app/main.conf
+        name: config
+        subPath: main.conf
+    volumes:
+    - name: config
+      type: secret
+      originalName: app-config
+    restartPolicy: OnFailure
+
+  report:
+    affinity:
+      nodeAffinity: {}
+      podAntiAffinity: {}
+      podAffinity: {}
+    schedule: "00 2 7 * *"
+    containers:
+    - command: make-report
+      volumeMounts:
+      - mountPath: /app/main.conf
+        name: config
+        subPath: main.conf
+    volumes:
+    - name: config
+      type: secret
+      originalName: app-config
+    restartPolicy: OnFailure

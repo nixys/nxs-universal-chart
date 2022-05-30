@@ -1,15 +1,13 @@
-{{- $hooks := list -}}
 {{- if .Values.hooks -}}
+{{- $general := $.Values.hooksGeneral -}}
+{{- $hooks := list -}}
 {{- if kindIs "string" .Values.hooks -}}
-{{- $HD := fromYaml (printf "hooks:\n%s" .Values.hooks) -}}
-{{- $hooks = $HD.hooks -}}
-{{- else if kindIs "slice" .Values.hooks -}}
+{{- $hooks = fromYaml .Values.hooks -}}
+{{- else if kindIs "map" .Values.hooks -}}
 {{- $hooks = .Values.hooks -}}
 {{- end -}}
-{{- end -}}
-{{- $general := $.Values.hooksGeneral -}}
-{{- range $hooks }}
-{{- $hookName := include "helpers.app.fullname" (dict "name" .name "context" $) }}
+{{- range $name, $hook := $hooks }}
+{{- $hookName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -114,12 +112,12 @@ spec:
         {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if .args }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if typeIs "string" .command }}
@@ -159,12 +157,12 @@ spec:
         {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 8 }}
         {{- else if .args }}
         args: {{- include "helpers.tplvalues.render" ( dict "value" .args "context" $) | nindent 8 }}
         {{- end }}
-        {{- if $.Values.diagnosticMode.enbled }}
+        {{- if $.Values.diagnosticMode.enabled }}
         command: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.command "context" $) | nindent 8 }}
         {{- else if .command }}
         {{- if typeIs "string" .command }}
@@ -194,4 +192,5 @@ spec:
       {{- end }}
       volumes: {{- include "helpers.volumes.renderVolume" (dict "value" . "general" $general "context" $) | indent 6}}
       restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- end -}}
 {{- end -}}
