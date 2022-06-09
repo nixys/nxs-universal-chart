@@ -83,7 +83,7 @@ spec:
         {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         image: {{ $image }}:{{ $imageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
@@ -126,7 +126,7 @@ spec:
         {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         image: {{ $image }}:{{ $imageTag }}
-        imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+        imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
         {{- with .securityContext }}
         securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 10 }}
         {{- end }}
