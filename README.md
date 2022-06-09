@@ -57,27 +57,28 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Common parameters
 
-| Name                        | Description                                                                                                   | Value          |
-|-----------------------------|---------------------------------------------------------------------------------------------------------------|----------------|
-| `kubeVersion`               | Override Kubernetes version                                                                                   | `""`           |
-| `nameOverride`              | String to override release name                                                                               | `""`           |
-| `envs`                      | Map of environment variables which will be deplyed as ConfigMap with name `RELEASE_NAME-envs`                 | `{}`           |
-| `envsString`                | String with map of environment variables which will be deplyed as ConfigMap with name `RELEASE_NAME-envs`     | `""`           |
-| `secretEnvs`                | Map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs`             | `{}`           |
-| `secretEnvsString`          | String with map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs` | `""`           |
-| `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`           |
-| `defaultImage`              | Docker image that will be used by default                                                                     | `[]`           |
-| `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`           |
-| `podAffinityPreset`         | Pod affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`                  | `soft`         |
-| `podAntiAffinityPreset`     | Pod anti-affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`             | `soft`         |
-| `nodeAffinityPreset.type`   | Node affinity preset type. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`            | `""`           |
-| `nodeAffinityPreset.key`    | Node label key to match. Ignored if workload `affinity` is set                                                | `""`           |
-| `nodeAffinityPreset.values` | Node label values to match. Ignored if workload `affinity` is set                                             | `[]`           |
-| `extraDeploy`               | Map of extra objects (k8s manifests or Helm templates) to deploy with the release. [Example](#example-3)      | `[]`           |
-| `diagnosticMode.enabled`    | Enable diagnostic mode (all probes will be disabled and the command will be overridden)                       | `false`        |
-| `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`    |
-| `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]` |
-| `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`           |
+| Name                        | Description                                                                                                   | Value            |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------|------------------|
+| `kubeVersion`               | Override Kubernetes version                                                                                   | `""`             |
+| `nameOverride`              | String to override release name                                                                               | `""`             |
+| `envs`                      | Map of environment variables which will be deplyed as ConfigMap with name `RELEASE_NAME-envs`                 | `{}`             |
+| `envsString`                | String with map of environment variables which will be deplyed as ConfigMap with name `RELEASE_NAME-envs`     | `""`             |
+| `secretEnvs`                | Map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs`             | `{}`             |
+| `secretEnvsString`          | String with map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs` | `""`             |
+| `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`             |
+| `defaultImage`              | Docker image that will be used by default                                                                     | `[]`             |
+| `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`             |
+| `defaultImagePullPolicy`    | Docker image pull policy that will be used by default                                                         | `"IfNotPresent"` |
+| `podAffinityPreset`         | Pod affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`                  | `soft`           |
+| `podAntiAffinityPreset`     | Pod anti-affinity preset. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`             | `soft`           |
+| `nodeAffinityPreset.type`   | Node affinity preset type. Ignored if workload `affinity` is set. Allowed values: `soft` or `hard`            | `""`             |
+| `nodeAffinityPreset.key`    | Node label key to match. Ignored if workload `affinity` is set                                                | `""`             |
+| `nodeAffinityPreset.values` | Node label values to match. Ignored if workload `affinity` is set                                             | `[]`             |
+| `extraDeploy`               | Map of extra objects (k8s manifests or Helm templates) to deploy with the release. [Example](#example-3)      | `[]`             |
+| `diagnosticMode.enabled`    | Enable diagnostic mode (all probes will be disabled and the command will be overridden)                       | `false`          |
+| `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`      |
+| `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]`   |
+| `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`             |
 
 ### Deployments parameters
 
@@ -193,12 +194,12 @@ The command removes all the Kubernetes components associated with the chart and 
 
 #### Ingress `paths` object parameters
 
-| Name          | Description                                                                                                             | Value |
-|---------------|-------------------------------------------------------------------------------------------------------------------------|-------|
-| `path`        | URL path                                                                                                                | `"/"` |
-| `pathType`    | Type of the ingress path [see for details](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) | `[]`  |
-| `serviceName` | Name of the service to route requests                                                                                   | `""`  |
-| `servicePort` | Name or number of the service port to route requests                                                                    | `""`  |
+| Name          | Description                                                                                                             | Value      |
+|---------------|-------------------------------------------------------------------------------------------------------------------------|------------|
+| `path`        | URL path                                                                                                                | `"/"`      |
+| `pathType`    | Type of the ingress path [see for details](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) | `"Prefix"` |
+| `serviceName` | Name of the service to route requests                                                                                   | `""`       |
+| `servicePort` | Name or number of the service port to route requests                                                                    | `""`       |
 
 ### Secrets parameters
 
@@ -431,7 +432,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |
 | `targetCPU`      | target CPU utilization percentage                                       | `""`                    |
 | `targetMemory`   | target memory utilization percentage                                    | `""`                    |
-| `metrics`        | list of custom metrics                                                  | `[]`                        |
+| `metrics`        | list of custom metrics                                                  | `[]`                    |
 
 ### HPA `scaleTargetRef` object parameters
 
