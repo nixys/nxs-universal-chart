@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1 - Jun 9, 2022
+
+* added `defaultImagePullPolicy`
+* docs minor fix
+
 ## 2.0.0 - May 30, 2022
 
 * feature: add HPA support
