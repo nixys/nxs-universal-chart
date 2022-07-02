@@ -79,7 +79,7 @@ spec:
       {{- with .initContainers}}
       initContainers:
       {{- range . }}
-      - name: {{ .name | default (printf "%s-init-%s" $name (randAlphaNum 5)) }}
+      - name: {{ .name | default (printf "%s-init-%s" $name (lower (randAlphaNum 5))) }}
         {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         image: {{ $image }}:{{ $imageTag }}
@@ -122,7 +122,7 @@ spec:
       {{- end }}{{- end }}
       containers:
       {{- range .containers }}
-      - name: {{ .name | default (printf "%s-%s" $name (randAlphaNum 5)) }}
+      - name: {{ .name | default (printf "%s-%s" $name (lower (randAlphaNum 5))) }}
         {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
         image: {{ $image }}:{{ $imageTag }}
