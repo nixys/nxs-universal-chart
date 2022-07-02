@@ -66,12 +66,13 @@ spec:
       {{- with .securityContext }}
       securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
-      {{ if or $.Values.imagePullSecrets .imagePullSecrets }}
+      {{ if or $.Values.imagePullSecrets .imagePullSecrets $.Values.imagePullSecretsExtra }}
       imagePullSecrets:
       {{- range $sName, $v := $.Values.imagePullSecrets }}
       - name: {{ $sName }}
       {{- end }}
       {{- with .imagePullSecrets }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 6 }}{{- end }}
+      {{- with $.Values.imagePullSecretsExtra }}{{- toYaml . | nindent 6 }}{{- end }}
       {{- end }}
       {{- if .terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}

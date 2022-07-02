@@ -66,6 +66,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `secretEnvs`                | Map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs`             | `{}`             |
 | `secretEnvsString`          | String with map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs` | `""`             |
 | `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`             |
+| `imagePullSecretsExtra`     | Array of existing pull secrets to add to each spec                                                            | `{}`             |
 | `defaultImage`              | Docker image that will be used by default                                                                     | `[]`             |
 | `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`             |
 | `defaultImagePullPolicy`    | Docker image pull policy that will be used by default                                                         | `"IfNotPresent"` |
