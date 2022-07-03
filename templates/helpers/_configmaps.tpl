@@ -11,7 +11,7 @@
 {{- else if empty $value }}
 {{ printf "%s: %s" $key ("" | quote) }}
 {{- else if kindIs "string" $value }}
-{{ printf "%s: %s" $key $value }}
+{{ printf "%s: %s" $key ($value | quote) }}
 {{- else }}
 {{ $key }}: {{$value | toJson | quote }}
 {{- end -}}
