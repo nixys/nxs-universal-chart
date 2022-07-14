@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 - Jul 14, 2022
+
+* fix: quotes to string values in ConfigMap
+* fix: for random container name by lowercase
+* feature: add templating for ingress hostnames
+* feature: add generic parameter `extraImagePullSecrets` for workloads
+* feature: add workloads parameter `extraImagePullSecrets`
+* deprecation: workloads parameter `imagePullSecrets` is marked as deprecated
+* docs update
+
 ## 2.0.1 - Jun 9, 2022
 
 * added `defaultImagePullPolicy`

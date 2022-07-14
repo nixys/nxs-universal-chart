@@ -1,0 +1,2 @@
+{{- include "helpers.deprecation.notice" $ }}
+{{- include "helpers.deprecation.workload.imagePullSecrets" $ }}

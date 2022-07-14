@@ -40,7 +40,7 @@ spec:
   {{- if $ing.certManager }}
   - hosts:
     {{- range $ing.hosts }}
-    - {{ default $host .hostname }}
+    - {{ default $host (include "helpers.tplvalues.render" (dict "value" .hostname "context" $)) }}
     {{- end }}
     secretName: {{ .tlsName | default (include "helpers.app.fullname" (dict "name" ($ing.name | default $host) "context" $)) }}-tls
   {{- end }}
