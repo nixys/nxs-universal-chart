@@ -110,6 +110,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `dnsPolicy`                     | DnsPolicy for deployment pods                                                                                                     | `""`  |
 | `nodeSelector`                  | Node labels for deployment; pods assignment                                                                                       | `{}`  |
 | `tolerations`                   | Tolerations for deployment; replicas pods assignment                                                                              | `[]`  |
+| `imagePullSecrets`              | DEPRECATED. Array of existing pull secrets                                                                                        | `[]`  |
 | `extraImagePullSecrets`         | Array of existing pull secrets                                                                                                    | `[]`  |
 | `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                                                         | `30`  |
 | `initContainers`                | Array of the deployment initContainers ([container](#container-object-parameters) objects)                                        | `[]`  |
@@ -281,6 +282,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`                        |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`                        |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`                        |
+| `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`                        |
 | `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`                        |
 | `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`                        |
 | `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`                        |
@@ -328,6 +330,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
+| `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`      |
 | `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`      |
 | `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
 | `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
@@ -382,6 +385,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `dnsPolicy`                  | DnsPolicy for CronJob pods                                                              | `""`      |
 | `nodeSelector`               | Node labels for CronJob; pods assignment                                                | `{}`      |
 | `tolerations`                | Tolerations for CronJob; replicas pods assignment                                       | `[]`      |
+| `imagePullSecrets`           | DEPRECATED. Array of existing pull secrets                                              | `[]`      |
 | `extraImagePullSecrets`      | Array of existing pull secrets                                                          | `[]`      |
 | `initContainers`             | Array of the CronJob initContainers ([container](#container-object-parameters) objects) | `[]`      |
 | `containers`                 | Array of the CronJob Containers ([container](#container-object-parameters) objects)     | `[]`      |
