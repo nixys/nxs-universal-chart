@@ -15,6 +15,8 @@ generic:
   extraVolumes: []
   #- name: cache
   #  emptyDir: {}
+  extraImagePullSecrets: []
+  #- name: regcred
 
 # Pod affinity preset
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

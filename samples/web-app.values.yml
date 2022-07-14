@@ -24,9 +24,10 @@ imagePullSecrets:
     {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
   registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
-# --set "imagePullSecretsExtra[0].name=$EXISTING_IMAGE_PULL_SECRET_NAME_ADD"
-imagePullSecretsExtra:
-  - name: existing-pull-secret
+# --set "generic.extraImagePullSecrets[0].name=$EXISTING_IMAGE_PULL_SECRET_NAME_ADD"
+generic:
+  extraImagePullSecrets:
+  - name: existing-registry-secret
 
 defaultImage: registry.org/my-app
 defaultImageTag: latest

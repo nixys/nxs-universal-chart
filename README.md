@@ -42,18 +42,19 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Generic parameters
 
-| Name                          | Description                                                | Value |
-|-------------------------------|------------------------------------------------------------|-------|
-| `generic.labels`              | Labels to add to all deployed objects                      | `{}`  |
-| `generic.annotations`         | Annotations to add to all deployed objects                 | `{}`  |
-| `generic.extraSelectorLabels` | SelectorLabels to add to deployments and services          | `{}`  |
-| `generic.podLabels`           | Labels to add to all deployed pods                         | `{}`  |
-| `generic.podAnnotations`      | Annotations to add to all deployed pods                    | `{}`  |
-| `generic.serviceAccountName`  | The name of the ServiceAccount to use by workload          | `[]`  |
-| `generic.hostAliases`         | Pods host aliases to use by workload                       | `[]`  |
-| `generic.dnsPolicy`           | DnsPolicy for workload pods                                | `[]`  |
-| `generic.extraVolumes`        | Array of k8s Volumes to add to all deployed workloads      | `[]`  |
-| `generic.extraVolumeMounts`   | Array of k8s VolumeMounts to add to all deployed workloads | `[]`  |
+| Name                            | Description                                                     | Value |
+|---------------------------------|-----------------------------------------------------------------|-------|
+| `generic.labels`                | Labels to add to all deployed objects                           | `{}`  |
+| `generic.annotations`           | Annotations to add to all deployed objects                      | `{}`  |
+| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services               | `{}`  |
+| `generic.podLabels`             | Labels to add to all deployed pods                              | `{}`  |
+| `generic.podAnnotations`        | Annotations to add to all deployed pods                         | `{}`  |
+| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`  |
+| `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`  |
+| `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`  |
+| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`  |
+| `generic.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`  |
+| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads | `[]`  |
 
 ### Common parameters
 
@@ -66,7 +67,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `secretEnvs`                | Map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs`             | `{}`             |
 | `secretEnvsString`          | String with map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs` | `""`             |
 | `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`             |
-| `imagePullSecretsExtra`     | Array of existing pull secrets to add to each spec                                                            | `{}`             |
 | `defaultImage`              | Docker image that will be used by default                                                                     | `[]`             |
 | `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`             |
 | `defaultImagePullPolicy`    | Docker image pull policy that will be used by default                                                         | `"IfNotPresent"` |
@@ -110,7 +110,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `dnsPolicy`                     | DnsPolicy for deployment pods                                                                                                     | `""`  |
 | `nodeSelector`                  | Node labels for deployment; pods assignment                                                                                       | `{}`  |
 | `tolerations`                   | Tolerations for deployment; replicas pods assignment                                                                              | `[]`  |
-| `imagePullSecrets`              | Docker registry secret names as an array                                                                                          | `[]`  |
+| `extraImagePullSecrets`         | Array of existing pull secrets                                                                                                    | `[]`  |
 | `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                                                         | `30`  |
 | `initContainers`                | Array of the deployment initContainers ([container](#container-object-parameters) objects)                                        | `[]`  |
 | `containers`                    | Array of the deployment Containers ([container](#container-object-parameters) objects)                                            | `[]`  |
@@ -281,7 +281,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`                        |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`                        |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`                        |
-| `imagePullSecrets`        | Docker registry secret names as an array                                                 | `[]`                        |
+| `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`                        |
 | `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`                        |
 | `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`                        |
 | `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`                        |
@@ -310,30 +310,30 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 `jobs` is a map of the Jobs parameters, where key is a name of the Job.
 
-| Name                       | Description                                                                              | Value     |
-|----------------------------|------------------------------------------------------------------------------------------|-----------|
-| `labels`                   | Extra Job labels                                                                         | `{}`      | 
-| `annotations`              | Extra Job annotations                                                                    | `{}`      | 
-| `parallelism`              | How much pods of Job can be run in parallel                                              | `1`       | 
-| `completions`              | How much pods should finish to finish Job                                                | `1`       | 
-| `activeDeadlineSeconds`    | Duration of the Job                                                                      | `100`     | 
-| `backoffLimit`             | Number of retries before considering a Job as failed                                     | `6`       | 
-| `ttlSecondsAfterFinished`  | TTL for delete finished Hook Job                                                         | `100`     | 
-| `podLabels`                | Extra pod labels for Hook Job                                                            | `{}`      |
-| `podAnnotations`           | Extra pod annotations for Hook Job                                                       | `{}`      |
-| `serviceAccountName`       | The name of the ServiceAccount to use by deployment                                      | `""`      |
-| `hostAliases`              | Pods host aliases                                                                        | `[]`      |
-| `affinity`                 | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
-| `securityContext`          | Security Context for Hook Job pods                                                       | `{}`      |
-| `dnsPolicy`                | DnsPolicy for Hook Job pods                                                              | `""`      |
-| `nodeSelector`             | Node labels for Hook Job; pods assignment                                                | `{}`      |
-| `tolerations`              | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
-| `imagePullSecrets`         | Docker registry secret names as an array                                                 | `[]`      |
-| `initContainers`           | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
-| `containers`               | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
-| `volumes`                  | Array of the Hook Job typed volumes                                                      | `[]`      |
-| `extraVolumes`             | Array of k8s Volumes to add to Hook Job                                                  | `[]`      |
-| `restartPolicy`            | Restart Policy of the Job                                                                | `"Never"` |
+| Name                      | Description                                                                              | Value     |
+|---------------------------|------------------------------------------------------------------------------------------|-----------|
+| `labels`                  | Extra Job labels                                                                         | `{}`      | 
+| `annotations`             | Extra Job annotations                                                                    | `{}`      | 
+| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`       | 
+| `completions`             | How much pods should finish to finish Job                                                | `1`       | 
+| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`     | 
+| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`       | 
+| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`     | 
+| `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`      |
+| `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`      |
+| `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
+| `hostAliases`             | Pods host aliases                                                                        | `[]`      |
+| `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
+| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
+| `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
+| `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
+| `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
+| `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`      |
+| `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
+| `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
+| `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`      |
+| `extraVolumes`            | Array of k8s Volumes to add to Hook Job                                                  | `[]`      |
+| `restartPolicy`           | Restart Policy of the Job                                                                | `"Never"` |
 
 ### CronJobs parameters
 
@@ -382,7 +382,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `dnsPolicy`                  | DnsPolicy for CronJob pods                                                              | `""`      |
 | `nodeSelector`               | Node labels for CronJob; pods assignment                                                | `{}`      |
 | `tolerations`                | Tolerations for CronJob; replicas pods assignment                                       | `[]`      |
-| `imagePullSecrets`           | Docker registry secret names as an array                                                | `[]`      |
+| `extraImagePullSecrets`      | Array of existing pull secrets                                                          | `[]`      |
 | `initContainers`             | Array of the CronJob initContainers ([container](#container-object-parameters) objects) | `[]`      |
 | `containers`                 | Array of the CronJob Containers ([container](#container-object-parameters) objects)     | `[]`      |
 | `volumes`                    | Array of the CronJob typed volumes                                                      | `[]`      |
@@ -457,14 +457,21 @@ imagePullSecrets:
   some-private-hub: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 ```
 
-If a secret with auth was added earlier, you can use `imagePullSecrets` directly in the workload as in the k8s manifest
-by specifying the name of the corresponding secret.
+If a secrets with registry credentials already was added to namespace, you can use `generic.extraImagePullSecrets` to
+add pull secrets to all your workloads or `extraImagePullSecrets` directly in the workload like in k8s manifest
+by specifying names of the corresponding secrets.
+
+```yaml
+generic:
+  extraImagePullSecrets:
+  - name: my-registry-secret-name
+```
 
 ```yaml
 deployments:
   my-app:
     ...
-    imagePullSecrets:
+    extraImagePullSecrets:
     - name: my-registry-secret-name
     ...
 ```
