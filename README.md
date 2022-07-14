@@ -545,6 +545,9 @@ or
 
 You can use go-templates as part of your values.
 
+> **Note**
+> Use single quotes to escape strings containing templates to avoid manifest generation errors.
+
 #### Example 1.
 
 Add a pod annotation wih the check sum of the application configuration.
