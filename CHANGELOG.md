@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 - Jul 18, 2022
+
+* fix: templating for ingress hostnames with empty values
+
 ## 2.1.0 - Jul 14, 2022
 
 * fix: quotes to string values in ConfigMap
