@@ -23,7 +23,11 @@ spec:
   {{- end }}
   rules:
   {{- range $ing.hosts }}
-  - host: {{ default $host (include "helpers.tplvalues.render" (dict "value" .hostname "context" $)) }}
+  - {{ if .hostname -}}
+    host: {{ include "helpers.tplvalues.render" (dict "value" .hostname "context" $) }}
+    {{- else -}}
+    host: {{ $host }}
+    {{- end }}
     http:
       paths:
       {{- range .paths }}
@@ -40,7 +44,11 @@ spec:
   {{- if $ing.certManager }}
   - hosts:
     {{- range $ing.hosts }}
-    - {{ default $host (include "helpers.tplvalues.render" (dict "value" .hostname "context" $)) }}
+    {{- if .hostname }}
+    - {{ include "helpers.tplvalues.render" (dict "value" .hostname "context" $) }}
+    {{- else }}
+    - {{ $host }}
+    {{- end }}
     {{- end }}
     secretName: {{ .tlsName | default (include "helpers.app.fullname" (dict "name" ($ing.name | default $host) "context" $)) }}-tls
   {{- end }}
