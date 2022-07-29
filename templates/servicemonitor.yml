@@ -1,4 +1,4 @@
-{{- range $name, $sm := .Values.servicemonitors }}
+{{- range $name, $sm := .Values.serviceMonitors }}
 ---
 kind: ServiceMonitor
 apiVersion: monitoring.coreos.com/v1
