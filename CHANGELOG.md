@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.3 - Aug 1, 2022
+
+* fix: rolled back parameter `servicemonitors` and marked as deprecated
+
 ## 2.1.2 - Aug 1, 2022
 
 * fix: parameter `servicemonitors` has been renamed to `serviceMonitors`
