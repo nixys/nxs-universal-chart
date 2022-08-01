@@ -3,6 +3,9 @@
 
 Option `imagePullSecrets` for workloads deprecated and will be removed in the future releases.
 Please use `extraImagePullSecrets` instead.
+
+Option `servicemonitors` has been renamed to `serviceMonitors` and will be removed in the future releases.
+Please use `serviceMonitors` instead.
 {{- end }}
 
 
@@ -31,4 +34,13 @@ You use deprecated option `imagePullSecrets` for cronjob "{{$name}}". Please use
 
 You use deprecated option `imagePullSecrets` for job "{{$name}}". Please use `extraImagePullSecrets` instead.
 {{- end }}{{ end }}
+{{ end }}
+
+{{- define "helpers.deprecation.serviceMonitors" -}}
+{{- if .Values.servicemonitors }}
+
+** WARNING **
+
+You use deprecated option `servicemonitors`. Please use `serviceMonitors` instead.
+{{- end }}
 {{ end }}
