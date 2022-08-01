@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.2 - Aug 1, 2022
+
+* fix: parameter `servicemonitors` has been renamed to `serviceMonitors`
+
 ## 2.1.1 - Jul 18, 2022
 
 * fix: templating for ingress hostnames with empty values
