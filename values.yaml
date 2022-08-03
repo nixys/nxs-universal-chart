@@ -211,7 +211,10 @@ configMaps: {}
   # data:
   #   file.json: {
   #     "arg": "value"
-#   }
+  #   }
+  # configFiles:
+  #   configDir: config
+  #   configNamespace: demo
 
 # All PVSs will be added to `volumes` block in each workload excluding hooks
 pvcs: {}

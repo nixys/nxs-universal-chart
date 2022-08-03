@@ -1,10 +1,15 @@
 {{- define "helpers.configmaps.renderConfigMap" -}}
 {{- $v := dict -}}
-{{- if typeIs "string" .value -}}
+{{- if eq .value "configFiles" -}}
+{{- $v = printf "%s/%s/*" .context.configDir ( default .Release.Namespace .context.configNamespace ) -}}
+{{- else if typeIs "string" .value -}}
 {{- $v = fromYaml .value -}}
 {{- else if kindIs "map" .value -}}
 {{- $v = .value -}}
 {{- end -}}
+{{- if typeIs "string" $v -}}
+{{ ( .Files.Glob $v ).AsConfig }}
+{{- else -}}
 {{- range $key, $value := $v }}
 {{- if eq (typeOf $value) "float64" }}
 {{ printf "%s: %s" $key (toString $value | quote) }}
@@ -14,6 +19,7 @@
 {{ printf "%s: %s" $key ($value | quote) }}
 {{- else }}
 {{ $key }}: {{$value | toJson | quote }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

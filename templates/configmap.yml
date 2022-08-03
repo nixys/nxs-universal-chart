@@ -13,7 +13,7 @@ data:
 {{- end }}
 
 {{- range $cName, $val := .Values.configMaps -}}
-{{- if not (eq $cName "envs") }}
+{{- if and (not (eq $cName "envs")) (not (eq $cName "configFiles")) }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -28,5 +28,20 @@ metadata:
     {{- with $val.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
 data:
   {{- include "helpers.tplvalues.render" ( dict "value" $val.data "context" $ ) | nindent 2 }}
+{{- else if eq $cName "configFiles" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $cName "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $val.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
+  annotations:
+    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
+    {{- with $val.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
+data:
+{{ include "helpers.configmaps.renderConfigMap" (dict "value" $cName "context" . "Files" $.Files "Release" $.Release ) | indent 2 }}
 {{- end -}}
 {{- end -}}
