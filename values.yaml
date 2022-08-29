@@ -132,6 +132,7 @@ deployments: {}
 
 services: {}
 #  nginx:
+#    clusterIP: None
 #    ports:
 #    - name: http
 #      protocol: TCP
