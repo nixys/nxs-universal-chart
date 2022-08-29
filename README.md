@@ -160,6 +160,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
 | `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        | 
 | `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        | 
+| `clusterIP`                | Service clusterIP parameter value                                     | `""`        | 
 
 #### Service `ports` object parameters:
 

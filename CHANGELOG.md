@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.4 - Aug 29, 2022
+
+* feature: add clusterIP parameter for service
+
 ## 2.1.3 - Aug 1, 2022
 
 * fix: rolled back parameter `servicemonitors` and marked as deprecated
