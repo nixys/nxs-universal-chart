@@ -1,11 +1,11 @@
 {{- define "helpers.configmaps.renderConfigMap" -}}
 {{- $v := dict -}}
-{{- if eq .value "configFiles" -}}
+{{- if kindIs "map" .value -}}
+{{- $v = .value -}}
+{{- else if and (typeIs "string" .value) ( eq .value "configFiles" ) -}}
 {{- $v = printf "%s/%s/*" .context.configDir ( default .Release.Namespace .context.configNamespace ) -}}
 {{- else if typeIs "string" .value -}}
 {{- $v = fromYaml .value -}}
-{{- else if kindIs "map" .value -}}
-{{- $v = .value -}}
 {{- end -}}
 {{- if typeIs "string" $v -}}
 {{ ( .Files.Glob $v ).AsConfig }}
