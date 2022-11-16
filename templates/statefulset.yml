@@ -1,0 +1,40 @@
+{{- $general := $.Values.statefulsetsGeneral -}}
+{{- range $name, $sts := .Values.statefulsets }}
+{{- if not (.disabled | default false) }}
+---
+apiVersion: {{ include "helpers.capabilities.statefulset.apiVersion" $ }}
+kind: StatefulSet
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
+    {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  replicas: {{ .replicas | default 1 }}
+  {{- with .strategy }}
+  strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  serviceName: {{ include "helpers.app.fullname" (dict "name" .serviceName "context" $) }}
+  selector:
+    matchLabels:
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "helpers.app.selectorLabels" $ | nindent 8 }}
+        {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}{{- end }}
+        {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+      annotations:
+        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}{{- end }}
+        {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}{{- end }}
+    spec:
+      {{- include "helpers.pod" (dict "value" . "context" $ "general" $general "name" $name ) | indent 6 }}
+{{- end }}
+{{- end }}
