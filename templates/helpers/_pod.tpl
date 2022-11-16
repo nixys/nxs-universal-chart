@@ -1,4 +1,5 @@
 {{- define "helpers.pod" -}}
+{{- $ := .context -}}
 {{- $general := .general -}}
 {{- $name := .name -}}
 {{- with .value -}}
