@@ -3,8 +3,8 @@ name: Release Charts
 on:
   push:
     branches:
-      - main
       - feature/add-release-action
+      - main
 
 
 jobs:
