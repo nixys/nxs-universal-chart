@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.5 - Nov 19, 2022
+
+* feature: add GitHub Actions
+* feature: add enableAffinity param
+* feature: add StatefulSet
+
 ## 2.1.4 - Aug 29, 2022
 
 * feature: add clusterIP parameter for service

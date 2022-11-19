@@ -1,10 +1,10 @@
-# Nixys universal Helm chart
+# gromr1 universal Helm chart
 
 ## TL;DR
 
 ```bash
-$ helm repo add nixys https://registry.nixys.ru/chartrepo/public
-$ helm install my-release nixys/universal-chart
+$ helm repo add gromr1 https://gromr1.github.io/nxs-universal-chart
+$ helm install whoami gromr1/universal-chart -f samples/whoami.yml
 ```
 
 Use the `--devel` flag to access release candidate versions.
