@@ -1,3 +1,7 @@
+
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
 deployments:
   whoami:
     securityContext:

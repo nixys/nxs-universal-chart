@@ -85,12 +85,13 @@ The command removes all the Kubernetes components associated with the chart and 
 
 `deploymentsGeneral` is a map of the Deployments parameters, which uses for all Deployments.
 
-| Name                                   | Description                                         | Value |
-|----------------------------------------|-----------------------------------------------------|-------|
-| `deploymentsGeneral.labels`            | Labels to add to all deployments                    | `{}`  |
-| `deploymentsGeneral.annotations`       | Annotations to add to all deployments               | `{}`  |
-| `deploymentsGeneral.extraVolumes`      | Array of k8s Volumes to add to all deployments      | `[]`  |
-| `deploymentsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all deployments | `[]`  |
+| Name                                   | Description                                         | Value     |
+|----------------------------------------|-----------------------------------------------------|-----------|
+| `deploymentsGeneral.enableAffinity`    | Enable or disable affinity                          | `"false"` |
+| `deploymentsGeneral.labels`            | Labels to add to all deployments                    | `{}`      |
+| `deploymentsGeneral.annotations`       | Annotations to add to all deployments               | `{}`      |
+| `deploymentsGeneral.extraVolumes`      | Array of k8s Volumes to add to all deployments      | `[]`      |
+| `deploymentsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all deployments | `[]`      |
 
 `deployments` is a map of the Deployment parameters, where key is a name of the Deployment.
 

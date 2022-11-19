@@ -13,6 +13,7 @@ hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "
 {{- else if $.Values.generic.hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.hostAliases "context" $) | nindent 2 }}
 {{- end }}
+{{- if or (eq $general.enableAffinity nil) (eq $general.enableAffinity true) }}
 {{- if .affinity }}
 affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 2 }}
 {{- else }}
@@ -21,6 +22,7 @@ affinity:
   nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 4 }}
   podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 4 }}
   podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if .dnsPolicy }}

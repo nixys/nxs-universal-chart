@@ -44,6 +44,7 @@ configMaps:
         }
 
 deploymentsGeneral:
+  enableAffinity: false # default is true
   extraVolumes:
   - name: extra-app-vol2
     persistentVolumeClaim:
