@@ -1,9 +1,9 @@
-{{- $general := $.Values.deploymentsGeneral -}}
-{{- range $name, $d := .Values.deployments }}
+{{- $general := $.Values.statefulsetsGeneral -}}
+{{- range $name, $sts := .Values.statefulsets }}
 {{- if not (.disabled | default false) }}
 ---
-apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
-kind: Deployment
+apiVersion: {{ include "helpers.capabilities.statefulset.apiVersion" $ }}
+kind: StatefulSet
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace }}
@@ -19,6 +19,7 @@ spec:
   {{- with .strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  serviceName: {{ include "helpers.app.fullname" (dict "name" .serviceName "context" $) }}
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
