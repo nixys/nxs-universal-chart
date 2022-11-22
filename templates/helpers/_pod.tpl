@@ -49,6 +49,9 @@ imagePullSecrets:
 {{- if .terminationGracePeriodSeconds }}
 terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
 {{- end }}
+{{- if .restartPolicy }}
+restartPolicy: {{ .restartPolicy | default "Never" }}
+{{- end }}
 {{- with .initContainers}}
 initContainers:
 {{- range . }}
