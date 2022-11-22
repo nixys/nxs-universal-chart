@@ -56,6 +56,7 @@ spec:
         {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}{{- end }}
     spec:
       {{- include "helpers.pod" (dict "value" . "context" $ "general" $general "name" $name ) | indent 6 }}
+      restartPolicy: {{ .restartPolicy | default "Never" }}
 {{- if .commandDurationAlert }}
 ---
 apiVersion: monitoring.coreos.com/v1
