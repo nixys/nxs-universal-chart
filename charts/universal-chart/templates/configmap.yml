@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" "envs" "context" $) }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ include "helpers.app.namespace" $ }}
   labels: {{- include "helpers.app.labels" $ | nindent 4 }}
   annotations: {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
 data:
@@ -19,7 +19,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $cName "context" $) }}
-  namespace: {{ $.Release.Namespace | quote }}
+  namespace: {{ include "helpers.app.namespace" $ }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with $val.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}

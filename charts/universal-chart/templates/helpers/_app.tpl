@@ -16,15 +16,27 @@ If release name contains chart name it will be used as a full name.
 */}}
 {{- define "helpers.app.fullname" -}}
 {{- if .name -}}
-{{- if .context.Values.releasePrefix -}}
-{{- printf "%s-%s" .context.Values.releasePrefix .name | trunc 63 | trimAll "-" -}}
+  {{- if .context.Values.releasePrefix -}}
+  {{- printf "%s-%s" .context.Values.releasePrefix .name | trunc 63 | trimAll "-" -}}
+  {{- else -}}
+  {{- printf "%s-%s" (include "helpers.app.name" .context) .name | trunc 63 | trimSuffix "-" -}}
+  {{- end -}}
 {{- else -}}
-{{- printf "%s-%s" (include "helpers.app.name" .context) .name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- else -}}
-{{- include "helpers.app.name" .context -}}
+  {{- include "helpers.app.name" .context -}}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Allow the release namespace to be overridden for multi-namespace deployments in combined charts
+*/}}
+{{- define "helpers.app.namespace" -}}
+{{- if .Values.namespaceOverride }}
+{{- .Values.namespaceOverride }}
+{{- else }}
+{{- .Release.Namespace }}
+{{- end }}
+{{- end }}
 
 {{- define "helpers.app.labels" -}}
 {{ include "helpers.app.selectorLabels" . }}
