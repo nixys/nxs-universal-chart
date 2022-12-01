@@ -51,6 +51,10 @@ imagePullSecrets:
 {{- if .terminationGracePeriodSeconds }}
 terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
 {{- end }}
+
+{{/* initContainers is a slice (list) */}}
+{{/* https://stackoverflow.com/a/71797701/4474332 */}}
+{{- if and .initContainers (kindIs "slice" .initContainers) }}
 {{- with .initContainers}}
 initContainers:
 {{- range . }}
@@ -95,6 +99,20 @@ initContainers:
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | nindent 2 }}
 {{- end }}{{- end }}
+{{/* initContainers is a map (dict) */}}
+{{- else if and .initContainers (kindIs "map" .initContainers) }}
+initContainers:
+{{- range $nameInitContainer, $initContainer := .initContainers }}
+{{- if not (.disabled | default false) }}
+- name: {{ $nameInitContainer | quote }}
+  {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+  {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
+  image: {{ $image }}:{{ $imageTag }}
+  imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
+{{- end }}{{- end }} {{/* end if & range */}}
+
+{{- end }} {{/* end if and .initContainers .. */}}
+
 containers:
 {{- range .containers }}
 - name: {{ .name | default (printf "%s-%s" $name (lower (randAlphaNum 5))) }}
