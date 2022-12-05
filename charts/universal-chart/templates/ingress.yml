@@ -4,7 +4,7 @@ apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" ($ing.name | default $host) "context" $) }}
-  namespace: {{ $.Release.Namespace | quote }}
+  namespace: {{ include "helpers.app.namespace" $ }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with $ing.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
