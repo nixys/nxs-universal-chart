@@ -1,0 +1,65 @@
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+nameOverride: whoami
+
+deployments:
+  whoami:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: whoami
+      image: containous/whoami
+      imageTag: v1.5.0
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      args:
+        - --port
+        - "8080"
+      ports:
+        - name: web
+          containerPort: 8080
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+
+services:
+  whoami-web:
+    type: ClusterIP
+    ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+
+hooks:
+  test-job:
+    kind: test-success
+    deletePolicy: hook-succeeded
+    restartPolicy: Never
+    containers:
+    - image: curlimages/curl
+      imageTag: 7.86.0
+      command: ['curl']
+      args: [ '-q', '{{ $.Values.nameOverride }}-whoami-web:80']
+
+# ❯ helm install f ./charts/universal-chart --values samples/whoami-with-tests.yml
+#
+# ❯ helm test f
+# NAME: f
+# LAST DEPLOYED: Mon Dec  5 18:09:00 2022
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE:     whoami-test-job
+# Last Started:   Mon Dec  5 18:09:47 2022
+# Last Completed: Mon Dec  5 18:09:51 2022
+# Phase:          Succeeded
