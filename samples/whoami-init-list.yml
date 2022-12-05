@@ -3,7 +3,7 @@ deploymentsGeneral:
   enableAffinity: false # default is true
 
 # releasePrefix: "-"
-nameOverride: whoami-init
+nameOverride: whoami-init-list
 namespaceOverride: "whoami"
 
 deployments:
@@ -12,12 +12,11 @@ deployments:
       runAsUser: 1000
       runAsGroup: 3000
       fsGroup: 2000
-    # initContainers:
-    # - name: init-container-name
-    #   image: containous/init
     initContainers:
-      init-container-name:
-        image: containous/init
+    - name: init-container-name
+      image: busybox
+      imageTag: 1.28
+      command: ['sh', '-c', "echo $HOSTNAME"]
     containers:
     - name: whoami
       image: containous/whoami
