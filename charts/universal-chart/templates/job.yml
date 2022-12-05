@@ -13,7 +13,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ $jobName }}
-  namespace: {{ $.Release.Namespace | quote }}
+  namespace: {{ include "helpers.app.namespace" $ }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
