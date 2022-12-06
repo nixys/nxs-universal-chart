@@ -45,7 +45,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-{{- with .Values.generic.labels }}
+{{- with ((.Values).generic).labels }}
 {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
 {{- end }}
@@ -57,13 +57,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "helpers.app.genericSelectorLabels" -}}
-{{- with .Values.generic.extraSelectorLabels }}
+{{- with ((.Values).generic).extraSelectorLabels }}
 {{- include "helpers.tplvalues.render" (dict "value" . "context" .) }}
 {{- end }}
 {{- end }}
 
 {{- define "helpers.app.genericAnnotations" -}}
-{{- with .Values.generic.annotations }}
+{{- with ((.Values).generic).annotations }}
 {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
 {{- end }}
