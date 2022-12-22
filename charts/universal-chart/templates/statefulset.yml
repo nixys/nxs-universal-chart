@@ -16,8 +16,9 @@ metadata:
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   replicas: {{ .replicas | default 1 }}
-  {{- with .strategy }}
-  strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- with .updateStrategy }}
+  updateStrategy:
+    type: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
   {{- end }}
   serviceName: {{ include "helpers.app.fullname" (dict "name" .serviceName "context" $) }}
   selector:
@@ -36,5 +37,18 @@ spec:
         {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 8 }}{{- end }}
     spec:
       {{- include "helpers.pod" (dict "value" . "context" $ "general" $general "name" $name ) | indent 6 }}
+  volumeClaimTemplates:
+  {{- range $name, $vc := .volumeClaimTemplates }}
+  - metadata:
+      name: {{ include "helpers.tplvalues.render" (dict "value" $name "context" $) }}
+      namespace: {{ include "helpers.app.namespace" $ }}
+      labels:
+        {{- include "helpers.app.labels" $ | nindent 8 }}
+        {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+      annotations:
+        {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    spec:
+      {{- include "helpers.pvc" (dict "value" . "context" $) | nindent 6 }}
+  {{- end }}
 {{- end }}
 {{- end }}

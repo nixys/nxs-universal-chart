@@ -11,17 +11,5 @@ metadata:
   annotations:
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  accessModes: {{- include "helpers.tplvalues.render" ( dict "value" .accessModes "context" $ ) | nindent 4 }}
-  {{- with .volumeMode }}
-  volumeMode: {{ . }}
-  {{- end }}
-  resources:
-    requests:
-      storage: {{ .size | default "1Gi" }}
-  {{- with .storageClassName }}
-  storageClassName: {{ . }}
-  {{- end }}
-  {{- with .selector }}
-    {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
-  {{- end }}
+  {{- include "helpers.pvc" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}

@@ -1,6 +1,8 @@
 statefulsets:
   whoami:
     serviceName: whoami-web
+    replicas: 2
+    updateStrategy: OnDelete
     securityContext:
       runAsUser: 1000
       runAsGroup: 3000
@@ -25,6 +27,15 @@ statefulsets:
       securityContext:
         allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
+      volumeMounts:
+        - name: data
+          mountPath: /data
+    volumeClaimTemplates:
+      data:
+        storageClassName: local-path
+        accessModes: ["ReadWriteOnce"]
+        size: 10Mi
+
 
 services:
   whoami-web:
