@@ -50,6 +50,9 @@ Use this line (comment) for debug:
   {{- with .readinessProbe }}
   readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- with .startupProbe }}
+  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
   {{- with .resources }}
   resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
