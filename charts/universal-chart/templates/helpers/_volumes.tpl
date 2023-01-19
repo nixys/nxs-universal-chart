@@ -31,6 +31,19 @@
     {{- else }}
     claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
+{{- else if eq .type "emptyDir" }}
+- name: {{ .name }}
+  {{- if or .sizeLimit .medium }}
+  emptyDir:
+    {{- if .sizeLimit }}
+    sizeLimit: {{ .sizeLimit }}
+    {{- end }}
+    {{- if .medium }}
+    medium: {{ .medium }}
+    {{- end }}
+  {{- else }}
+  emptyDir: {}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
