@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.12 - Jan 22, 2023
+* add emptyDir volume type
+
 ## 2.1.5 - Nov 19, 2022
 
 * feature: add GitHub Actions
