@@ -1,10 +1,12 @@
+cronJobsGeneral:
+  enableAffinity: false
+  env:
+  - name: WORKLOAD_TYPE
+    value: CronJob
+
 cronJobs:
 
   mailing:
-    affinity:
-      nodeAffinity: {}
-      podAntiAffinity: {}
-      podAffinity: {}
     schedule: "00 05 * * *"
     containers:
     - command: send-mail
@@ -19,10 +21,6 @@ cronJobs:
     restartPolicy: OnFailure
 
   flush-cache:
-    affinity:
-      nodeAffinity: {}
-      podAntiAffinity: {}
-      podAffinity: {}
     schedule: "00 * * * *"
     containers:
     - command: flush-cache
@@ -37,10 +35,6 @@ cronJobs:
     restartPolicy: OnFailure
 
   report:
-    affinity:
-      nodeAffinity: {}
-      podAntiAffinity: {}
-      podAffinity: {}
     schedule: "00 2 7 * *"
     containers:
     - command: make-report

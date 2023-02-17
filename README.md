@@ -89,6 +89,12 @@ The command removes all the Kubernetes components associated with the chart and 
 |----------------------------------------|-----------------------------------------------------|-------|
 | `deploymentsGeneral.labels`            | Labels to add to all deployments                    | `{}`  |
 | `deploymentsGeneral.annotations`       | Annotations to add to all deployments               | `{}`  |
+| `deploymentsGeneral.envsFromConfigmap` | Map of ConfigMaps and envs from it                  | `{}`  |
+| `deploymentsGeneral.envsFromSecret`    | Map of Secrets and envs from it                     | `{}`  |
+| `deploymentsGeneral.env`               | Array of extra environment variables                | `[]`  |
+| `deploymentsGeneral.envConfigmaps`     | Array of Configmaps names with extra envs           | `[]`  |
+| `deploymentsGeneral.envSecrets`        | Array of Secrets names with extra envs              | `[]`  |
+| `deploymentsGeneral.envFrom`           | Array of extra envFrom objects                      | `[]`  |
 | `deploymentsGeneral.extraVolumes`      | Array of k8s Volumes to add to all deployments      | `[]`  |
 | `deploymentsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all deployments | `[]`  |
 
@@ -143,6 +149,51 @@ The command removes all the Kubernetes components associated with the chart and 
 | `readinessProbe`       | Readiness probe object for container                                                                                       | `{}`             |
 | `resources`            | The resources requests and limits for container                                                                            | `{}`             |
 | `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
+
+### StatefulSets parameters
+
+`statefulsetsGeneral` is a map of the StatefulSets parameters, which uses for all StatefulSets.
+
+| Name                                    | Description                                          | Value |
+|-----------------------------------------|------------------------------------------------------|-------|
+| `statefulsetsGeneral.labels`            | Labels to add to all statefulsets                    | `{}`  |
+| `statefulsetsGeneral.annotations`       | Annotations to add to all statefulsets               | `{}`  |
+| `statefulsetsGeneral.envsFromConfigmap` | Map of ConfigMaps and envs from it                   | `{}`  |
+| `statefulsetsGeneral.envsFromSecret`    | Map of Secrets and envs from it                      | `{}`  |
+| `statefulsetsGeneral.env`               | Array of extra environment variables                 | `[]`  |
+| `statefulsetsGeneral.envConfigmaps`     | Array of Configmaps names with extra envs            | `[]`  |
+| `statefulsetsGeneral.envSecrets`        | Array of Secrets names with extra envs               | `[]`  |
+| `statefulsetsGeneral.envFrom`           | Array of extra envFrom objects                       | `[]`  |
+| `statefulsetsGeneral.extraVolumes`      | Array of k8s Volumes to add to all statefulsets      | `[]`  |
+| `statefulsetsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all statefulsets | `[]`  |
+
+`statefulsets` is a map of the StatefulSets parameters, where key is a name of the StatefulSets.
+
+| Name                            | Description                                                                                                                                                            | Value |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| `labels`                        | Extra labels for statefulset                                                                                                                                           | `{}`  |
+| `annotations`                   | Extra annotations for statefulset                                                                                                                                      | `{}`  |
+| `replicas`                      | Statefulset replicas count                                                                                                                                             | `1`   |
+| `minReadySeconds`               | Statefulset minReadySeconds                                                                                                                                            | ``    |
+| `strategy`                      | Statefulset strategy                                                                                                                                                   | `{}`  |
+| `extraSelectorLabels`           | Extra selectorLabels for statefulset                                                                                                                                   | `{}`  |
+| `podLabels`                     | Extra pod labels for statefulset                                                                                                                                       | `{}`  |
+| `podAnnotations`                | Extra pod annotations for statefulset                                                                                                                                  | `{}`  |
+| `serviceAccountName`            | The name of the ServiceAccount to use by statefulset                                                                                                                   | `""`  |
+| `hostAliases`                   | Pods host aliases                                                                                                                                                      | `[]`  |
+| `affinity`                      | Affinity for statefulset; replicas pods assignment                                                                                                                     | `{}`  |
+| `securityContext`               | Security Context for statefulset pods                                                                                                                                  | `{}`  |
+| `dnsPolicy`                     | DnsPolicy for statefulset pods                                                                                                                                         | `""`  |
+| `nodeSelector`                  | Node labels for statefulset; pods assignment                                                                                                                           | `{}`  |
+| `tolerations`                   | Tolerations for statefulset; replicas pods assignment                                                                                                                  | `[]`  |
+| `imagePullSecrets`              | DEPRECATED. Array of existing pull secrets                                                                                                                             | `[]`  |
+| `extraImagePullSecrets`         | Array of existing pull secrets                                                                                                                                         | `[]`  |
+| `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                                                                                              | `30`  |
+| `initContainers`                | Array of the statefulset initContainers ([container](#container-object-parameters) objects)                                                                            | `[]`  |
+| `containers`                    | Array of the statefulset Containers ([container](#container-object-parameters) objects)                                                                                | `[]`  |
+| `volumes`                       | Array of the statefulset typed [volume](#typed-volumes-parameters) objects                                                                                             | `[]`  |
+| `extraVolumes`                  | Array of [k8s Volumes](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volume-v1-core) to add to statefulsets                                     | `[]`  |
+| `volumeClaimTemplates`          | Array of [k8s volumeClaimTemplates](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#persistentvolumeclaimtemplate-v1-core) to add to statefulsets | `[]`  |
 
 ### Services parameters
 
@@ -248,6 +299,12 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |----------------------------------------|-----------------------------------------------------------------------------------------|-------|
 | `hooksGeneral.labels`                  | Extra labels for all Hook Job                                                           | `{}`  |
 | `hooksGeneral.annotations`             | Extra annotations for all Hook Job                                                      | `{}`  |
+| `hooksGeneral.envsFromConfigmap`       | Map of ConfigMaps and envs from it                                                      | `{}`  |
+| `hooksGeneral.envsFromSecret`          | Map of Secrets and envs from it                                                         | `{}`  |
+| `hooksGeneral.env`                     | Array of extra environment variables                                                    | `[]`  |
+| `hooksGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                               | `[]`  |
+| `hooksGeneral.envSecrets`              | Array of Secrets names with extra envs                                                  | `[]`  |
+| `hooksGeneral.envFrom`                 | Array of extra envFrom objects                                                          | `[]`  |
 | `hooksGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Hook level)                 | `1`   | 
 | `hooksGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Hook level)            | `1`   | 
 | `hooksGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Hook level)                                  | `100` | 
@@ -299,6 +356,12 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |---------------------------------------|----------------------------------------------------------------------------------------|-------|
 | `jobsGeneral.labels`                  | Extra labels for all Job                                                               | `{}`  |
 | `jobsGeneral.annotations`             | Extra annotations for all Job                                                          | `{}`  |
+| `jobsGeneral.envsFromConfigmap`       | Map of ConfigMaps and envs from it                                                     | `{}`  |
+| `jobsGeneral.envsFromSecret`          | Map of Secrets and envs from it                                                        | `{}`  |
+| `jobsGeneral.env`                     | Array of extra environment variables                                                   | `[]`  |
+| `jobsGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                              | `[]`  |
+| `jobsGeneral.envSecrets`              | Array of Secrets names with extra envs                                                 | `[]`  |
+| `jobsGeneral.envFrom`                 | Array of extra envFrom objects                                                         | `[]`  |
 | `jobsGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Job level)                 | `1`   | 
 | `jobsGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Job level)            | `1`   | 
 | `jobsGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Job level)                                  | `100` | 
@@ -347,6 +410,12 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |----------------------------------------------|--------------------------------------------------------------------------------------------|-------|
 | `cronJobsGeneral.labels`                     | Extra labels for all CronJobs                                                              | `{}`  |
 | `cronJobsGeneral.annotations`                | Extra annotations for all CronJobs                                                         | `{}`  |
+| `cronJobsGeneral.envsFromConfigmap`          | Map of ConfigMaps and envs from it                                                         | `{}`  |
+| `cronJobsGeneral.envsFromSecret`             | Map of Secrets and envs from it                                                            | `{}`  |
+| `cronJobsGeneral.env`                        | Array of extra environment variables                                                       | `[]`  |
+| `cronJobsGeneral.envConfigmaps`              | Array of Configmaps names with extra envs                                                  | `[]`  |
+| `cronJobsGeneral.envSecrets`                 | Array of Secrets names with extra envs                                                     | `[]`  |
+| `cronJobsGeneral.envFrom`                    | Array of extra envFrom objects                                                             | `[]`  |
 | `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    |
 | `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   |
 | `cronJobsGeneral.failedJobsHistoryLimit`     | Limitation of failed jobs should be kept (ignored if defined on CronJob level)             | `1`   |

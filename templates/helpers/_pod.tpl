@@ -15,13 +15,11 @@ hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.gener
 {{- end }}
 {{- if .affinity }}
 affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 2 }}
-{{- else }}
-{{- if $general.enableAffinity | default false }}
+{{- else if $general.enableAffinity | default false }}
 affinity:
   nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 4 }}
   podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 4 }}
   podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 4 }}
-{{- end }}
 {{- end }}
 {{- if .dnsPolicy }}
 dnsPolicy: {{ .dnsPolicy }}
@@ -82,6 +80,9 @@ initContainers:
   {{- with .lifecycle }}
   lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- with .startupProbe }}
+  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
   {{- with .livenessProbe }}
   livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
@@ -117,13 +118,16 @@ containers:
   command: {{- include "helpers.tplvalues.render" ( dict "value" .command "context" $) | nindent 2 }}
   {{- end }}
   {{- end }}
-  {{- include "helpers.workloads.envs" (dict "value" . "context" $) | indent 2 }}
-  {{- include "helpers.workloads.envsFrom" (dict "value" . "context" $) | indent 2 }}
+  {{- include "helpers.workloads.envs" (dict "value" . "general" $general "context" $) | indent 2 }}
+  {{- include "helpers.workloads.envsFrom" (dict "value" . "general" $general "context" $) | indent 2 }}
   {{- with .ports }}
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}
   {{- with .lifecycle }}
   lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .startupProbe }}
+  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   {{- with .livenessProbe }}
   livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
