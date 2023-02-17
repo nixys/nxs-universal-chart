@@ -1,4 +1,4 @@
 include:
-- project: 'nxs-internal/gitlab-ci-templates'
+- project: 'apps/gitlab-ci-templates'
   ref: v1
   file: 'push-helm.gitlab-ci.yml'
