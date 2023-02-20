@@ -72,13 +72,13 @@ spec:
       template:
         metadata:
           labels:
-            {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 12 }}{{- end }}
+            {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
             {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
           annotations:
-            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 12 }}{{- end }}
-            {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
         spec:
-          {{- include "helpers.pod" (dict "value" . "context" $ "general" $general "name" $name ) | indent 10 }}
+          {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "context" $) | indent 10 }}
           restartPolicy: {{ .restartPolicy | default "Never" }}
 {{- if .commandDurationAlert }}
 ---

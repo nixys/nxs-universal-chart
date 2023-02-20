@@ -1,4 +1,7 @@
-statefulsets:
+statefulSetsGeneral:
+  usePredefinedAffinity: false
+
+statefulSets:
   whoami:
     serviceName: whoami-web
     securityContext:

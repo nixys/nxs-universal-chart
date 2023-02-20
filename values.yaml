@@ -17,7 +17,9 @@ generic:
   #  emptyDir: {}
   extraImagePullSecrets: []
   #- name: regcred
+  usePredefinedAffinity: true
 
+# Predefined Affinity block
 # Pod affinity preset
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 # Allowed values: soft, hard, nil
@@ -76,6 +78,7 @@ defaultImage: nginx
 defaultImageTag: latest
 defaultImagePullPolicy: "IfNotPresent"
 
+deploymentsGeneral: {}
 deployments: {}
 #  nginx:
 #    labels: {}
@@ -221,6 +224,10 @@ pvcs: {}
 #    - ReadWriteMany
 #    size: 8Gi
 
+statefulSetsGeneral: {}
+statefulSets: {}
+
+hooksGeneral: {}
 hooks: {}
 #  migration-up:
 #    containers:
@@ -231,6 +238,7 @@ hooks: {}
 #      - secretRef:
 #          name: server-env
 
+cronJobsGeneral: {}
 cronJobs: {}
 #  generate-data:
 #    schedule: "*/5 * * * *"
@@ -253,6 +261,7 @@ cronJobs: {}
 #    schedule: "*/5 * * * *"
 #    command: "php yii crontab/auto-sender"
 
+jobsGeneral: {}
 jobs: {}
 #  refresh-cache:
 #    command: "php yii crontab/refresh-cache"

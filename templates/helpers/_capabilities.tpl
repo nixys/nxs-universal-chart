@@ -42,7 +42,7 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "helpers.capabilities.statefulset.apiVersion" -}}
+{{- define "helpers.capabilities.statefulSet.apiVersion" -}}
 {{- if semverCompare "<1.14-0" (include "helpers.capabilities.kubeVersion" $) -}}
 {{- print "apps/v1beta1" -}}
 {{- else -}}

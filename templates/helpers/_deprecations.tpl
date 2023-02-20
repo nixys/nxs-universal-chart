@@ -1,11 +1,16 @@
 {{- define "helpers.deprecation.notice" -}}
 ** NOTICE **
 
-Option `imagePullSecrets` for workloads deprecated and will be removed in the future releases.
+Option `imagePullSecrets` for workloads deprecated and will be removed in the version 3.0.
 Please use `extraImagePullSecrets` instead.
 
-Option `servicemonitors` has been renamed to `serviceMonitors` and will be removed in the future releases.
+Option `servicemonitors` has been renamed to `serviceMonitors` and will be removed in the version 3.0.
 Please use `serviceMonitors` instead.
+
+** WARNING **
+
+Option `generic.usePredefinedAffinity` will change default value to `false` in the version 3.0.
+Please set this option in your values file or use `usePredefinedAffinity` in workloads generals.
 {{- end }}
 
 

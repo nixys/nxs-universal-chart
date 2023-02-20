@@ -42,19 +42,20 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Generic parameters
 
-| Name                            | Description                                                     | Value |
-|---------------------------------|-----------------------------------------------------------------|-------|
-| `generic.labels`                | Labels to add to all deployed objects                           | `{}`  |
-| `generic.annotations`           | Annotations to add to all deployed objects                      | `{}`  |
-| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services               | `{}`  |
-| `generic.podLabels`             | Labels to add to all deployed pods                              | `{}`  |
-| `generic.podAnnotations`        | Annotations to add to all deployed pods                         | `{}`  |
-| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`  |
-| `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`  |
-| `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`  |
-| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`  |
-| `generic.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`  |
-| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads | `[]`  |
+| Name                            | Description                                                     | Value  |
+|---------------------------------|-----------------------------------------------------------------|--------|
+| `generic.labels`                | Labels to add to all deployed objects                           | `{}`   |
+| `generic.annotations`           | Annotations to add to all deployed objects                      | `{}`   |
+| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services               | `{}`   |
+| `generic.podLabels`             | Labels to add to all deployed pods                              | `{}`   |
+| `generic.podAnnotations`        | Annotations to add to all deployed pods                         | `{}`   |
+| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`   |
+| `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`   |
+| `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`   |
+| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`   |
+| `generic.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`   |
+| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads | `[]`   |
+| `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                | `true` |
 
 ### Common parameters
 
@@ -85,12 +86,19 @@ The command removes all the Kubernetes components associated with the chart and 
 
 `deploymentsGeneral` is a map of the Deployments parameters, which uses for all Deployments.
 
-| Name                                   | Description                                         | Value |
-|----------------------------------------|-----------------------------------------------------|-------|
-| `deploymentsGeneral.labels`            | Labels to add to all deployments                    | `{}`  |
-| `deploymentsGeneral.annotations`       | Annotations to add to all deployments               | `{}`  |
-| `deploymentsGeneral.extraVolumes`      | Array of k8s Volumes to add to all deployments      | `[]`  |
-| `deploymentsGeneral.extraVolumeMounts` | Array of k8s VolumeMounts to add to all deployments | `[]`  |
+| Name                                       | Description                                         | Value   |
+|--------------------------------------------|-----------------------------------------------------|---------|
+| `deploymentsGeneral.labels`                | Labels to add to all deployments                    | `{}`    |
+| `deploymentsGeneral.annotations`           | Annotations to add to all deployments               | `{}`    |
+| `deploymentsGeneral.envsFromConfigmap`     | Map of ConfigMaps and envs from it                  | `{}`    |
+| `deploymentsGeneral.envsFromSecret`        | Map of Secrets and envs from it                     | `{}`    |
+| `deploymentsGeneral.env`                   | Array of extra environment variables                | `[]`    |
+| `deploymentsGeneral.envConfigmaps`         | Array of Configmaps names with extra envs           | `[]`    |
+| `deploymentsGeneral.envSecrets`            | Array of Secrets names with extra envs              | `[]`    |
+| `deploymentsGeneral.envFrom`               | Array of extra envFrom objects                      | `[]`    |
+| `deploymentsGeneral.extraVolumes`          | Array of k8s Volumes to add to all deployments      | `[]`    |
+| `deploymentsGeneral.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployments | `[]`    |
+| `deploymentsGeneral.usePredefinedAffinity` | Use Affinity presets in all deployments by default  | `false` |
 
 `deployments` is a map of the Deployment parameters, where key is a name of the Deployment.
 
@@ -123,7 +131,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | Name                   | Description                                                                                                                | Value            |
 |------------------------|----------------------------------------------------------------------------------------------------------------------------|------------------|
 | `name`                 | The name of the container                                                                                                  | `""`             |
-| `image`                | Docker image of the co<br/>ntainer                                                                                         | `""`             |
+| `image`                | Docker image of the container                                                                                              | `""`             |
 | `imageTag`             | Docker image tag of the container                                                                                          | `"latest"`       |
 | `imagePullPolicy`      | Docker image pull policy                                                                                                   | `"IfNotPresent"` |
 | `securityContext`      | Security Context for container                                                                                             | `{}`             |
@@ -240,25 +248,78 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
 | `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
 
+### StatefulSets parameters
+
+`statefulSetsGeneral` is a map of the StatefulSets parameters, which uses for all StatefulSets.
+
+| Name                                        | Description                                          | Value   |
+|---------------------------------------------|------------------------------------------------------|---------|
+| `statefulSetsGeneral.labels`                | Labels to add to all StatefulSets                    | `{}`    |
+| `statefulSetsGeneral.annotations`           | Annotations to add to all StatefulSets               | `{}`    |
+| `statefulSetsGeneral.envsFromConfigmap`     | Map of ConfigMaps and envs from it                   | `{}`    |
+| `statefulSetsGeneral.envsFromSecret`        | Map of Secrets and envs from it                      | `{}`    |
+| `statefulSetsGeneral.env`                   | Array of extra environment variables                 | `[]`    |
+| `statefulSetsGeneral.envConfigmaps`         | Array of Configmaps names with extra envs            | `[]`    |
+| `statefulSetsGeneral.envSecrets`            | Array of Secrets names with extra envs               | `[]`    |
+| `statefulSetsGeneral.envFrom`               | Array of extra envFrom objects                       | `[]`    |
+| `statefulSetsGeneral.extraVolumes`          | Array of k8s Volumes to add to all StatefulSets      | `[]`    |
+| `statefulSetsGeneral.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
+| `statefulSetsGeneral.usePredefinedAffinity` | Use Affinity presets in all StatefulSets by default  | `false` |
+
+`statefulSets` is a map of the StatefulSets parameters, where key is a name of the StatefulSets.
+
+| Name                            | Description                                                                                                                                                            | Value |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| `labels`                        | Extra labels for statefulSet                                                                                                                                           | `{}`  |
+| `annotations`                   | Extra annotations for statefulSet                                                                                                                                      | `{}`  |
+| `replicas`                      | StatefulSet replicas count                                                                                                                                             | `1`   |
+| `minReadySeconds`               | StatefulSet minReadySeconds                                                                                                                                            | ``    |
+| `strategy`                      | StatefulSet strategy                                                                                                                                                   | `{}`  |
+| `extraSelectorLabels`           | Extra selectorLabels for statefulSet                                                                                                                                   | `{}`  |
+| `podLabels`                     | Extra pod labels for statefulSet                                                                                                                                       | `{}`  |
+| `podAnnotations`                | Extra pod annotations for statefulSet                                                                                                                                  | `{}`  |
+| `serviceAccountName`            | The name of the ServiceAccount to use by statefulSet                                                                                                                   | `""`  |
+| `hostAliases`                   | Pods host aliases                                                                                                                                                      | `[]`  |
+| `affinity`                      | Affinity for statefulSet; replicas pods assignment                                                                                                                     | `{}`  |
+| `securityContext`               | Security Context for statefulSet pods                                                                                                                                  | `{}`  |
+| `dnsPolicy`                     | DnsPolicy for statefulSet pods                                                                                                                                         | `""`  |
+| `nodeSelector`                  | Node labels for statefulSet; pods assignment                                                                                                                           | `{}`  |
+| `tolerations`                   | Tolerations for statefulSet; replicas pods assignment                                                                                                                  | `[]`  |
+| `imagePullSecrets`              | DEPRECATED. Array of existing pull secrets                                                                                                                             | `[]`  |
+| `extraImagePullSecrets`         | Array of existing pull secrets                                                                                                                                         | `[]`  |
+| `terminationGracePeriodSeconds` | Integer setting the termination grace period for the pods                                                                                                              | `30`  |
+| `initContainers`                | Array of the statefulSet initContainers ([container](#container-object-parameters) objects)                                                                            | `[]`  |
+| `containers`                    | Array of the statefulSet Containers ([container](#container-object-parameters) objects)                                                                                | `[]`  |
+| `volumes`                       | Array of the statefulSet typed [volume](#typed-volumes-parameters) objects                                                                                             | `[]`  |
+| `extraVolumes`                  | Array of [k8s Volumes](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volume-v1-core) to add to statefulSets                                     | `[]`  |
+| `volumeClaimTemplates`          | Array of [k8s volumeClaimTemplates](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#persistentvolumeclaimtemplate-v1-core) to add to statefulSets | `[]`  |
+
 ### Hooks parameters
 
 `hooksGeneral` is a map of the Helm Hooks Jobs parameters, which uses for all Helm Hooks Jobs.
 
-| Name                                   | Description                                                                             | Value |
-|----------------------------------------|-----------------------------------------------------------------------------------------|-------|
-| `hooksGeneral.labels`                  | Extra labels for all Hook Job                                                           | `{}`  |
-| `hooksGeneral.annotations`             | Extra annotations for all Hook Job                                                      | `{}`  |
-| `hooksGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Hook level)                 | `1`   | 
-| `hooksGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Hook level)            | `1`   | 
-| `hooksGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Hook level)                                  | `100` | 
-| `hooksGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Hook level) | `6`   | 
-| `hooksGeneral.ttlSecondsAfterFinished` | TTL for delete finished Hook Job (ignored if defined on Hook level)                     | `100` | 
-| `hooksGeneral.podLabels`               | Extra pod labels for Hook Job (ignored if defined on Hook level)                        | `{}`  |
-| `hooksGeneral.podAnnotations`          | Extra pod annotations for Hook Job (ignored if defined on Hook level)                   | `{}`  |
-| `hooksGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Hook Job (ignored if defined on Hook level)    | `""`  |
-| `hooksGeneral.hostAliases`             | Pods host aliases (ignored if defined on Hook level)                                    | `[]`  |
-| `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`  |
-| `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`  |
+| Name                                   | Description                                                                             | Value   |
+|----------------------------------------|-----------------------------------------------------------------------------------------|---------|
+| `hooksGeneral.labels`                  | Extra labels for all Hook Job                                                           | `{}`    |
+| `hooksGeneral.annotations`             | Extra annotations for all Hook Job                                                      | `{}`    |
+| `hooksGeneral.envsFromConfigmap`       | Map of ConfigMaps and envs from it                                                      | `{}`    |
+| `hooksGeneral.envsFromSecret`          | Map of Secrets and envs from it                                                         | `{}`    |
+| `hooksGeneral.env`                     | Array of extra environment variables                                                    | `[]`    |
+| `hooksGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                               | `[]`    |
+| `hooksGeneral.envSecrets`              | Array of Secrets names with extra envs                                                  | `[]`    |
+| `hooksGeneral.envFrom`                 | Array of extra envFrom objects                                                          | `[]`    |
+| `hooksGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Hook level)                 | `1`     | 
+| `hooksGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Hook level)            | `1`     | 
+| `hooksGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Hook level)                                  | `100`   | 
+| `hooksGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Hook level) | `6`     | 
+| `hooksGeneral.ttlSecondsAfterFinished` | TTL for delete finished Hook Job (ignored if defined on Hook level)                     | `100`   | 
+| `hooksGeneral.podLabels`               | Extra pod labels for Hook Job (ignored if defined on Hook level)                        | `{}`    |
+| `hooksGeneral.podAnnotations`          | Extra pod annotations for Hook Job (ignored if defined on Hook level)                   | `{}`    |
+| `hooksGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Hook Job (ignored if defined on Hook level)    | `""`    |
+| `hooksGeneral.hostAliases`             | Pods host aliases (ignored if defined on Hook level)                                    | `[]`    |
+| `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`    |
+| `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`    |
+| `hooksGeneral.usePredefinedAffinity`   | Use Affinity presets in all Hook Jobs by default                                        | `false` |
 
 `hooks` is a map of the Helm Hooks Jobs parameters, where key is name of the Helm Hook job.
 
@@ -295,21 +356,28 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 `jobsGeneral` is a map of the Jobs parameters, which uses for all Jobs.
 
-| Name                                  | Description                                                                            | Value |
-|---------------------------------------|----------------------------------------------------------------------------------------|-------|
-| `jobsGeneral.labels`                  | Extra labels for all Job                                                               | `{}`  |
-| `jobsGeneral.annotations`             | Extra annotations for all Job                                                          | `{}`  |
-| `jobsGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Job level)                 | `1`   | 
-| `jobsGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Job level)            | `1`   | 
-| `jobsGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Job level)                                  | `100` | 
-| `jobsGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Job level) | `6`   | 
-| `jobsGeneral.ttlSecondsAfterFinished` | TTL for delete finished Job (ignored if defined on Job level)                          | `100` | 
-| `jobsGeneral.podLabels`               | Extra pod labels for Job (ignored if defined on Job level)                             | `{}`  |
-| `jobsGeneral.podAnnotations`          | Extra pod annotations for Job (ignored if defined on Job level)                        | `{}`  |
-| `jobsGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Job (ignored if defined on Job level)         | `""`  |
-| `jobsGeneral.hostAliases`             | Pods host aliases (ignored if defined on Job level)                                    | `[]`  |
-| `jobsGeneral.affinity`                | Affinity for Job; replicas pods assignment (ignored if defined on Job level)           | `{}`  |
-| `jobsGeneral.dnsPolicy`               | DnsPolicy for Job pods (ignored if defined on Job level)                               | `""`  |
+| Name                                  | Description                                                                            | Value   |
+|---------------------------------------|----------------------------------------------------------------------------------------|---------|
+| `jobsGeneral.labels`                  | Extra labels for all Job                                                               | `{}`    |
+| `jobsGeneral.annotations`             | Extra annotations for all Job                                                          | `{}`    |
+| `jobsGeneral.envsFromConfigmap`       | Map of ConfigMaps and envs from it                                                     | `{}`    |
+| `jobsGeneral.envsFromSecret`          | Map of Secrets and envs from it                                                        | `{}`    |
+| `jobsGeneral.env`                     | Array of extra environment variables                                                   | `[]`    |
+| `jobsGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                              | `[]`    |
+| `jobsGeneral.envSecrets`              | Array of Secrets names with extra envs                                                 | `[]`    |
+| `jobsGeneral.envFrom`                 | Array of extra envFrom objects                                                         | `[]`    |
+| `jobsGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Job level)                 | `1`     | 
+| `jobsGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Job level)            | `1`     | 
+| `jobsGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Job level)                                  | `100`   | 
+| `jobsGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Job level) | `6`     | 
+| `jobsGeneral.ttlSecondsAfterFinished` | TTL for delete finished Job (ignored if defined on Job level)                          | `100`   | 
+| `jobsGeneral.podLabels`               | Extra pod labels for Job (ignored if defined on Job level)                             | `{}`    |
+| `jobsGeneral.podAnnotations`          | Extra pod annotations for Job (ignored if defined on Job level)                        | `{}`    |
+| `jobsGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Job (ignored if defined on Job level)         | `""`    |
+| `jobsGeneral.hostAliases`             | Pods host aliases (ignored if defined on Job level)                                    | `[]`    |
+| `jobsGeneral.affinity`                | Affinity for Job; replicas pods assignment (ignored if defined on Job level)           | `{}`    |
+| `jobsGeneral.dnsPolicy`               | DnsPolicy for Job pods (ignored if defined on Job level)                               | `""`    |
+| `jobsGeneral.usePredefinedAffinity`   | Use Affinity presets in all Jobs by default                                            | `false` |
 
 `jobs` is a map of the Jobs parameters, where key is a name of the Job.
 
@@ -343,24 +411,31 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 `cronJobsGeneral` is a map of the CronJobs parameters, which uses for all CronJobs.
 
-| Name                                         | Description                                                                                | Value |
-|----------------------------------------------|--------------------------------------------------------------------------------------------|-------|
-| `cronJobsGeneral.labels`                     | Extra labels for all CronJobs                                                              | `{}`  |
-| `cronJobsGeneral.annotations`                | Extra annotations for all CronJobs                                                         | `{}`  |
-| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``    |
-| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`   |
-| `cronJobsGeneral.failedJobsHistoryLimit`     | Limitation of failed jobs should be kept (ignored if defined on CronJob level)             | `1`   |
-| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`   |
-| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`   |
-| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100` |
-| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`   |
-| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100` |
-| `cronJobsGeneral.podLabels`                  | Extra pod labels for CronJob (ignored if defined on CronJob level)                         | `{}`  |
-| `cronJobsGeneral.podAnnotations`             | Extra pod annotations for CronJob (ignored if defined on CronJob level)                    | `{}`  |
-| `cronJobsGeneral.serviceAccountName`         | The name of the ServiceAccount to use by Job (ignored if defined on CronJob level)         | `""`  |
-| `cronJobsGeneral.hostAliases`                | Pods host aliases (ignored if defined on CronJob level)                                    | `[]`  |
-| `cronJobsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`  |
-| `cronJobsGeneral.dnsPolicy`                  | DnsPolicy for CronJob pods (ignored if defined on CronJob level)                           | `""`  |
+| Name                                         | Description                                                                                | Value   |
+|----------------------------------------------|--------------------------------------------------------------------------------------------|---------|
+| `cronJobsGeneral.labels`                     | Extra labels for all CronJobs                                                              | `{}`    |
+| `cronJobsGeneral.annotations`                | Extra annotations for all CronJobs                                                         | `{}`    |
+| `cronJobsGeneral.envsFromConfigmap`          | Map of ConfigMaps and envs from it                                                         | `{}`    |
+| `cronJobsGeneral.envsFromSecret`             | Map of Secrets and envs from it                                                            | `{}`    |
+| `cronJobsGeneral.env`                        | Array of extra environment variables                                                       | `[]`    |
+| `cronJobsGeneral.envConfigmaps`              | Array of Configmaps names with extra envs                                                  | `[]`    |
+| `cronJobsGeneral.envSecrets`                 | Array of Secrets names with extra envs                                                     | `[]`    |
+| `cronJobsGeneral.envFrom`                    | Array of extra envFrom objects                                                             | `[]`    |
+| `cronJobsGeneral.startingDeadlineSeconds`    | Duration for starting all CronJobs (ignored if defined on CronJob level)                   | ``      |
+| `cronJobsGeneral.successfulJobsHistoryLimit` | Limitation of completed jobs should be kept (ignored if defined on CronJob level)          | `3`     |
+| `cronJobsGeneral.failedJobsHistoryLimit`     | Limitation of failed jobs should be kept (ignored if defined on CronJob level)             | `1`     |
+| `cronJobsGeneral.parallelism`                | How much pods of Job can be run in parallel (ignored if defined on CronJob level)          | `1`     |
+| `cronJobsGeneral.completions`                | How much pods should finish to finish Job (ignored if defined on CronJob level)            | `1`     |
+| `cronJobsGeneral.activeDeadlineSeconds`      | Duration of the Job (ignored if defined on CronJob level)                                  | `100`   |
+| `cronJobsGeneral.backoffLimit`               | Number of retries before considering a Job as failed (ignored if defined on CronJob level) | `6`     |
+| `cronJobsGeneral.ttlSecondsAfterFinished`    | TTL for delete finished Jobs (ignored if defined on CronJob level)                         | `100`   |
+| `cronJobsGeneral.podLabels`                  | Extra pod labels for CronJob (ignored if defined on CronJob level)                         | `{}`    |
+| `cronJobsGeneral.podAnnotations`             | Extra pod annotations for CronJob (ignored if defined on CronJob level)                    | `{}`    |
+| `cronJobsGeneral.serviceAccountName`         | The name of the ServiceAccount to use by Job (ignored if defined on CronJob level)         | `""`    |
+| `cronJobsGeneral.hostAliases`                | Pods host aliases (ignored if defined on CronJob level)                                    | `[]`    |
+| `cronJobsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
+| `cronJobsGeneral.dnsPolicy`                  | DnsPolicy for CronJob pods (ignored if defined on CronJob level)                           | `""`    |
+| `cronJobsGeneral.usePredefinedAffinity`      | Use Affinity presets in all CronJobs by default                                            | `false` |
 
 `cronJobs` is a map of the CronJobs parameters, where key is name of the CronJob.
 
@@ -598,6 +673,27 @@ helm install my-apps nixys/universal-chart -f values.yaml --set imageRepo1=reg.a
 ```
 
 #### Example 3.
+
+Add `defaultURL` parameter to values and use it in ingress template.
+
+```yaml
+ingresses:
+  my-app:
+    ...
+    hosts:
+    - hostname: '{{ $.Values.defaultURL }}'
+      paths:
+      - serviceName: nginx
+        servicePort: 8080
+```
+
+Create release with `--set` flag
+
+```bash
+helm install my-app nixys/universal-chart -f values.yaml --set defaultURL=demo.my-app.com
+```
+
+#### Example 4.
 
 Deploy of `NetworkPolicy` using `extraDeploy`.
 
