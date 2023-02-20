@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.2.0 - Feb 20, 2023
+
+* changed license to Apache2.0
+* feature: add StatefilSet workload
+* feature: add `startupProbe` to containers
+* feature: add generic parameter `usePredefinedAffinity` for enable/disable predefined affinity usage in workloads (`true` by default)
+* feature: add workloads parameter `usePredefinedAffinity` for enable/disable predefined affinity usage (not used by default)
+* feature: add `env`, `envsFromConfigmap`, `envsFromSecret`, `envFrom`, `envConfigmaps`, `envSecrets` parameters to workloads generals
+* deprecation: generic parameter `usePredefinedAffinity` will change default value to `false` in version 3.0
+* improvement: pod template moved to helper
+* docs update
+
 ## 2.1.4 - Aug 29, 2022
 
 * feature: add clusterIP parameter for service
