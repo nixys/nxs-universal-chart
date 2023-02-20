@@ -1,6 +1,8 @@
 {{- define "helpers.pod" -}}
 {{- $ := .context -}}
 {{- $general := .general -}}
+{{- $usePredefinedAffinity := $.Values.generic.usePredefinedAffinity -}}
+{{- if (ne $general.usePredefinedAffinity nil) }}{{ $usePredefinedAffinity = $general.usePredefinedAffinity }}{{ end -}}
 {{- $name := .name -}}
 {{- with .value -}}
 {{- if .serviceAccountName }}
@@ -15,7 +17,7 @@ hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.gener
 {{- end }}
 {{- if .affinity }}
 affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 2 }}
-{{- else if $general.enableAffinity | default false }}
+{{- else if $usePredefinedAffinity }}
 affinity:
   nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 4 }}
   podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 4 }}
