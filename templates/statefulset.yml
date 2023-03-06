@@ -36,7 +36,7 @@ spec:
         {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
     spec:
-      {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "context" $) | indent 6 }}
+      {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "extraLabels" .extraSelectorLabels "context" $) | indent 6 }}
     {{- with .volumeClaimTemplates }}
     volumeClaimTemplates:
       {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}

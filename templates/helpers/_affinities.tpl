@@ -1,32 +1,34 @@
 {{- define "helpers.affinities.nodes.soft" -}}
+{{- $ctx := .context -}}
 preferredDuringSchedulingIgnoredDuringExecution:
-- preference:
+- weight: 1
+  preference:
     matchExpressions:
-    - key: {{ .key }}
+    - key: {{ include "helpers.tplvalues.render" (dict "value" .key "context" $ctx) }}
       operator: In
       values:
       {{- range .values }}
       {{- if typeIs "string" . }}
-      - {{ . | quote }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | quote }}
       {{- else }}
-      - {{ . }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
       {{- end }}
       {{- end }}
-  weight: 1
 {{- end -}}
 
 {{- define "helpers.affinities.nodes.hard" -}}
+{{- $ctx := .context -}}
 requiredDuringSchedulingIgnoredDuringExecution:
   nodeSelectorTerms:
   - matchExpressions:
-    - key: {{ .key }}
+    - key: {{ include "helpers.tplvalues.render" (dict "value" .key "context" $ctx) }}
       operator: In
       values:
       {{- range .values }}
       {{- if typeIs "string" . }}
-      - {{ . | quote }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | quote }}
       {{- else }}
-      - {{ . }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
       {{- end }}
       {{- end }}
 {{- end -}}
@@ -39,44 +41,45 @@ requiredDuringSchedulingIgnoredDuringExecution:
 {{- include "helpers.affinities.nodes.hard" $ -}}
 {{- end -}}
 {{- else -}}
-  {}
+{}
 {{- end -}}
 {{- end -}}
+
+{{- define "helpers.affinities.pods" -}}
+{{- with .type -}}
+{{- if eq . "soft" }}
+{{- include "helpers.affinities.pods.soft" $ -}}
+{{- else if eq . "hard" }}
+{{- include "helpers.affinities.pods.hard" $ -}}
+{{- end -}}
+{{- else -}}
+{}
+{{- end -}}
+{{- end -}}
+
 
 {{- define "helpers.affinities.pods.soft" -}}
 {{- $component := default "" .component -}}
 preferredDuringSchedulingIgnoredDuringExecution:
-- podAffinityTerm:
-    labelSelector:
-      matchLabels: {{- (include "helpers.app.selectorLabels" .context) | nindent 8 }}
-        {{- if not (empty $component) }}
-        {{ printf "app.kubernetes.io/component: %s" $component }}
-        {{- end }}
-    namespaces:
-    - {{ .context.Release.Namespace | quote }}
-    topologyKey: kubernetes.io/hostname
-  weight: 1
+- weight: 1
+  podAffinityTerm:
+    {{- include "helpers.affinities.pods.labelSelector" $ | nindent 4 }}
 {{- end -}}
 
 {{- define "helpers.affinities.pods.hard" -}}
-{{- $component := default "" .component -}}
 requiredDuringSchedulingIgnoredDuringExecution:
-- labelSelector:
-    matchLabels: {{- (include "helpers.app.selectorLabels" .context) | nindent 6 }}
-      {{- if not (empty $component) }}
-      {{ printf "app.kubernetes.io/component: %s" $component }}
-      {{- end }}
-  namespaces:
-  - {{ .context.Release.Namespace | quote }}
-  topologyKey: kubernetes.io/hostname
+- {{- include "helpers.affinities.pods.labelSelector" $ | nindent 2 }}
 {{- end -}}
 
-{{- define "helpers.affinities.pods" -}}
-{{- if .type -}}
-{{- if eq .type "soft" }}
-{{- include "helpers.affinities.pods.soft" $ -}}
-{{- else if eq .type "hard" }}
-{{- include "helpers.affinities.pods.hard" $ -}}
-{{- end -}}
-{{- end -}}
+{{- define "helpers.affinities.pods.labelSelector" -}}
+{{- $extraLabels := default "" .extraLabels -}}
+labelSelector:
+  matchLabels:
+    {{- (include "helpers.app.selectorLabels" .context) | nindent 4 }}
+    {{- with $extraLabels }}
+    {{ toYaml . }}
+    {{- end }}
+namespaces:
+- {{ .context.Release.Namespace | quote }}
+topologyKey: kubernetes.io/hostname
 {{- end -}}

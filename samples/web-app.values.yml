@@ -48,7 +48,7 @@ deploymentsGeneral:
   - name: extra-app-vol2
     persistentVolumeClaim:
       claimName: extra-app-pvc2
-  extraVolumeMounts:
+  volumeMounts:
   - name: extra-app-vol2
     mountPath: /var/app/data
 
