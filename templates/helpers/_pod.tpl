@@ -1,6 +1,7 @@
 {{- define "helpers.pod" -}}
 {{- $ := .context -}}
 {{- $general := .general -}}
+{{- $extraLabels := .extraLabels -}}
 {{- $usePredefinedAffinity := $.Values.generic.usePredefinedAffinity -}}
 {{- if (ne $general.usePredefinedAffinity nil) }}{{ $usePredefinedAffinity = $general.usePredefinedAffinity }}{{ end -}}
 {{- $name := .name -}}
@@ -19,9 +20,9 @@ hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.gener
 affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 2 }}
 {{- else if $usePredefinedAffinity }}
 affinity:
-  nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values) | nindent 4 }}
-  podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "context" $) | nindent 4 }}
-  podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "context" $) | nindent 4 }}
+  nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values "context" $) | nindent 4 }}
+  podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
+  podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
 {{- end }}
 {{- if .dnsPolicy }}
 dnsPolicy: {{ .dnsPolicy }}

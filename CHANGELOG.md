@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.0 - Mar 06, 2023
+
+* feature: add typed volumes via generic and workloads generals parameter `volumes` 
+* feature: add labels form workload `extraSelectorLabels` parameter to pod affinity preset
+* feature: add generic and workloads generals parameter `volumeMounts`
+* deprecation: generic and workloads generals parameter `extraVolumeMounts` is marked as deprecated
+
 ## 2.2.0 - Feb 20, 2023
 
 * changed license to Apache2.0

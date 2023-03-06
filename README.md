@@ -17,7 +17,7 @@ To install the chart with the release name `my-release`:
 $ helm install my-release nixys/universal-chart -f values.yaml
 ```
 
-The command deploys your app with custom values on the Kubernetes cluster. The [Parameters](#parameters) section lists
+The command deploys your app with custom values on the Kubernetes cluster. The [Parameters'](#parameters) section lists
 the parameters that can be configured during installation.
 
 > **Tip**: List all releases using `helm list`
@@ -52,8 +52,9 @@ The command removes all the Kubernetes components associated with the chart and 
 | `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`   |
 | `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`   |
 | `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`   |
+| `generic.volumes`               | Array of typed Volumes to add to all deployed workloads         | `[]`   |
+| `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`   |
 | `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`   |
-| `generic.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`   |
 | `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads | `[]`   |
 | `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                | `true` |
 
@@ -97,7 +98,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `deploymentsGeneral.envSecrets`            | Array of Secrets names with extra envs              | `[]`    |
 | `deploymentsGeneral.envFrom`               | Array of extra envFrom objects                      | `[]`    |
 | `deploymentsGeneral.extraVolumes`          | Array of k8s Volumes to add to all deployments      | `[]`    |
-| `deploymentsGeneral.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all deployments | `[]`    |
+| `deploymentsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all deployments | `[]`    |
 | `deploymentsGeneral.usePredefinedAffinity` | Use Affinity presets in all deployments by default  | `false` |
 
 `deployments` is a map of the Deployment parameters, where key is a name of the Deployment.
@@ -263,7 +264,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `statefulSetsGeneral.envSecrets`            | Array of Secrets names with extra envs               | `[]`    |
 | `statefulSetsGeneral.envFrom`               | Array of extra envFrom objects                       | `[]`    |
 | `statefulSetsGeneral.extraVolumes`          | Array of k8s Volumes to add to all StatefulSets      | `[]`    |
-| `statefulSetsGeneral.extraVolumeMounts`     | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
+| `statefulSetsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
 | `statefulSetsGeneral.usePredefinedAffinity` | Use Affinity presets in all StatefulSets by default  | `false` |
 
 `statefulSets` is a map of the StatefulSets parameters, where key is a name of the StatefulSets.
@@ -319,6 +320,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `hooksGeneral.hostAliases`             | Pods host aliases (ignored if defined on Hook level)                                    | `[]`    |
 | `hooksGeneral.affinity`                | Affinity for Hook Job; replicas pods assignment (ignored if defined on Hook level)      | `{}`    |
 | `hooksGeneral.dnsPolicy`               | DnsPolicy for Hook Job pods (ignored if defined on Hook level)                          | `""`    |
+| `hooksGeneral.extraVolumes`            | Array of k8s Volumes to add to all Hook Jobs                                            | `[]`    |
+| `hooksGeneral.volumeMounts`            | Array of k8s VolumeMounts to add to all Hook Jobs                                       | `[]`    |
 | `hooksGeneral.usePredefinedAffinity`   | Use Affinity presets in all Hook Jobs by default                                        | `false` |
 
 `hooks` is a map of the Helm Hooks Jobs parameters, where key is name of the Helm Hook job.
@@ -377,6 +380,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `jobsGeneral.hostAliases`             | Pods host aliases (ignored if defined on Job level)                                    | `[]`    |
 | `jobsGeneral.affinity`                | Affinity for Job; replicas pods assignment (ignored if defined on Job level)           | `{}`    |
 | `jobsGeneral.dnsPolicy`               | DnsPolicy for Job pods (ignored if defined on Job level)                               | `""`    |
+| `jobsGeneral.extraVolumes`            | Array of k8s Volumes to add to all Jobs                                                | `[]`    |
+| `jobsGeneral.volumeMounts`            | Array of k8s VolumeMounts to add to all Jobs                                           | `[]`    |
 | `jobsGeneral.usePredefinedAffinity`   | Use Affinity presets in all Jobs by default                                            | `false` |
 
 `jobs` is a map of the Jobs parameters, where key is a name of the Job.
@@ -435,6 +440,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `cronJobsGeneral.hostAliases`                | Pods host aliases (ignored if defined on CronJob level)                                    | `[]`    |
 | `cronJobsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `cronJobsGeneral.dnsPolicy`                  | DnsPolicy for CronJob pods (ignored if defined on CronJob level)                           | `""`    |
+| `cronJobsGeneral.extraVolumes`               | Array of k8s Volumes to add to all CronJobs                                                | `[]`    |
+| `cronJobsGeneral.volumeMounts`               | Array of k8s VolumeMounts to add to all CronJobs                                           | `[]`    |
 | `cronJobsGeneral.usePredefinedAffinity`      | Use Affinity presets in all CronJobs by default                                            | `false` |
 
 `cronJobs` is a map of the CronJobs parameters, where key is name of the CronJob.
