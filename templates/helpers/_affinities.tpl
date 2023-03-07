@@ -61,7 +61,7 @@ requiredDuringSchedulingIgnoredDuringExecution:
 {{- define "helpers.affinities.pods.soft" -}}
 {{- $component := default "" .component -}}
 preferredDuringSchedulingIgnoredDuringExecution:
-- weight: 1
+- weight: 100
   podAffinityTerm:
     {{- include "helpers.affinities.pods.labelSelector" $ | nindent 4 }}
 {{- end -}}
