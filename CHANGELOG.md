@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.13 - Apr 2, 2023
+* fix: disables adding hook annotations on all configmaps and secrets by default (you can setup it when you really need it, see a note `values.yaml` in parameter `generic.hookAnnotations`):
+  * `helm.sh/hook: "pre-install,pre-upgrade"`
+  * `helm.sh/hook-weight: "-999"`
+  * `helm.sh/hook-delete-policy: before-hook-creation`
+
 ## 2.1.12 - Jan 22, 2023
 * add emptyDir volume type
 

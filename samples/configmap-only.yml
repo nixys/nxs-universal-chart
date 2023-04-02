@@ -1,0 +1,49 @@
+fooValue: "123"  # define a custom variable
+
+configMaps:
+  sample-config:
+    data:
+      data.conf: |
+        worker_processes  1;
+        load_module modules/ngx_http_js_module.so;
+  config-with-annotations:
+    annotations:
+      zzz: bar
+      helm.sh/hook: "pre-install,pre-upgrade,post-delete"  # override default annotation "helm.sh/hook"
+      foo: '{{ $.Values.fooValue }}'  # use a render function
+    data:
+      data.conf: |
+        worker_processes  1;
+        load_module modules/ngx_http_js_module.so;
+
+# configmap with ENVs
+envs:
+  BAR: foo
+  TEST: "true"
+
+######
+## run with:
+## helm template w --values ./samples/configmap-only.yml  ./charts/universal-chart/.  --debug
+##
+## result should be:
+######
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: w-whoami-config
+#   namespace: local-path-storage
+#   labels:
+#     app.kubernetes.io/name: w
+#     app.kubernetes.io/instance: w
+#     helm.sh/chart: universal-chart-2.1.12
+#     app.kubernetes.io/managed-by: Helm
+#   annotations:
+#     foo: "123"
+#     helm.sh/hook: pre-install
+#     helm.sh/hook-delete-policy: before-hook-creation
+#     helm.sh/hook-weight: "-999"
+#     zzz: bar
+# data:
+#   data.conf: |
+#     worker_processes  1;
+#     load_module modules/ngx_http_js_module.so;
