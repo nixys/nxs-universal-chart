@@ -1,0 +1,60 @@
+fooValue: "123"  # define a custom variable
+
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+deployments:
+  whoami:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: whoami
+      image: containous/whoami
+      imageTag: v1.5.0
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      args:
+        - --port
+        - "8080"
+      ports:
+        - name: web
+          containerPort: 8080
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+      volumeMounts:
+      - name: whoami-config
+        mountPath: /tmp/data.conf
+        subPath: data.conf
+    volumes:
+    - type: configMap
+      name: whoami-config
+      items:
+      - key: data.conf
+        path: data.conf
+
+services:
+  whoami-web:
+    type: ClusterIP
+    ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+configMaps:
+  whoami-config:
+    annotations:
+      zzz: bar
+      foo: '{{ $.Values.fooValue }}'  # use a render function
+    data:
+      data.conf: |
+        worker_processes  1;
+        load_module modules/ngx_http_js_module.so;

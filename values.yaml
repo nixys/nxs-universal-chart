@@ -3,6 +3,18 @@ generic:
   labels: {}
   #  general-label: general-label-value
   annotations: {}
+  # default annotation that will be added to configmaps and secrets
+  # docs: https://helm.sh/docs/topics/charts_hooks/
+  # necessary this default hooks if it used in other hooks, see a note
+  # https://github.com/helm/helm/issues/2622#issuecomment-526519546
+  # but the resources with hooks currently not tracked or managed as part of the release
+  # i.e. configmap with helm-hooks will not removed when release has removed
+  # https://helm.sh/docs/topics/charts_hooks/#hook-resources-are-not-managed-with-corresponding-releases
+  hookAnnotations: {}
+    # helm.sh/hook: "pre-install,pre-upgrade"
+    # helm.sh/hook-weight: "-999"
+    # helm.sh/hook-delete-policy: before-hook-creation
+    # helm.sh/resource-policy: keep
   #  general-annotation: general-annotation-value
   extraSelectorLabels: {}
   #  label: special
