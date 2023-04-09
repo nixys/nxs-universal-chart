@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.14 - Apr 9, 2023
+* feature: add `Certificate` and `Issuser/ClusterIssuer` rendering ([cert-manager](https://cert-manager.io/docs/reference/api-docs) resources)
+
 ## 2.1.13 - Apr 2, 2023
 * fix: disables adding hook annotations on all configmaps and secrets by default (you can setup it when you really need it, see a note `values.yaml` in parameter `generic.hookAnnotations`):
   * `helm.sh/hook: "pre-install,pre-upgrade"`

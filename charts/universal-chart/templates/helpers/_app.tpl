@@ -80,7 +80,7 @@ TODO: remove it in version 3.x.x, use defaultHookAnnotations
 Template for default hook annotations for configmaps and secrets
 */}}
 {{- define "helpers.app.defaultHookAnnotations" -}}
-{{- with .Values.generic.hookAnnotations }}
+{{- with ((.Values).generic).hookAnnotations }}
 {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) }}
 {{- end }}
 {{- end }}
@@ -90,7 +90,8 @@ Merge the user defined annotations and the common hook annotations
 */}}
 {{- define "helpers.app.annotations" -}}
 {{- $defaultHookValues := include "helpers.app.defaultHookAnnotations" .context | fromYaml }}
+{{- $genericAnnotations := include "helpers.app.genericAnnotations" .context | fromYaml }}
 {{- $userValues := .value | fromYaml }}
-{{- $mergedValues := mustMergeOverwrite  $defaultHookValues $userValues }}
+{{- $mergedValues := mustMergeOverwrite  $defaultHookValues $userValues $genericAnnotations }}
 {{- $mergedValues | toYaml -}}
 {{- end -}}
