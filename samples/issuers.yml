@@ -1,0 +1,99 @@
+
+generic:
+  # labels:
+  #   general-label1: general-label-value
+  # annotations:
+  #   general-annotation1: general-annotation-value
+
+issuerType: ClusterIssuer
+
+# certificates:
+#   sample-certificate:
+#     secretName: sample-certificate
+#     commonName: example.com
+#     isCA: "true"
+#     issuerRef:
+#       originalName: selfsigned-issuer
+#       kind: "{{ .Values.issuerType }}"
+
+secrets:
+  ca-key-pair:
+    data:
+      tls.crt: |-
+        -----BEGIN CERTIFICATE-----
+        MIIC+TCCAeGgAwIBAgIJAKPGwKDl/5HnMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNV
+        BAMMCGpvc2h2YW5sMB4XDTE5MDgyMjE2MDU1OFoXDTI5MDgxOTE2MDU1OFowEzER
+        MA8GA1UEAwwIam9zaHZhbmwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+        AQCwhSB/qW6/kLb2zpu+EJvD9wHFaq+QA/0JH/Lllyo7zAFx+HHq+COAbk+C8B4t
+        /HUEsns5RL09CZ+X4j6pbJFdKduPxXu5ZVYnkxYpUDU7yg7OSKSZzTnIZ723sMs0
+        R6jYn/Drj4xXMJEfHUDqYeSWlZr3qi1EFa0c7fVDxH+4xtZtNNFOjH7c6D/vWkIg
+        WQUxiwusse6KMOWjDnv/4Vrjel2QgUYUbHCyeZHmcti+K0LWCfo/Rg6PulwrbDkh
+        jmOgYt30pdhX0OZkAuklfUDHfp8bjbCoI2taYABA6AKjKsO35LAEU79CL1mLVHuZ
+        ACI5Ujija3VPWVHSwmJPJyuxAgMBAAGjUDBOMB0GA1UdDgQWBBQml5dTAZixFKhj
+        93wucRWhao/tQjAfBgNVHSMEGDAWgBQml5dTAZixFKhj93wucRWhao/tQjAMBgNV
+        HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQB+klkRNJUKBLX8yYkyuU2RHcBv
+        GhmmDjJIsOJHZsoYXdLlG1pZNFjjPaOL8vh44Vl98RhEZBHsLT1KMbp1su6Cqj0r
+        UG1kpRBef+IOMT4MU7vRICi7UOlRLp1Wp0F8la3hPOcRb2yOfFqXXyZWXf4t0B45
+        tHi+ZCNHB9FxjSRycbGYVk+TKpvhJaSYNMGJ3dxDKaP7+Dx3XcK6sAnIAkhyI8aj
+        NU+mw8/tmRkP4In/kXAR+Ri0qUmHj/vwvnk4Km7ZUy1FYH8DMeS5Nksn+/uHlRxR
+        V7Dnn039TRmgKbAqN72gKNLo5cZ+y/YqDAYHYrn98SQT9JDgtI/K/ATpW8dX
+        -----END CERTIFICATE-----
+      tls.key: |-
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEowIBAAKCAQEAsIUgf6luv5C29s6bvhCbw/cBxWqvkAP9CR/y5ZcqO8wBcfhx
+        6vgjgG5PgvAeLfx1BLJ7OUS9PQmfl+I+qWyRXSnbj8V7uWVWJ5MWKVA1O8oOzkik
+        mc05yGe9t7DLNEeo2J/w64+MVzCRHx1A6mHklpWa96otRBWtHO31Q8R/uMbWbTTR
+        Tox+3Og/71pCIFkFMYsLrLHuijDlow57/+Fa43pdkIFGFGxwsnmR5nLYvitC1gn6
+        P0YOj7pcK2w5IY5joGLd9KXYV9DmZALpJX1Ax36fG42wqCNrWmAAQOgCoyrDt+Sw
+        BFO/Qi9Zi1R7mQAiOVI4o2t1T1lR0sJiTycrsQIDAQABAoIBACENHDOrFth5kTiP
+        IOwqke/UXRmIy0yM4qEFwWYpsre1kAO2ACZ9xa/zd6HNsejsX0C85oOnkkNOfPpk
+        W1U/xcwK3ViDIpJpHgOU785WfVEvmSwYv/EoUwxqGES/rpygWkYNVH/WxfFBX7rS
+        sGfyYmmro3OCAq2/3UUQbR7+OOfwy3HwTu0QunEJpEme6Ewsub0g8SLjvpJcHvSm
+        OBSJIrr/TcpTHN5OsXuVnENUjWpARdPOSkDVGmkBny2iVTDIROsFneuEFu6+W9jj
+        heoXM7g3nA46iKzu3GF0EhK8Y3Z4fxN64DdmcAZzaiMo0RUjKVLUjmYPHE1YfU+p
+        2CXowMECgYEA182iNvPI0UYViHynXJrSswV+q9SE+oV/tSfRQCFSllWGw+62nTbW
+        o5zh/TCAoUMSRmAOgLJYMKeFuIgoLJ17ZoZ3tSW3NUm2diOIOHz+q41C3904kS39
+        9+bAmVkZHP9VKK8C+i/mzNfJGGdBZtb0ykS3kw9B1LwgOz708EyqRCkCgYEA0WZP
+        o1v18gWkL+agP1o8Mwx4OfZS7wJcq4gLgQhca/iJKmcLtDSxqBGrBxQZ4Y22k9su
+        sLUk4BhliU3obQBMiGm0kHLuAHAQ6boufA1Bpf3vTWGJHRF4LxRl776jL8Qr8Vzq
+        ZTEPmcDtOHib7pob5gb3H8bThXyHftfqEnyjXEkCgYEAvOCt6YrVaNT+Y8c2dEbN
+        wwI8LAiFmv7dF6ER9B82OX4BxdtY2aD1m53j7cZVzs71X8MS7nEp3uvAjhIdl27+
+        Ym2uuE2aXHl3yU6wG0DLZTruHSFyMR8f+altSMpCwK55ynHjGTZzuzXiPAmjpG7f
+        MWmTgpMH+znsu+4OU4PGQoECgYAcjuGJm/8c9NwBlGiCe2H+bFLxRMDmy+GrmzBG
+        dsd0Cj9awxb7irw3+cDjhEBLXLJr09a4Ttwqm+ktIqzyQLovWItBsAr5kE8eMUAp
+        tv0fEFTUrtquVjWX5iZI3i0PVKfRkSR+jIReKcuwifJqRiZL5uNJOCqc5/DqwbOw
+        tcLp0QKBgEptL5IMtJNDBpWnYf7AyAPasDVDOZLHMPdi/go6+cJgiRkLakwyJcWr
+        SnPHmSlQ4hIn4c+5melpCXWIjIKD+cq9qOlfBdmikXodUCjjYBc6uFCT+5dd1c8G
+        bRBP9CmZOF/HNpst0H1zxMwW+Py9CegGxagFBzLsUo87LVGhtTQY
+        -----END RSA PRIVATE KEY-----
+
+issuers:
+  ca-issuer:
+    # kind: Issuer
+    ca:
+      secretName: ca-key-pair
+      # originalSecretName: selfsigned-issuer
+  selfsigned-issuer:
+    kind: "{{ .Values.issuerType }}"
+    selfSigned: {}
+  letsencrypt-staging:
+    kind: "{{ .Values.issuerType }}"
+    acme:
+      # The ACME server URL
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      # Email address used for ACME registration
+      email: user@example.com
+      # Name of a secret used to store the ACME account private key
+      privateKeySecretRef:
+        name: letsencrypt-staging
+      # Enable the HTTP-01 challenge provider
+      solvers:
+      - http01:
+          ingress:
+            class: nginx
+######
+## run with:
+## helm template w --values ./samples/configmap-only.yml  ./charts/universal-chart/.  --debug
+##
+## result should be:
+######

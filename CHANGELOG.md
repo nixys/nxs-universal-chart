@@ -8,6 +8,9 @@
 * deprecation: generic and workloads generals parameter `extraVolumeMounts` is marked as deprecated
 * fix: increased affinity weight for "soft" rules
 
+## 2.2.1 - Unreleased
+* feature: add `Certificate` and `Issuser/ClusterIssuer` rendering ([cert-manager](https://cert-manager.io/docs/reference/api-docs) resources)
+
 ## 2.2.0 - Feb 20, 2023
 
 * changed license to Apache2.0

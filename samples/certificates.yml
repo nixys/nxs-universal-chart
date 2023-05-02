@@ -1,0 +1,41 @@
+
+generic:
+  # labels:
+  #   general-label1: general-label-value
+  # annotations:
+  #   general-annotation1: general-annotation-value
+
+issuerType: ClusterIssuer
+
+certificates:
+  sample-certificate:
+    secretName: sample-certificate
+    commonName: example.com
+    issuerRef:
+      originalName: selfsigned-issuer
+      kind: ClusterIssuer
+      group: cert-manager.io
+  sample-certificate2:
+    subject:
+      organizations:
+        - jetstack
+    dnsNames:
+      - example.com
+      - www.example.com
+    secretTemplate:
+      annotations:
+        www.example.com: example-annotation
+      labels:
+        www.example.com: example-label
+    isCA: "true"
+    issuerRef:
+      originalName: selfsigned-issuer
+      kind: "{{ .Values.issuerType }}"
+      # group: cert-manager.io
+
+######
+## run with:
+## helm template w --values ./samples/configmap-only.yml  ./charts/universal-chart/.  --debug
+##
+## result should be:
+######
