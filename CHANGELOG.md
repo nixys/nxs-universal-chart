@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.15 - May 11, 2023
+* feature: add an option to disable Ingress (like `deploy` and `sts`)
+
 ## 2.1.14 - Apr 9, 2023
 * feature: add `Certificate` and `Issuser/ClusterIssuer` rendering ([cert-manager](https://cert-manager.io/docs/reference/api-docs) resources)
 

@@ -1,4 +1,5 @@
 {{- range $host, $ing := .Values.ingresses }}
+{{- if not (.disabled | default false) }}
 ---
 apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
 kind: Ingress
@@ -60,4 +61,5 @@ spec:
   {{- include "helpers.tplvalues.render" ( dict "value" .extraTls "context" $ ) | nindent 2 }}
   {{- end }}
   {{- end }}
-{{- end -}}
+{{- end }}
+{{- end }}
