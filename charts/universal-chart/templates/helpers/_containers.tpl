@@ -62,6 +62,7 @@ Use this line (comment) for debug:
 {{- else if and . (kindIs "map" .) }}{{/* start if & range */}}
 {{- printf "%s" $type }}:
 {{- range $nameContainer, $container := . }}
+{{- if not (.disabled | default false) }}
 - name: {{ $nameContainer | quote }}
   {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
@@ -101,6 +102,7 @@ Use this line (comment) for debug:
   resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" . "general" $general "context" $) | nindent 2 }}
+{{- end }}{{/* end if not disabled */}}
 {{- end }}{{/* end if & range */}}
 {{- end }}{{/* end if and .containers .. */}}
 {{- end }}{{/* end with .. */}}

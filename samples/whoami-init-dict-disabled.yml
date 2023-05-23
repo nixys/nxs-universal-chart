@@ -14,7 +14,7 @@ deployments:
       fsGroup: 2000
     initContainers:
       init-container-name:
-        # disabled: false  # false by default
+        disabled: true
         image: busybox
         imageTag: 1.28
         command: ['sh', '-c', "echo $HOSTNAME"]

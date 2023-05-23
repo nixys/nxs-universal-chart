@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.16 - May 23, 2023
+* feature: add an option to disable Containers/InitConatainers (like `deploy`, `sts`, `ingress`)
+
 ## 2.1.15 - May 11, 2023
 * feature: add an option to disable Ingress (like `deploy` and `sts`)
 

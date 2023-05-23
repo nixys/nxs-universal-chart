@@ -39,7 +39,7 @@ services:
       targetPort: 8080
 
 ingresses:
-  whoami.example.com:
+  whoami-127-0-0-1.nip.io:
     hosts:
     - paths:
       - serviceName: whoami-web
