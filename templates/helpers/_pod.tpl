@@ -55,6 +55,8 @@ initContainers:
 {{- range . }}
   {{- with .name }}
 - name: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+  {{- else }}
+- name: {{ printf "%s-init-%s" $name (lower (randAlphaNum 5)) }}
   {{- end }}
   {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
@@ -103,6 +105,8 @@ containers:
 {{- range .containers }}
   {{- with .name }}
 - name: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+  {{- else }}
+- name: {{ printf "%s-%s" $name (lower (randAlphaNum 5)) }}
   {{- end }}
   {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
