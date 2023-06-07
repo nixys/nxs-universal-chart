@@ -53,7 +53,9 @@ terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
 {{- with .initContainers}}
 initContainers:
 {{- range . }}
-- name: {{ .name | default (printf "%s-init-%s" $name (lower (randAlphaNum 5))) }}
+  {{- with .name }}
+- name: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+  {{- end }}
   {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
@@ -99,7 +101,9 @@ initContainers:
 {{- end }}{{- end }}
 containers:
 {{- range .containers }}
-- name: {{ .name | default (printf "%s-%s" $name (lower (randAlphaNum 5))) }}
+  {{- with .name }}
+- name: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $) }}
+  {{- end }}
   {{- $image := $.Values.defaultImage }}{{ with .image }}{{ $image = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
