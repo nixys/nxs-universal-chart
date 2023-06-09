@@ -1,0 +1,30 @@
+
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+# version: "1.0"
+
+jobs:
+  busybox:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: busybox
+      image: busybox
+      imageTag: "{{ .Values.version }}"
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      command:
+        - echo
+      args:
+        - job-test
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true

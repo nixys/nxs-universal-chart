@@ -1,0 +1,68 @@
+
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+configYaml:
+  fileName:
+    some: message
+
+jobs:
+  busybox:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: busybox
+      image: busybox
+      imageTag: latest
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      command:
+        - cat
+      args:
+        - /tmp1/sample_data
+        - /tmp1/sample_data2
+        - /tmp2/data.conf
+        - /tmp3/yaml.conf
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+      volumeMounts:
+      - name: busybox-config
+        mountPath: /tmp1
+      - name: busybox-config-one-file
+        mountPath: /tmp2/data.conf
+        subPath: data.conf
+      - name: busybox-config-yaml
+        mountPath: /tmp3
+    volumes:
+    - type: configMap
+      name: busybox-config
+    - type: configMap
+      name: busybox-config-one-file
+      items:
+      - key: data.conf
+        path: data.conf
+    - type: configMap
+      name: busybox-config-yaml
+configMaps:
+  busybox-config:
+    data:
+      sample_data: |
+        some message
+      sample_data2: |
+        some message2
+  busybox-config-one-file:
+    data:
+      data.conf: |
+        some message
+  busybox-config-yaml:
+    data:
+      yaml.conf: |
+        {{ .Values.configYaml | toYaml }}

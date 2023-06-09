@@ -44,6 +44,15 @@
   {{- else }}
   emptyDir: {}
   {{- end }}
+{{- else if eq .type "hostPath" }}
+- name: {{ .name }}
+  {{- with .hostPath }}
+  hostPath:
+    path: {{ .path }}
+    {{- if .type }}
+    type: {{ .type }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

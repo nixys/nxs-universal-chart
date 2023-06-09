@@ -1,0 +1,44 @@
+
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+jobs:
+  busybox:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: busybox
+      image: busybox
+      imageTag: latest
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      command:
+        - cat
+      args:
+        - /tmp/sample_data
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+      volumeMounts:
+      - name: busybox-config
+        mountPath: /tmp
+        # subPath: sample_data
+    volumes:
+    - type: configMap
+      name: busybox-config
+      items:
+      - key: sample_data
+        path: sample_data
+
+configMaps:
+  busybox-config:
+    data:
+      sample_data: |
+        some message

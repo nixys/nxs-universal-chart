@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.17 - Jun 9, 2023
+* feature: add hostPath volume type
+
 ## 2.1.16 - May 23, 2023
 * feature: add an option to disable Containers/InitConatainers (like `deploy`, `sts`, `ingress`)
 
