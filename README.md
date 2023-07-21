@@ -476,6 +476,31 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `extraVolumes`               | Array of k8s Volumes to add to CronJob                                                  | `[]`      |
 | `restartPolicy`              | Restart Policy of the Jobs                                                              | `"Never"` |
 
+
+### Service accounts parameters
+`serviceAccountGeneral` is a map of the ServiceAccount parameters, which uses for all service accounts and its roles/clusterroles and corresponding bindings.
+
+| Name                                         | Description                                                                                | Value   |
+|----------------------------------------------|--------------------------------------------------------------------------------------------|---------|
+| `serviceAccountGeneral.labels`               | Extra labels for all ServiceAccounts                                                       | `{}`    |
+| `serviceAccountGeneral.annotations`          | Extra annotations for all ServiceAccounts                                                  | `{}`    |
+
+`serviceAccount` is a map of the ServiceAccount parameters, where key is name of the service account.
+
+| Name                         | Description                                                                             | Value     |
+|------------------------------|-----------------------------------------------------------------------------------------|-----------|
+| `labels`                     | Extra ServiceAccount, role and binding labels                                           | `{}`      | 
+| `annotations`                | Extra ServiceAccount annotations                                                        | `{}`      | 
+| `role`                       | Map of role parametres to create and bind                                               | `{}`      | 
+| `role.name`                  | Name of role to create/bind                                                             | `{}`      | 
+| `role.rules`                 | List of rules for role                                                                  | `{}`      | 
+| `clusterRole`                | Map of clusterRole parametres to create and bind                                        | `{}`      | 
+| `clusterRole.name`           | Name of clusterRole to create/bind                                                      | `{}`      | 
+| `clusterRole.rules`          | List of rules for clusterRole                                                           | `{}`      | 
+
+`role/clusterRole` is a map of parameters of role/clusterrole. If *rules* are not set then only binding to existing role/clusterrole will be created. If *rules* are set then corresponding role/clusterrole will be created and binded to service account. Service account can be created without corresponding roles and bindings.
+
+
 ### ServiceMonitors parameters
 
 `serviceMonitors` is a map of the Prometheus ServiceMonitor parameters, where key is name of ServiceMonitor.
