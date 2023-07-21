@@ -320,3 +320,39 @@ extraDeploy: {}
 #        ports:
 #        - protocol: TCP
 #          port: 5978
+
+serviceAccountGeneral: {}
+#  annotations:
+#    test: test2
+
+serviceAccount: {}
+#  firstaccount:
+#    role:
+#      name: test-role
+#      rules:
+#      - apiGroups:
+#        - ""
+#        - apps
+#        - extensions
+#        resources:
+#        - replicasets
+#        - pods
+#        - deployments
+#        verbs:
+#        - list
+#        - watch
+#        - create
+#        - update
+#        - get
+#        - delete
+#    clusterRole:
+#      name: view
+#  secondaccount: {}
+#  thirdaccount:
+#    clusterRole:
+#      name: thirdaccountclusterrole
+#      rules:
+#      - apiGroups: ["stable.example.com"]
+#        resources: ["crontabs"]
+#        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+

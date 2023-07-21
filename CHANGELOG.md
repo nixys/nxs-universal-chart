@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
-
+## 2.4.0 - July 21, 2023
+* feature: add Service Account workload to create serviceaccount and coresponding roles/clusterroles with bindings
+* fix: default container and init-container names
+* docs update
 * feature: add emptyDir type in `volumes`
 
 ## 2.3.0 - Mar 07, 2023
