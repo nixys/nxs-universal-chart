@@ -1,0 +1,52 @@
+deploymentsGeneral:
+  enableAffinity: false # default is true
+
+nameOverride: whoami
+
+deployments:
+  whoami:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 3000
+      fsGroup: 2000
+    containers:
+    - name: whoami
+      image: containous/whoami
+      imageTag: v1.5.0
+      resources:
+        limits:
+          cpu: 10m
+          memory: 128Mi
+        requests:
+          cpu: 1m
+          memory: 64Mi
+      args:
+        - --port
+        - "8080"
+      ports:
+        - name: web
+          containerPort: 8080
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+      volumeMounts:
+      - name: uuid
+        mountPath: /uuid
+    volumes:
+    - name: uuid
+      type: emptyDir
+      # sizeLimit: 1Mi
+      # medium: Memory
+
+
+services:
+  whoami-web:
+    type: ClusterIP
+    ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+
+# ❯ helm install f ./ --values samples/whoami-with-volumes.yml

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* feature: add emptyDir type in `volumes`
+
 ## 2.3.0 - Mar 07, 2023
 
 * feature: add typed volumes via generic and workloads generals parameter `volumes` 
