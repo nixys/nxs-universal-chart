@@ -1,0 +1,37 @@
+name: conftest-with-pull
+on: [pull_request]
+jobs:
+  conftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.2
+
+      # https://github.com/marketplace/actions/setup-opa-conftest
+      # - name: Setup Conftest
+      #   uses: princespaghetti/setup-conftest@v1
+      #   with:
+      #     version: 0.44.x
+
+      - name: Make k8s resources from charts
+        run: |
+          helm template w --values ./samples/whoami-simple.yml ./charts/universal-chart/. --output-dir whoami-simple/
+
+      # https://github.com/marketplace/actions/conftest-action
+      # conftest test --combine -p ./charts/universal-chart/tests/policy/whoami-simple.rego \
+      #   -p ./charts/universal-chart/tests/policy/lib --data samples/whoami-simple.yml  whoami-simple/
+      - name: Run conftest
+        uses: YubicoLabs/action-conftest@v3
+        with:
+          files: whoami-simple/
+          data: samples/whoami-simple.yml
+          policy: ./charts/universal-chart/tests/policy/whoami-simple.rego ./charts/universal-chart/tests/policy/lib
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-comment-url: ${{ github.event.pull_request.comments_url }}

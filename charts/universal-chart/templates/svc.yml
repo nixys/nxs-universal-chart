@@ -40,18 +40,37 @@ spec:
   {{- end }}
   {{- end }}
   ports:
-  {{- range .ports }}
+{{- /* ports is a slice (list) */}}
+{{- /* https://stackoverflow.com/a/71797701/4474332 */}}
+{{- if and .ports (kindIs "slice" .ports) -}}
+{{- range .ports }}
   - name: {{ .name | default $name}}
     protocol: {{ .protocol | default "TCP"}}
     port: {{ .port }}
-    {{- if not (empty .targetPort) }}
-    targetPort: {{ .targetPort }}
+    {{- with .targetPort }}
+    targetPort: {{ . }}
     {{- end }}
-    {{- if not (empty .nodePort) }}
-    nodePort: {{ .nodePort }}
+    {{- with .nodePort }}
+    nodePort: {{ . }}
     {{- end }}
-  {{- end }}
+{{- end }}{{- /* end range */}}
+{{- /* !!! ports is a map (dict): */}}
+{{- else if and .ports (kindIs "map" .ports) -}}
+{{- range $namePort, $port := .ports }}
+{{- if not (.disabled | default false) }}
+  - name: {{ $namePort }}
+    protocol: {{ .protocol | default "TCP"}}
+    port: {{ .port }}
+    {{- with .targetPort }}
+    targetPort: {{ . }}
+    {{- end }}
+    {{- with .nodePort }}
+    nodePort: {{ . }}
+    {{- end }}
+{{- end }}{{/* end if not .disabled */}}
+{{- end }}{{/* end range */}}
+{{- end }}{{/* end if and .ports .. */}}
+{{- end }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
     {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-{{- end }}

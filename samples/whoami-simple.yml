@@ -1,0 +1,26 @@
+
+# deploymentsGeneral:
+#   enableAffinity: false # default is true
+
+deployments:
+  whoami:
+    containers:
+      whoami:
+        image: containous/whoami
+        imageTag: v1.5.0
+        args:
+          - --port
+          - "8080"
+        ports:
+          - name: web
+            containerPort: 8080
+
+services:
+  whoami:
+    type: ClusterIP
+    ports:
+      web:
+        # disabled: true
+        protocol: TCP
+        port: 80
+        targetPort: 8080
