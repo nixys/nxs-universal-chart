@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.1 - August 23, 2023
+* fix: render serviceaccount names
+* fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/nxs-universal-chart/issues/50))
+* fix: deploymentsGeneral.annotation applying to deployment ([#49](https://github.com/nixys/nxs-universal-chart/issues/49))
+
+
 ## 2.4.0 - July 21, 2023
 * feature: add Service Account workload to create serviceaccount and coresponding roles/clusterroles with bindings
 * fix: default container and init-container names
