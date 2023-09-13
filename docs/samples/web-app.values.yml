@@ -32,16 +32,30 @@ generic:
 defaultImage: registry.org/my-app
 defaultImageTag: latest
 
-configMaps:
-  main-nginx-config:
-    data:
-      nginx.conf: |
-        worker_processes  1;
-        load_module modules/ngx_http_js_module.so;
-  
-        events {
-            worker_connections  1024;
-        }
+ingresses:
+  web.app.ru:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+    certManager:
+      issuerType: cluster-issuer
+      issuerName: letsencrypt
+    hosts:
+    - paths:
+      - serviceName: nginx
+        servicePort: 8080
+
+services:
+  nginx:
+    type: "NodePort"
+    ports:
+    - name: api
+      protocol: TCP
+      port: 8080
+      nodePort: 30036
+    extraSelectorLabels:
+      app: my-app
+
 
 deploymentsGeneral:
   extraVolumes:
@@ -98,29 +112,16 @@ deployments:
       - key: nginx.conf
         path: nginx.conf
 
-services:
-  nginx:
-    type: "NodePort"
-    ports:
-    - name: api
-      protocol: TCP
-      port: 8080
-      nodePort: 30036
-    extraSelectorLabels:
-      app: my-app
-
-ingresses:
-  web.app.ru:
-    annotations:
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
-    certManager:
-      issuerType: cluster-issuer
-      issuerName: letsencrypt
-    hosts:
-    - paths:
-      - serviceName: nginx
-        servicePort: 8080
+configMaps:
+  main-nginx-config:
+    data:
+      nginx.conf: |
+        worker_processes  1;
+        load_module modules/ngx_http_js_module.so;
+  
+        events {
+            worker_connections  1024;
+        }
 
 secrets:
   # --set "secrets.secret-files.data.api\.key=$SOME_ENV"
@@ -136,6 +137,10 @@ pvcs:
     - ReadWriteOnce
     - ReadWriteMany
     size: 1Gi
+
+
+serviceAccount:
+  deployer: {}
 
 #servicemonitors:
 #- endpoints:

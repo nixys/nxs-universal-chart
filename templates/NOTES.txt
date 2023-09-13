@@ -1,3 +1,4 @@
+{{- include "helpers.deprecation.chartname" $ }}
 {{- include "helpers.deprecation.notice" $ }}
 {{- include "helpers.deprecation.workload.imagePullSecrets" $ }}
 {{- include "helpers.deprecation.serviceMonitors" $ }}

@@ -1,4 +1,4 @@
-# generic - values that uses by all nxs-chart templates
+# generic - values that uses by all nxs-universal-chart templates
 generic:
   labels: {}
   #  general-label: general-label-value
@@ -74,9 +74,56 @@ imagePullSecrets: {}
 #    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
+diagnosticMode:
+  enbled: false
+  command: ["sleep"]
+  args: ["infinity"]
+
 defaultImage: nginx
 defaultImageTag: latest
 defaultImagePullPolicy: "IfNotPresent"
+
+ingresses: {}
+#  nixys.ru:
+#    annotations:
+#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
+#    certManager:
+#      issuerType: cluster-issuer
+#      issuerName: letsencrypt
+#    hosts:
+#    - paths:
+#      - serviceName: nginx
+#        servicePort: http
+#  nixys.org:
+#    annotations:
+#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#    hosts:
+#    - paths:
+#      - path: /api
+#        servicePort: api
+#    - hostname: nixys.com
+#      paths:
+#      - path: /api
+#        servicePort: api
+#    extraTls:
+#    - hosts:
+#      - nixys.com
+#      - nixys.org
+#      secretName: "nixys-tls"
+
+
+services: {}
+#  nginx:
+#    clusterIP: None
+#    ports:
+#    - name: http
+#      protocol: TCP
+#      port: 8080
+#    extraSelectorLabels:
+#      app: my-nginx
+
+
 
 deploymentsGeneral: {}
 deployments: {}
@@ -133,44 +180,39 @@ deployments: {}
 #    - name: app-data
 #      type: pvc
 
-services: {}
-#  nginx:
-#    clusterIP: None
-#    ports:
-#    - name: http
-#      protocol: TCP
-#      port: 8080
-#    extraSelectorLabels:
-#      app: my-nginx
+statefulSetsGeneral: {}
+statefulSets: {}
 
-ingresses: {}
-#  nixys.ru:
-#    annotations:
-#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-#      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
-#    certManager:
-#      issuerType: cluster-issuer
-#      issuerName: letsencrypt
-#    hosts:
-#    - paths:
-#      - serviceName: nginx
-#        servicePort: http
-#  nixys.org:
-#    annotations:
-#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-#    hosts:
-#    - paths:
-#      - path: /api
-#        servicePort: api
-#    - hostname: nixys.com
-#      paths:
-#      - path: /api
-#        servicePort: api
-#    extraTls:
-#    - hosts:
-#      - nixys.com
-#      - nixys.org
-#      secretName: "nixys-tls"
+serviceAccount: {}
+#  firstaccount:
+#    role:
+#      name: test-role
+#      rules:
+#      - apiGroups:
+#        - ""
+#        - apps
+#        - extensions
+#        resources:
+#        - replicasets
+#        - pods
+#        - deployments
+#        verbs:
+#        - list
+#        - watch
+#        - create
+#        - update
+#        - get
+#        - delete
+#    clusterRole:
+#      name: view
+#  secondaccount: {}
+#  thirdaccount:
+#    clusterRole:
+#      name: thirdaccountclusterrole
+#      rules:
+#      - apiGroups: ["stable.example.com"]
+#        resources: ["crontabs"]
+#        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
 secrets: {}
   # --set "secrets.secret-file.data.api\.key=$SOME_ENV"
@@ -224,9 +266,6 @@ pvcs: {}
 #    - ReadWriteMany
 #    size: 8Gi
 
-statefulSetsGeneral: {}
-statefulSets: {}
-
 hooksGeneral: {}
 hooks: {}
 #  migration-up:
@@ -268,6 +307,10 @@ jobs: {}
 #    commandDurationAlert: 30
 #    commandMaxDuration: 60
 
+serviceAccountGeneral: {}
+#  annotations:
+#    test: test2
+
 serviceMonitors: {}
 #  app-sm:
 #    endpoints:
@@ -278,11 +321,6 @@ serviceMonitors: {}
 #      app: nginx
 #    labels:
 #      foo: foo
-
-diagnosticMode:
-  enbled: false
-  command: ["sleep"]
-  args: ["infinity"]
 
 extraDeploy: {}
 #  net-pol: |-
@@ -321,38 +359,5 @@ extraDeploy: {}
 #        - protocol: TCP
 #          port: 5978
 
-serviceAccountGeneral: {}
-#  annotations:
-#    test: test2
 
-serviceAccount: {}
-#  firstaccount:
-#    role:
-#      name: test-role
-#      rules:
-#      - apiGroups:
-#        - ""
-#        - apps
-#        - extensions
-#        resources:
-#        - replicasets
-#        - pods
-#        - deployments
-#        verbs:
-#        - list
-#        - watch
-#        - create
-#        - update
-#        - get
-#        - delete
-#    clusterRole:
-#      name: view
-#  secondaccount: {}
-#  thirdaccount:
-#    clusterRole:
-#      name: thirdaccountclusterrole
-#      rules:
-#      - apiGroups: ["stable.example.com"]
-#        resources: ["crontabs"]
-#        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 

@@ -1,11 +1,24 @@
-deployments:
-  whoami:
+statefulSetsGeneral:
+  usePredefinedAffinity: false
+
+services:
+  app-web:
+    type: ClusterIP
+    ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+statefulSets:
+  app:
+    serviceName: app-web
     securityContext:
       runAsUser: 1000
       runAsGroup: 3000
       fsGroup: 2000
     containers:
-    - name: whoami
+    - name: app
       image: containous/whoami
       imageTag: v1.5.0
       resources:
@@ -25,11 +38,3 @@ deployments:
         allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
 
-services:
-  whoami-web:
-    type: ClusterIP
-    ports:
-    - name: web
-      protocol: TCP
-      port: 80
-      targetPort: 8080

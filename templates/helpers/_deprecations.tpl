@@ -1,3 +1,11 @@
+{{- define "helpers.deprecation.chartname" -}}
+** NOTICE **
+
+We are currently changing name of our chart from universal-chart to nxs-universal-chart. 
+
+Prior to release of 3.0 both versions will be supported.
+{{- end }}
+
 {{- define "helpers.deprecation.notice" -}}
 ** NOTICE **
 
