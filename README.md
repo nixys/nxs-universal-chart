@@ -1,38 +1,44 @@
-# Nixys universal Helm chart
+# nxs-universal-chart
 
-## TL;DR
 
-```bash
-$ helm repo add nixys https://registry.nixys.ru/chartrepo/public
-$ helm install my-release nixys/universal-chart
-```
+## Introduction
 
-Use the `--devel` flag to access release candidate versions.
+nxs-universal-chart is a Helm chart you can use to install any of your applications into Kubernetes/OpenShift and other orchestrators compatible with native Kubernetes API.
 
-## Installing the Chart
+### Features
+
+* Flexible way to deploy your applications.
+* Supported any Ingress controlers (Ingress Nginx, Traefic).
+* Easy way to template any custom resource with extraDeploy feature.
+* Supported Kubernetes versions (<1.23|1.24|1.25|1.26|1.27) and OpenShift versions (3.11|<4.8|4.9|4.11|4.12|4.13).
+* Supported Helm versions (2|3)
+
+### Who can use this tool
+
+* Development
+* DevOps engineers 
+
+Who deploy into Kubernetes/OpenShift on regular basis.
+
+# Quickstart
+
+## Install
+
+### Kubernetes/OpenShift
 
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm install my-release nixys/universal-chart -f values.yaml
+$ helm repo add nixys https://registry.nixys.ru/chartrepo/public
+$ helm install my-release nixys/nxs-universal-chart -f values.yaml
 ```
 
-The command deploys your app with custom values on the Kubernetes cluster. The [Parameters'](#parameters) section lists
-the parameters that can be configured during installation.
+The command deploys your application with custom values on the Kubernetes/OpenShift cluster. The [Parameters](#parameters) section lists
+the parameters that can be configured during installation. To check deployment examples, please see [samples](/docs/samples/). For additional ways to customize your experience with nxs-universal-chart please check [Additional features](docs/ADDITIONAL_FEATURES.md).
 
-> **Tip**: List all releases using `helm list`
+> **Tip**: Get yaml manifests with `helm template`
 
-# Uninstalling the Chart
-
-To uninstall/delete the `my-release` deployment:
-
-```bash
-$ helm delete my-release
-```
-
-The command removes all the Kubernetes components associated with the chart and deletes the release.
-
-## Parameters
+## Settings
 
 ### Global parameters
 
@@ -83,6 +89,67 @@ The command removes all the Kubernetes components associated with the chart and 
 | `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]`   |
 | `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`             |
 
+
+### Ingresses parameters
+
+`ingresses` is a map of the Ingress parameters, where key is a hostname (domain) of Ingress.
+
+| Name                     | Description                                                                                             | Value              |
+|--------------------------|---------------------------------------------------------------------------------------------------------|--------------------|
+| `name`                   | Custom name of the ingress, if empty ingress hostname will be used                                      | `""`               |
+| `labels`                 | Extra labels for ingress                                                                                | `{}`               |
+| `annotations`            | Extra annotations for ingress                                                                           | `{}`               |
+| `certManager.issuerName` | CertManager issuer name for ingress TLS                                                                 | `""`               |
+| `certManager.issuerType` | CertManager issuer type for ingress TLS                                                                 | `"cluster-issuer"` |
+| `ingressClassName`       | The name of ingressClass to use                                                                         | `""`               |
+| `tlsName`                | The name of secret to use for CertManager generated TLS                                                 | `""`               |
+| `hosts`                  | Array of the ingress [hosts](#ingress-hosts-object-parameters) objects                                  | `[]`               |
+| `extraTls`               | Array of the ingress [tls params](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) | `[]`               |
+
+#### Ingress `hosts` object parameters
+
+| Name       | Description                                                            | Value |
+|------------|------------------------------------------------------------------------|-------|
+| `hostname` | Hostname to serve by ingress, if empty ingress hostname will be used   | `""`  |
+| `paths`    | Array of the ingress [paths](#ingress-paths-object-parameters) objects | `[]`  |
+
+#### Ingress `paths` object parameters
+
+| Name          | Description                                                                                                             | Value      |
+|---------------|-------------------------------------------------------------------------------------------------------------------------|------------|
+| `path`        | URL path                                                                                                                | `"/"`      |
+| `pathType`    | Type of the ingress path [see for details](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) | `"Prefix"` |
+| `serviceName` | Name of the service to route requests                                                                                   | `""`       |
+| `servicePort` | Name or number of the service port to route requests                                                                    | `""`       |
+
+### Services parameters
+
+`services` is a map of the Service parameters, where key is a name of Service.
+
+| Name                       | Description                                                           | Value       |
+|----------------------------|-----------------------------------------------------------------------|-------------|
+| `labels`                   | Extra labels for service                                              | `{}`        |
+| `annotations`              | Extra annotations for service                                         | `{}`        |
+| `type`                     | Type of a service                                                     | `""`        |
+| `loadBalancerIP`           | IP of a service with LoadBalancer type                                | `""`        |
+| `loadBalancerSourceRanges` | Service Load Balancer sources                                         | `[]`        |
+| `externalTrafficPolicy`    | Service external traffic policy                                       | `"Cluster"` |
+| `healthCheckNodePort`      | Health check node port (numeric port number) for the service          | ``          |
+| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
+| `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        | 
+| `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        | 
+| `clusterIP`                | Service clusterIP parameter value                                     | `""`        | 
+
+#### Service `ports` object parameters:
+
+| Name         | Description                  | Value   |
+|--------------|------------------------------|---------|
+| `name`       | Name of the service port     | `""`    | 
+| `protocol`   | Protocol of the service port | `"TCP"` | 
+| `port`       | Service port number          | ``      | 
+| `targetPort` | Service target port number   | ``      | 
+| `nodePort`   | Service NodePort number      | ``      | 
+
 ### Deployments parameters
 
 `deploymentsGeneral` is a map of the Deployments parameters, which uses for all Deployments.
@@ -126,128 +193,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `containers`                    | Array of the deployment Containers ([container](#container-object-parameters) objects)                                            | `[]`  |
 | `volumes`                       | Array of the deployment typed [volume](#typed-volumes-parameters) objects                                                         | `[]`  |
 | `extraVolumes`                  | Array of [k8s Volumes](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volume-v1-core) to add to deployments | `[]`  |
-
-#### Container object parameters
-
-| Name                   | Description                                                                                                                | Value            |
-|------------------------|----------------------------------------------------------------------------------------------------------------------------|------------------|
-| `name`                 | The name of the container                                                                                                  | `""`             |
-| `image`                | Docker image of the container                                                                                              | `""`             |
-| `imageTag`             | Docker image tag of the container                                                                                          | `"latest"`       |
-| `imagePullPolicy`      | Docker image pull policy                                                                                                   | `"IfNotPresent"` |
-| `securityContext`      | Security Context for container                                                                                             | `{}`             |
-| `command`              | Container command override (list or string)                                                                                | `[]`             |
-| `commandMaxDuration`   | Duration of command execution (for jobs and cronJobs only)                                                                 | ``               |
-| `commandDurationAlert` | Create Prometheus Alert on command execution time exceeded (for jobs and cronJobs only)                                    | ``               |
-| `args`                 | Container arguments override                                                                                               | `[]`             |
-| `envsFromConfigmap`    | Map of ConfigMaps and envs from it                                                                                         | `{}`             |
-| `envsFromSecret`       | Map of Secrets and envs from it                                                                                            | `{}`             |
-| `env`                  | Array of extra environment variables                                                                                       | `[]`             |
-| `envConfigmaps`        | Array of Configmaps names with extra envs                                                                                  | `[]`             |
-| `envSecrets`           | Array of Secrets names with extra envs                                                                                     | `[]`             |
-| `envFrom`              | Array of extra envFrom objects                                                                                             | `[]`             |
-| `ports`                | Array of ports to be exposed from container                                                                                | `[]`             |
-| `lifecycle`            | Containers lifecycle hooks                                                                                                 | `{}`             |
-| `livenessProbe`        | Liveness probe object for container                                                                                        | `{}`             |
-| `readinessProbe`       | Readiness probe object for container                                                                                       | `{}`             |
-| `resources`            | The resources requests and limits for container                                                                            | `{}`             |
-| `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
-
-### Services parameters
-
-`services` is a map of the Service parameters, where key is a name of Service.
-
-| Name                       | Description                                                           | Value       |
-|----------------------------|-----------------------------------------------------------------------|-------------|
-| `labels`                   | Extra labels for service                                              | `{}`        |
-| `annotations`              | Extra annotations for service                                         | `{}`        |
-| `type`                     | Type of a service                                                     | `""`        |
-| `loadBalancerIP`           | IP of a service with LoadBalancer type                                | `""`        |
-| `loadBalancerSourceRanges` | Service Load Balancer sources                                         | `[]`        |
-| `externalTrafficPolicy`    | Service external traffic policy                                       | `"Cluster"` |
-| `healthCheckNodePort`      | Health check node port (numeric port number) for the service          | ``          |
-| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
-| `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        | 
-| `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        | 
-| `clusterIP`                | Service clusterIP parameter value                                     | `""`        | 
-
-#### Service `ports` object parameters:
-
-| Name         | Description                  | Value   |
-|--------------|------------------------------|---------|
-| `name`       | Name of the service port     | `""`    | 
-| `protocol`   | Protocol of the service port | `"TCP"` | 
-| `port`       | Service port number          | ``      | 
-| `targetPort` | Service target port number   | ``      | 
-| `nodePort`   | Service NodePort number      | ``      | 
-
-### Ingresses parameters
-
-`ingresses` is a map of the Ingress parameters, where key is a hostname (domain) of Ingress.
-
-| Name                     | Description                                                                                             | Value              |
-|--------------------------|---------------------------------------------------------------------------------------------------------|--------------------|
-| `name`                   | Custom name of the ingress, if empty ingress hostname will be used                                      | `""`               |
-| `labels`                 | Extra labels for ingress                                                                                | `{}`               |
-| `annotations`            | Extra annotations for ingress                                                                           | `{}`               |
-| `certManager.issuerName` | CertManager issuer name for ingress TLS                                                                 | `""`               |
-| `certManager.issuerType` | CertManager issuer type for ingress TLS                                                                 | `"cluster-issuer"` |
-| `ingressClassName`       | The name of ingressClass to use                                                                         | `""`               |
-| `tlsName`                | The name of secret to use for CertManager generated TLS                                                 | `""`               |
-| `hosts`                  | Array of the ingress [hosts](#ingress-hosts-object-parameters) objects                                  | `[]`               |
-| `extraTls`               | Array of the ingress [tls params](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) | `[]`               |
-
-#### Ingress `hosts` object parameters
-
-| Name       | Description                                                            | Value |
-|------------|------------------------------------------------------------------------|-------|
-| `hostname` | Hostname to serve by ingress, if empty ingress hostname will be used   | `""`  |
-| `paths`    | Array of the ingress [paths](#ingress-paths-object-parameters) objects | `[]`  |
-
-#### Ingress `paths` object parameters
-
-| Name          | Description                                                                                                             | Value      |
-|---------------|-------------------------------------------------------------------------------------------------------------------------|------------|
-| `path`        | URL path                                                                                                                | `"/"`      |
-| `pathType`    | Type of the ingress path [see for details](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) | `"Prefix"` |
-| `serviceName` | Name of the service to route requests                                                                                   | `""`       |
-| `servicePort` | Name or number of the service port to route requests                                                                    | `""`       |
-
-### Secrets parameters
-
-`secrets` is a map of the Secret parameters, where key is a name of Secret.
-
-| Name               | Description                                  | Value      |
-|--------------------|----------------------------------------------|------------|
-| `type`             | Secret type                                  | `"Opaque"` | 
-| `labels`           | Extra secret labels                          | `{}`       | 
-| `annotations`      | Extra secret annotations                     | `{}`       | 
-| `data`             | Map of Secret data                           | `{}`       | 
-
-Secret `data` object is a map where value can be a string, json or base64 encoded string with prefix `b64:`.
-
-### ConfigMaps parameters
-
-`configMaps` is a map of the ConfigMap parameters, where key is a name of ConfigMap.
-
-| Name               | Description                                     | Value     |
-|--------------------|-------------------------------------------------|-----------|
-| `labels`           | Extra ConfigMap labels                          | `{}`      | 
-| `annotations`      | Extra ConfigMap annotations                     | `{}`      | 
-| `data`             | Map of ConfigMap data                           | `{}`      | 
-
-### PersistentVolumeClaims parameters
-
-`pvcs` is a map of the PersistentVolumeClaim parameters, where key is a name of PersistentVolumeClaim.
-
-| Name               | Description                                          | Value          |
-|--------------------|------------------------------------------------------|----------------|
-| `labels`           | Extra Persistent Volume Claim labels                 | `{}`           | 
-| `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
-| `accessModes`      | Persistent Volume access modes                       | `[]`           | 
-| `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` | 
-| `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
-| `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
 
 ### StatefulSets parameters
 
@@ -294,6 +239,33 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `volumes`                       | Array of the statefulSet typed [volume](#typed-volumes-parameters) objects                                                                                             | `[]`  |
 | `extraVolumes`                  | Array of [k8s Volumes](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volume-v1-core) to add to statefulSets                                     | `[]`  |
 | `volumeClaimTemplates`          | Array of [k8s volumeClaimTemplates](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#persistentvolumeclaimtemplate-v1-core) to add to statefulSets | `[]`  |
+
+
+#### Container object parameters
+
+| Name                   | Description                                                                                                                | Value            |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------|------------------|
+| `name`                 | The name of the container                                                                                                  | `""`             |
+| `image`                | Docker image of the container                                                                                              | `""`             |
+| `imageTag`             | Docker image tag of the container                                                                                          | `"latest"`       |
+| `imagePullPolicy`      | Docker image pull policy                                                                                                   | `"IfNotPresent"` |
+| `securityContext`      | Security Context for container                                                                                             | `{}`             |
+| `command`              | Container command override (list or string)                                                                                | `[]`             |
+| `commandMaxDuration`   | Duration of command execution (for jobs and cronJobs only)                                                                 | ``               |
+| `commandDurationAlert` | Create Prometheus Alert on command execution time exceeded (for jobs and cronJobs only)                                    | ``               |
+| `args`                 | Container arguments override                                                                                               | `[]`             |
+| `envsFromConfigmap`    | Map of ConfigMaps and envs from it                                                                                         | `{}`             |
+| `envsFromSecret`       | Map of Secrets and envs from it                                                                                            | `{}`             |
+| `env`                  | Array of extra environment variables                                                                                       | `[]`             |
+| `envConfigmaps`        | Array of Configmaps names with extra envs                                                                                  | `[]`             |
+| `envSecrets`           | Array of Secrets names with extra envs                                                                                     | `[]`             |
+| `envFrom`              | Array of extra envFrom objects                                                                                             | `[]`             |
+| `ports`                | Array of ports to be exposed from container                                                                                | `[]`             |
+| `lifecycle`            | Containers lifecycle hooks                                                                                                 | `{}`             |
+| `livenessProbe`        | Liveness probe object for container                                                                                        | `{}`             |
+| `readinessProbe`       | Readiness probe object for container                                                                                       | `{}`             |
+| `resources`            | The resources requests and limits for container                                                                            | `{}`             |
+| `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
 
 ### Hooks parameters
 
@@ -354,6 +326,42 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`                        |
 | `extraVolumes`            | Array of k8s Volumes to add to Hook Job                                                  | `[]`                        |
 | `restartPolicy`           | Restart Policy of the Hook Job                                                           | `"Never"`                   |
+
+### Secrets parameters
+
+`secrets` is a map of the Secret parameters, where key is a name of Secret.
+
+| Name               | Description                                  | Value      |
+|--------------------|----------------------------------------------|------------|
+| `type`             | Secret type                                  | `"Opaque"` | 
+| `labels`           | Extra secret labels                          | `{}`       | 
+| `annotations`      | Extra secret annotations                     | `{}`       | 
+| `data`             | Map of Secret data                           | `{}`       | 
+
+Secret `data` object is a map where value can be a string, json or base64 encoded string with prefix `b64:`.
+
+### ConfigMaps parameters
+
+`configMaps` is a map of the ConfigMap parameters, where key is a name of ConfigMap.
+
+| Name               | Description                                     | Value     |
+|--------------------|-------------------------------------------------|-----------|
+| `labels`           | Extra ConfigMap labels                          | `{}`      | 
+| `annotations`      | Extra ConfigMap annotations                     | `{}`      | 
+| `data`             | Map of ConfigMap data                           | `{}`      | 
+
+### PersistentVolumeClaims parameters
+
+`pvcs` is a map of the PersistentVolumeClaim parameters, where key is a name of PersistentVolumeClaim.
+
+| Name               | Description                                          | Value          |
+|--------------------|------------------------------------------------------|----------------|
+| `labels`           | Extra Persistent Volume Claim labels                 | `{}`           | 
+| `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
+| `accessModes`      | Persistent Volume access modes                       | `[]`           | 
+| `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` | 
+| `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
+| `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
 
 ### Jobs parameters
 
@@ -476,7 +484,6 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `extraVolumes`               | Array of k8s Volumes to add to CronJob                                                  | `[]`      |
 | `restartPolicy`              | Restart Policy of the Jobs                                                              | `"Never"` |
 
-
 ### Service accounts parameters
 `serviceAccountGeneral` is a map of the ServiceAccount parameters, which uses for all service accounts and its roles/clusterroles and corresponding bindings.
 
@@ -499,7 +506,6 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `clusterRole.rules`          | List of rules for clusterRole                                                           | `{}`      | 
 
 `role/clusterRole` is a map of parameters of role/clusterrole. If *rules* are not set then only binding to existing role/clusterrole will be created. If *rules* are set then corresponding role/clusterrole will be created and binded to service account. Service account can be created without corresponding roles and bindings.
-
 
 ### ServiceMonitors parameters
 
@@ -555,215 +561,24 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | kind       | kind for target HPA object       | "Deployment" |
 | name       | Required name of target object   | ""           |
 
-## Configuration and installation details
+## Roadmap
 
-### Using private registries
+Following features are already in backlog for our development team and will be done soon:
 
-To use images from private registers, add your ".dockerauthconfig" to `imagePullSecrets` in the common block. This will
-create secrets that include auth from the register and will be used in all workloads.
+* Test operability on newer versions of Kubernetes/OpenShift.
+* Support for more Pod scheduling options: PodTopologySpread.
+* Support for attaching PV and assigning PVC to it.
+* Disabling predefined blocks, which are enabled by default.
+* Support for popular CRDs, e.g. cert-manager.
+* Helm unit-testing.
 
-```yaml
-imagePullSecrets:
-  my-registry: |
-    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
-  some-private-hub: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
-```
+## Feedback
 
-If a secrets with registry credentials already was added to namespace, you can use `generic.extraImagePullSecrets` to
-add pull secrets to all your workloads or `extraImagePullSecrets` directly in the workload like in k8s manifest
-by specifying names of the corresponding secrets.
+For support and feedback please contact me:
 
-```yaml
-generic:
-  extraImagePullSecrets:
-  - name: my-registry-secret-name
-```
+* telegram: @Ruppyyy
+* email: a.danielyan@nixys.io
 
-```yaml
-deployments:
-  my-app:
-    ...
-    extraImagePullSecrets:
-    - name: my-registry-secret-name
-    ...
-```
+## License
 
-## Additional features
-
-### Secrets features
-
-Working with the secrets data you can use values with the next types
-
-* string - usual string values will be encoded to base64 string
-* base64 encoded string with `b64:` prefix - value will be used as is without prefix
-* json - json will be encoded to base64 string
-
-#### Secret from string
-
-Values file:
-
-```yaml
-secrets:
-  secret-file:
-    data:
-      api.key: "JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk"
-  extra-envs:
-    data:
-      BAR: foo
-```
-
-`--set` analog:
-
-```bash
---set "secrets.secret-file.data.api\.key=$SOME_ENV_WITH_STRING"
---set "secrets.extra-envs.data.BAR=foo"
-```
-
-#### Secret from base64 encoded string
-
-Values file:
-
-```yaml
-secrets:
-  secret-file:
-    data:
-      api.key: "b64:SkZjelp3UmVCa0pGY3pad1JlQmtKRmN6WndSZUJrSkZjelp3UmVCaw=="
-```
-
-`--set` analog:
-
-```bash
---set "secrets.secret-file.data.api\.key=b64:$(echo -n $SOME_ENV|base64 -w0)"
-```
-
-#### Secret from json
-
-Values file:
-
-```yaml
-secrets:
-  json-file:
-    data:
-      file.json: {
-        "arg": "value"
-      }
-```
-
-`--set` analog:
-
-```bash
---set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
-```
-
-or
-
-```bash
---set-file "secrets.json-file.data.file\.json=path/to/file.json"
-```
-
-### Values Templating features
-
-You can use go-templates as part of your values.
-
-> **Note**
-> Use single quotes to escape strings containing templates to avoid manifest generation errors.
-
-#### Example 1.
-
-Add a pod annotation wih the check sum of the application configuration.
-
-```yaml
-deployments:
-  api:
-    podAnnotations:
-      checksum/app-cfg: '{{ include "helpers.workload.checksum" (index $.Values.configMaps "app-config") }}'
-```
-
-#### Example 2.
-
-Specify docker images via the `--set` flag for multiple deployments.
-
-```yaml
-deployments:
-  app1:
-    containers:
-    - name: app1
-      image: '{{ $.Values.imageRepo1 }}/{{ $.Values.imageApp1 }}'
-      imageTag: '{{ $.Values.imageTagApp1 }}'
-  ...
-  app2:
-    containers:
-    - name: app1
-      image: '{{ $.Values.imageRepo2 }}/{{ $.Values.imageApp2 }}'
-      imageTag: '{{ $.Values.imageTagApp2 }}'
-```
-
-Create release with `--set` flag
-
-```bash
-helm install my-apps nixys/universal-chart -f values.yaml --set imageRepo1=reg.app.com,imageRepo2=reg.app.net,imageApp1=my-app1,imageTagApp1=v1,imageApp2=my-app2,imageTagApp2=v2
-```
-
-#### Example 3.
-
-Add `defaultURL` parameter to values and use it in ingress template.
-
-```yaml
-ingresses:
-  my-app:
-    ...
-    hosts:
-    - hostname: '{{ $.Values.defaultURL }}'
-      paths:
-      - serviceName: nginx
-        servicePort: 8080
-```
-
-Create release with `--set` flag
-
-```bash
-helm install my-app nixys/universal-chart -f values.yaml --set defaultURL=demo.my-app.com
-```
-
-#### Example 4.
-
-Deploy of `NetworkPolicy` using `extraDeploy`.
-
-```yaml
-extraDeploy:
-  net-pol: |-
-    apiVersion: networking.k8s.io/v1
-    kind: NetworkPolicy
-    metadata:
-      name: {{ include "helpers.app.fullname" (dict "name" "nw-policy" "context" $) }}
-      namespace: {{ .Release.Namespace | quote }}
-    spec:
-      podSelector:
-        matchLabels:
-          role: db
-      policyTypes:
-      - Ingress
-      - Egress
-      ingress:
-      - from:
-        - ipBlock:
-            cidr: 172.17.0.0/16
-            except:
-            - 172.17.1.0/24
-        - namespaceSelector:
-            matchLabels:
-              project: myproject
-        - podSelector:
-            matchLabels:
-              role: frontend
-        ports:
-        - protocol: TCP
-          port: 6379
-      egress:
-      - to:
-        - ipBlock:
-            cidr: 10.0.0.0/24
-        ports:
-        - protocol: TCP
-          port: 5978
-```
+nxs-universal-chart is released under the [Apache License 2.0](LICENSE).
