@@ -24,6 +24,11 @@ affinity:
   podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
   podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
 {{- end }}
+{{- if .priorityClassName }}
+priorityClassName: {{ .priorityClassName }}
+{{- else if $.Values.generic.priorityClassName }}
+priorityClassName: {{ $.Values.generic.priorityClassName }}
+{{- end }}
 {{- if .dnsPolicy }}
 dnsPolicy: {{ .dnsPolicy }}
 {{- else if $.Values.generic.dnsPolicy }}
