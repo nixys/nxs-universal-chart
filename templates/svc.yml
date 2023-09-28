@@ -1,7 +1,4 @@
 {{- range $name, $s := $.Values.services }}
-{{- if not (hasKey . "type") }}
-{{- $_ := set . "type" "ClusterIP" }}
-{{- end }}
 ---
 kind: Service
 apiVersion: v1

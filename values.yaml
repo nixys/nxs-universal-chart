@@ -1,4 +1,4 @@
-# generic - values that uses by all zfx-uni-chart templates
+# generic - values that uses by all nxs-universal-chart templates
 generic:
   labels: {}
   #  general-label: general-label-value
