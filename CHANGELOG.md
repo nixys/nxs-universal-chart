@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.0 – September 28, 2023
+## 3.0.0 – September 28, 2023
 * added: app as default label
 * feat: matching short name by Release.Name
 * drop: deprecation notes
@@ -12,12 +12,8 @@
 * fix: keda api typo
 * feat: _job.tpl helper
 * drop: hooks annotations
-
-## 3.1.0 – September 18, 2023
 * fix: annotations
-
-
-## 3.0.0 – September 15, 2023
+* feat: cronjobs timezone
 * fix: add `priorityClassName` to workloads generals
 * fix: add `image` tpl
 * refactor: defaultImage* -> image.*
@@ -29,8 +25,8 @@
 
 ## 2.4.1 – August 23, 2023
 * fix: render serviceaccount names
-* fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/zfx-uni-chart/issues/50))
-* fix: deploymentsGeneral.annotation applying to deployment ([#49](https://github.com/nixys/zfx-uni-chart/issues/49))
+* fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/nxs-universal-chart/issues/50))
+* fix: deploymentsGeneral.annotation applying to deployment ([#49](https://github.com/nixys/nxs-universal-chart/issues/49))
 
 
 ## 2.4.0 – July 21, 2023
