@@ -1,7 +1,7 @@
-{{- range $name, $hpa := .Values.hpas }}
+{{- range $name, $keda := .Values.kedas }}
 ---
-kind: HorizontalPodAutoscaler
-apiVersion: {{ .apiVersion | default "autoscaling/v2" }}
+apiVersion: {{ .apiVersion | default "keda.sh/v1alpha1" }}
+kind: ScaledObject
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
@@ -17,22 +17,14 @@ spec:
     kind: {{ .kind | default "Deployment" }}
     name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
   {{- end }}
-  minReplicas: {{ .minReplicas | default "2" }}
-  maxReplicas: {{ .maxReplicas | default "3" }}
-  metrics:
-    {{- if not (empty .targetCPU) }}
-    - type: Resource
-      resource:
-        name: cpu
-        targetAverageUtilization: {{ .targetCPU }}
-    {{- end }}
-    {{- if not (empty .targetMemory) }}
-    - type: Resource
-      resource:
-        name: memory
-        targetAverageUtilization: {{ .targetMemory }}
-    {{- end }}
-    {{- if .metrics }}
-    {{- toYaml .metrics | nindent 4 }}
-    {{- end }}
+
+  minReplicaCount: {{ .minReplicas | default "2" }}
+  maxReplicaCount: {{ .maxReplicas | default "3" }}
+  pollingInterval: {{ .pollingInterval | default "30" }}
+
+  {{- with .triggers }}
+  triggers:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
 {{- end -}}

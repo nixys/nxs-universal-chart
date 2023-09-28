@@ -1,6 +1,7 @@
 README.md
 .idea/
 .git*
+.gitlab-ci.yml
 tmp
 *.tgz
 docs/

@@ -1,4 +1,4 @@
-# generic - values that uses by all nxs-universal-chart templates
+# generic - values that uses by all zfx-uni-chart templates
 generic:
   labels: {}
   #  general-label: general-label-value
@@ -18,6 +18,13 @@ generic:
   extraImagePullSecrets: []
   #- name: regcred
   usePredefinedAffinity: true
+
+# Predefined default image block
+image:
+  registry: docker.io
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
 
 # Predefined Affinity block
 # Pod affinity preset
@@ -71,17 +78,13 @@ secretEnvsString: ""
 
 imagePullSecrets: {}
 #  registry.org: |
-#    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
-#  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
+#    {"auths":{"registry.org":{"auth":"<base64>"}}}
+#  registry.org-rw: b64:$({"auths":{"registry.org":{"auth":"<base64>"}}} | base64)
 
 diagnosticMode:
   enbled: false
   command: ["sleep"]
   args: ["infinity"]
-
-defaultImage: nginx
-defaultImageTag: latest
-defaultImagePullPolicy: "IfNotPresent"
 
 ingresses: {}
 #  nixys.ru:
@@ -147,9 +150,10 @@ deployments: {}
 #    #          - prod
 #    containers:
 #    - name: nginx
-#      #image: nginx
-#      #imageTag: 1.19
-#      #imagePullPolicy: Always
+#      #image: 
+#        #repository: nginx
+#        #tag: 1.19
+#        #pullPolicy: Always
 #      env:
 #      - name: MY_ENV
 #        value: "1234"
@@ -219,7 +223,7 @@ secrets: {}
   #secret-file:
   #  data:
   #    api.key: |-
-  #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
+  #      my-super-secret-value
   ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
   #test1:
   #  labels:
@@ -231,13 +235,11 @@ secrets: {}
   #  type: kubernetes.io/tls
   #  data:
   #    tls.crt: |-
-  #      -----BEGIN CERTIFICATE-----
-  #      MIIC2DCCAcCgAwIBAgIBATANBgkqh
-  #      -----END CERTIFICATE-----
+  #      bla-bla-bla
+
   #    tls.key: |-
-  #      -----BEGIN RSA PRIVATE KEY-----
-  #      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
-  #      -----END RSA PRIVATE KEY-----
+  #  
+  #      bla-bla-bla
   ## --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
   ## --set-file "secrets.json-file.data.file\.json=path/to/file.json"
   #json-file:

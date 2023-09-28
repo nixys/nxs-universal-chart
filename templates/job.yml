@@ -21,42 +21,8 @@ metadata:
     {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  {{- if .parallelism }}
-  parallelism: {{ .parallelism }}
-  {{- else if $general.parallelism }}
-  parallelism: {{ $general.parallelism }}
-  {{- end }}
-  {{- if .completions }}
-  completions: {{ .completions }}
-  {{- else if $general.completions }}
-  completions: {{ $general.completions }}
-  {{- end }}
-  {{- if .activeDeadlineSeconds }}
-  activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
-  {{- else if $general.activeDeadlineSeconds }}
-  activeDeadlineSeconds: {{ $general.activeDeadlineSeconds }}
-  {{- end }}
-  {{- if .backoffLimit }}
-  backoffLimit: {{ .backoffLimit }}
-  {{- else if $general.backoffLimit }}
-  backoffLimit: {{ $general.backoffLimit }}
-  {{- end }}
-  {{- if .ttlSecondsAfterFinished }}
-  ttlSecondsAfterFinished: {{ .ttlSecondsAfterFinished }}
-  {{- else if $general.ttlSecondsAfterFinished }}
-  ttlSecondsAfterFinished: {{ $general.ttlSecondsAfterFinished }}
-  {{- end }}
-  template:
-    metadata:
-      labels:
-        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-      annotations:
-        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-    spec:
-      {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "context" $) | indent 6 }}
-      restartPolicy: {{ .restartPolicy | default "Never" }}
+  {{- include "helpers.job" (dict "value" . "general" $general "name" $name "context" $) | indent 2 }}
+
 {{- if .commandDurationAlert }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -66,7 +32,7 @@ metadata:
   labels:
     prometheus: k8s
     role: alert-rules
-  namespace: nxs-monitoring
+  namespace: metrics
 spec:
   groups:
   - name: "jobs_rules"

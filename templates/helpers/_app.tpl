@@ -15,11 +15,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "helpers.app.fullname" -}}
+{{- $ := .context -}}
 {{- if .name -}}
-{{- if .context.Values.releasePrefix -}}
-{{- printf "%s-%s" .context.Values.releasePrefix .name | trunc 63 | trimAll "-" -}}
+{{- if $.Values.releasePrefix -}}
+{{- printf "%s-%s" $.Values.releasePrefix .name | trunc 63 | trimAll "-" -}}
+{{- else if contains .name $.Release.Name }}
+{{- $.Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else -}}
-{{- printf "%s-%s" (include "helpers.app.name" .context) .name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" (include "helpers.app.name" $) .name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- else -}}
 {{- include "helpers.app.name" .context -}}
@@ -30,15 +33,14 @@ If release name contains chart name it will be used as a full name.
 {{ include "helpers.app.selectorLabels" . }}
 helm.sh/chart: {{ include "helpers.app.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
+app.kubernetes.io/version: {{ default .Chart.AppVersion $.Values.image.tag }}
 {{- with .Values.generic.labels }}
 {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
 {{- end }}
 
 {{- define "helpers.app.selectorLabels" -}}
+app: {{ include "helpers.app.name" . }}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- include "helpers.app.genericSelectorLabels" $ }}
@@ -56,6 +58,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
+{{/* TODO: remove */}}
 {{- define "helpers.app.hooksAnnotations" -}}
 helm.sh/hook: "pre-install,pre-upgrade"
 helm.sh/hook-weight: "-999"

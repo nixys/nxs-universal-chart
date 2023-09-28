@@ -1,9 +1,9 @@
-{{- $general := $.Values.statefulSetsGeneral -}}
-{{- range $name, $sts := .Values.statefulSets }}
+{{- $general := $.Values.deploymentsGeneral -}}
+{{- range $name, $d := .Values.deployments }}
 {{- if not (.disabled | default false) }}
 ---
-apiVersion: {{ include "helpers.capabilities.statefulSet.apiVersion" $ }}
-kind: StatefulSet
+apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
+kind: Deployment
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace }}
@@ -13,18 +13,19 @@ metadata:
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
     {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  replicas: {{ .replicas | default 1 }}
+  {{- with .replicas }}
+  replicas: {{ . | default 1 }}
+  {{- end }}
   {{- with .strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-  serviceName: {{ include "helpers.app.fullname" (dict "name" .serviceName "context" $) }}
-  {{- with .minReadySeconds }}minReadySeconds: {{ . }}{{- end }}
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
-      {{- with .extraSelectorLabels }}{{- include "helpers.tplFvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+      {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
   template:
     metadata:
       labels:
@@ -37,9 +38,5 @@ spec:
         {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
     spec:
       {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "extraLabels" .extraSelectorLabels "context" $) | indent 6 }}
-  {{- with .volumeClaimTemplates }}
-  volumeClaimTemplates:
-    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
-  {{- end }}
 {{- end }}
 {{- end }}

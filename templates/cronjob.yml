@@ -24,62 +24,23 @@ metadata:
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   schedule: {{ include "helpers.tplvalues.render" (dict "value" .schedule "context" $) | quote }}
-  {{- if .singleOnly }}
-  concurrencyPolicy: Forbid
+  {{- if any .timeZone $general.timeZone }}
+  timeZone: {{ default $general.timeZone .timeZone }}
   {{- end }}
-  {{- if .startingDeadlineSeconds }}
-  startingDeadlineSeconds: {{ .startingDeadlineSeconds }}
-  {{- else if $general.startingDeadlineSeconds }}
-  startingDeadlineSeconds: {{ $general.startingDeadlineSeconds }}
+  concurrencyPolicy: {{ default "Allow" $general.concurrencyPolicy .concurrencyPolicy }}
+  {{- if any .startingDeadlineSeconds $general.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ default $general.startingDeadlineSeconds .startingDeadlineSeconds }}
   {{- end }}
-  {{- if .successfulJobsHistoryLimit }}
-  successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit }}
-  {{- else if $general.successfulJobsHistoryLimit }}
-  successfulJobsHistoryLimit: {{ $general.successfulJobsHistoryLimit }}
+  {{- if any .successfulJobsHistoryLimit $general.successfulJobsHistoryLimit}}
+  successfulJobsHistoryLimit: {{ default $general.successfulJobsHistoryLimit .successfulJobsHistoryLimit }}
   {{- end }}
-  {{- if .failedJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ .failedJobsHistoryLimit }}
-  {{- else if $general.failedJobsHistoryLimit }}
-  failedJobsHistoryLimit: {{ $general.failedJobsHistoryLimit }}
+  {{- if any .failedJobsHistoryLimit $general.failedJobsHistoryLimit}}
+  failedJobsHistoryLimit: {{ default $general.failedJobsHistoryLimit .failedJobsHistoryLimit }}
   {{- end }}
   jobTemplate:
     spec:
-      {{- if .parallelism }}
-      parallelism: {{ .parallelism }}
-      {{- else if $general.parallelism }}
-      parallelism: {{ $general.parallelism }}
-      {{- end }}
-      {{- if .completions }}
-      completions: {{ .completions }}
-      {{- else if $general.completions }}
-      completions: {{ $general.completions }}
-      {{- end }}
-      {{- if .activeDeadlineSeconds }}
-      activeDeadlineSeconds: {{ .activeDeadlineSeconds }}
-      {{- else if $general.activeDeadlineSeconds }}
-      activeDeadlineSeconds: {{ $general.activeDeadlineSeconds }}
-      {{- end }}
-      {{- if .backoffLimit }}
-      backoffLimit: {{ .backoffLimit }}
-      {{- else if $general.backoffLimit }}
-      backoffLimit: {{ $general.backoffLimit }}
-      {{- end }}
-      {{- if .ttlSecondsAfterFinished }}
-      ttlSecondsAfterFinished: {{ .ttlSecondsAfterFinished }}
-      {{- else if $general.ttlSecondsAfterFinished }}
-      ttlSecondsAfterFinished: {{ $general.ttlSecondsAfterFinished }}
-      {{- end }}
-      template:
-        metadata:
-          labels:
-            {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-            {{- with .podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-          annotations:
-            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-            {{- with .podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-        spec:
-          {{- include "helpers.pod" (dict "value" . "general" $general "name" $name "context" $) | indent 10 }}
-          restartPolicy: {{ .restartPolicy | default "Never" }}
+      {{- include "helpers.job" (dict "value" . "general" $general "name" $name "context" $) | indent 6 }}
+
 {{- if .commandDurationAlert }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -89,7 +50,7 @@ metadata:
   labels:
     prometheus: k8s
     role: alert-rules
-  namespace: nxs-monitoring
+  namespace: metrics
 spec:
   groups:
   - name: "cronJobs_rules"

@@ -1,18 +1,45 @@
 # Changelog
 
-## 2.4.1 - August 23, 2023
+## 3.2.0 – September 28, 2023
+* added: app as default label
+* feat: matching short name by Release.Name
+* drop: deprecation notes
+* feat: new _image.tpl helper with supported digest
+* fix: shortcut with `with` go template operator
+* feat: new _containers.tpl helper
+* bump: hpa version
+* feat: service shortcut
+* fix: keda api typo
+* feat: _job.tpl helper
+* drop: hooks annotations
+
+## 3.1.0 – September 18, 2023
+* fix: annotations
+
+
+## 3.0.0 – September 15, 2023
+* fix: add `priorityClassName` to workloads generals
+* fix: add `image` tpl
+* refactor: defaultImage* -> image.*
+* feature: add `network policies` resources
+* feature: add `keda` resources
+* docs: update
+* refactor: default ns for prom rules moved to metrics
+
+
+## 2.4.1 – August 23, 2023
 * fix: render serviceaccount names
-* fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/nxs-universal-chart/issues/50))
-* fix: deploymentsGeneral.annotation applying to deployment ([#49](https://github.com/nixys/nxs-universal-chart/issues/49))
+* fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/zfx-uni-chart/issues/50))
+* fix: deploymentsGeneral.annotation applying to deployment ([#49](https://github.com/nixys/zfx-uni-chart/issues/49))
 
 
-## 2.4.0 - July 21, 2023
+## 2.4.0 – July 21, 2023
 * feature: add Service Account workload to create serviceaccount and coresponding roles/clusterroles with bindings
 * fix: default container and init-container names
 * docs update
 * feature: add emptyDir type in `volumes`
 
-## 2.3.0 - Mar 07, 2023
+## 2.3.0 – Mar 07, 2023
 
 * feature: add typed volumes via generic and workloads generals parameter `volumes` 
 * feature: add labels form workload `extraSelectorLabels` parameter to pod affinity preset
@@ -20,7 +47,7 @@
 * deprecation: generic and workloads generals parameter `extraVolumeMounts` is marked as deprecated
 * fix: increased affinity weight for "soft" rules
 
-## 2.2.0 - Feb 20, 2023
+## 2.2.0 – Feb 20, 2023
 
 * changed license to Apache2.0
 * feature: add StatefilSet workload
@@ -32,23 +59,23 @@
 * improvement: pod template moved to helper
 * docs update
 
-## 2.1.4 - Aug 29, 2022
+## 2.1.4 – Aug 29, 2022
 
 * feature: add clusterIP parameter for service
 
-## 2.1.3 - Aug 1, 2022
+## 2.1.3 – Aug 1, 2022
 
 * fix: rolled back parameter `servicemonitors` and marked as deprecated
 
-## 2.1.2 - Aug 1, 2022
+## 2.1.2 – Aug 1, 2022
 
 * fix: parameter `servicemonitors` has been renamed to `serviceMonitors`
 
-## 2.1.1 - Jul 18, 2022
+## 2.1.1 – Jul 18, 2022
 
 * fix: templating for ingress hostnames with empty values
 
-## 2.1.0 - Jul 14, 2022
+## 2.1.0 – Jul 14, 2022
 
 * fix: quotes to string values in ConfigMap
 * fix: for random container name by lowercase
@@ -58,12 +85,12 @@
 * deprecation: workloads parameter `imagePullSecrets` is marked as deprecated
 * docs update
 
-## 2.0.1 - Jun 9, 2022
+## 2.0.1 – Jun 9, 2022
 
 * added `defaultImagePullPolicy`
 * docs minor fix
 
-## 2.0.0 - May 30, 2022
+## 2.0.0 – May 30, 2022
 
 * feature: add HPA support
 * feature: add PDB support
@@ -71,11 +98,11 @@
 * docs update
 * samples update
 
-## 1.0.6 - May 6, 2022
+## 1.0.6 – May 6, 2022
 
 * fix nindent for `securityContext`
 
-## 1.0.5 - May 5, 2022
+## 1.0.5 – May 5, 2022
 
 * feature: add template for workloads images
 * fix `securityContext` for pod and container levels
@@ -83,18 +110,18 @@
 * set default service port name
 * doc update
 
-## 1.0.4 - April 15, 2022
+## 1.0.4 – April 15, 2022
 
 * fix Service nodePort
 
-## 1.0.3 - April 12, 2022
+## 1.0.3 – April 12, 2022
 
 * fix helm hooks annotations custom annotations
 
-## 1.0.2 - April 5, 2022
+## 1.0.2 – April 5, 2022
 
 * fix helm hooks annotations for PVC
 
-## 1.0.1 - April 4, 2022
+## 1.0.1 – April 4, 2022
 
 * fix servicemonitor's selector rendering

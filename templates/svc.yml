@@ -1,4 +1,7 @@
 {{- range $name, $s := $.Values.services }}
+{{- if not (hasKey . "type") }}
+{{- $_ := set . "type" "ClusterIP" }}
+{{- end }}
 ---
 kind: Service
 apiVersion: v1
@@ -12,44 +15,53 @@ metadata:
     {{- with $.Values.generic.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  {{- if not (empty .clusterIP ) }}
-  clusterIP: {{ .clusterIP }}
+  {{- with .clusterIP }}
+  clusterIP: {{ . }}
   {{- end }}
+
   {{- if not (empty .type) }}
   type: {{ .type }}
+
   {{- if eq .type "LoadBalancer" }}
-  {{- if not (empty .loadBalancerIP) }}
-  loadBalancerIP: {{ .loadBalancerIP }}
+  {{- with .loadBalancerIP }}
+  loadBalancerIP: {{ . }}
   {{- end }}
-  {{- if .loadBalancerSourceRanges }}
+  {{- with .loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-    {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
+
   {{- else if (eq .type "NodePort") }}
-  {{- if empty .externalTrafficPolicy }}
-  externalTrafficPolicy: "Cluster"
+  {{- with .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
   {{- else }}
-  externalTrafficPolicy: {{ .externalTrafficPolicy }}
+  externalTrafficPolicy: "Cluster"
   {{- end }}
-  {{- if not (empty .healthCheckNodePort) }}
-  healthCheckNodePort: {{ .healthCheckNodePort }}
+  {{- with .healthCheckNodePort }}
+  healthCheckNodePort: {{ . }}
   {{- end }}
   {{- end }}
-  {{- if .externalIPs }}
-  externalIPs: {{- toYaml .externalIPs | nindent 4 }}
+  {{- with .externalIPs }}
+  externalIPs: {{- toYaml . | nindent 4 }}
   {{- end }}
+
+  {{- else }}
+  type: "ClusterIP"
   {{- end }}
   ports:
   {{- range .ports }}
   - name: {{ .name | default $name}}
     protocol: {{ .protocol | default "TCP"}}
-    port: {{ .port }}
+    port: {{ .port | default $name }}
     {{- if not (empty .targetPort) }}
     targetPort: {{ .targetPort }}
     {{- end }}
     {{- if not (empty .nodePort) }}
     nodePort: {{ .nodePort }}
     {{- end }}
+  {{- else }}
+  - name: {{ $name | quote }}
+    port: {{ $name }}
   {{- end }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}

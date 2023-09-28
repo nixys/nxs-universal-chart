@@ -1,30 +1,3 @@
-{{- define "helpers.deprecation.chartname" -}}
-** NOTICE **
-
-We are currently changing name of our chart from universal-chart to nxs-universal-chart. 
-
-Prior to release of 3.0 both versions will be supported.
-{{- end }}
-
-{{- define "helpers.deprecation.notice" -}}
-** NOTICE **
-
-Option `extraVolumeMounts` for generics and workloads generals has been renamed to `volumeMounts` and will be removed in the version 3.0.
-Please use `volumeMounts` instead.
-
-Option `imagePullSecrets` for workloads deprecated and will be removed in the version 3.0.
-Please use `extraImagePullSecrets` instead.
-
-Option `servicemonitors` has been renamed to `serviceMonitors` and will be removed in the version 3.0.
-Please use `serviceMonitors` instead.
-
-** WARNING **
-
-Option `generic.usePredefinedAffinity` will change default value to `false` in the version 3.0.
-Please set this option in your values file or use `usePredefinedAffinity` in workloads generals.
-{{- end }}
-
-
 {{- define "helpers.deprecation.workload.imagePullSecrets" -}}
 {{- range $name, $wkl := .Values.deployments }}{{- if $wkl.imagePullSecrets }}
 
@@ -52,14 +25,6 @@ You use deprecated option `imagePullSecrets` for job "{{$name}}". Please use `ex
 {{- end }}{{ end }}
 {{ end }}
 
-{{- define "helpers.deprecation.serviceMonitors" -}}
-{{- if .Values.servicemonitors }}
-
-** WARNING **
-
-You use deprecated option `servicemonitors`. Please use `serviceMonitors` instead.
-{{- end }}
-{{ end }}
 
 {{- define "helpers.deprecation.extraVolumeMounts" -}}
 {{- if .Values.generic.extraVolumeMounts }}

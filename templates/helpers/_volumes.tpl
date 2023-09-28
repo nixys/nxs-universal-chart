@@ -71,9 +71,9 @@
 {{- if or (or $val.volumeMounts $general.extraVolumeMounts) (or $ctx.Values.generic.extraVolumeMounts (or $general.volumeMounts $ctx.Values.generic.volumeMounts)) -}}
 {{ with $val.volumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}
 {{ with $general.volumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}
-{{ with $general.extraVolumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}
+{{/*{{ with $general.extraVolumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}*/}}
 {{ with $ctx.Values.generic.volumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}
-{{ with $ctx.Values.generic.extraVolumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}
+{{/*{{ with $ctx.Values.generic.extraVolumeMounts }}{{ include "helpers.tplvalues.render" ( dict "value" . "context" $ctx) }}{{ end }}*/}}
 {{- else }}
   []
 {{- end }}

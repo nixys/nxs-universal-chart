@@ -1,0 +1,32 @@
+{{- range $name, $np := .Values.networkPolicies }}
+---
+apiVersion: {{ .apiVersion | default "networking.k8s.io/v1" }}
+kind: NetworkPolicy
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+
+  policyTypes:
+    - {{- if .ingress }}Ingress{{ end }}
+    - {{- if .egress }}Egress {{ end }}
+
+  {{- if .ingress }}
+  ingress:
+    {{- toYaml .ingress | nindent 4 }}
+  {{- end }}
+  {{- if .egress }}
+  egress:
+    {{- toYaml .egress | nindent 4 }}
+  {{- end }}
+
+{{- end -}}

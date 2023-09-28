@@ -8,7 +8,7 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 ### Features
 
 * Flexible way to deploy your applications.
-* Supported any Ingress controlers (Ingress Nginx, Traefik).
+* Supported any Ingress controllers (Ingress Nginx, Traefik).
 * Easy way to template any custom resource with extraDeploy feature.
 * Supported Kubernetes versions (<1.23/1.24/1.25/1.26/1.27) and OpenShift versions (3.11/<4.8/4.9/4.11/4.12/4.13).
 * Supported Helm versions (2/3)
@@ -490,31 +490,35 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 `jobs` is a map of the Jobs parameters, where key is a name of the Job.
 
-| Name                      | Description                                                                              | Value     |
-|---------------------------|------------------------------------------------------------------------------------------|-----------|
-| `labels`                  | Extra Job labels                                                                         | `{}`      | 
-| `annotations`             | Extra Job annotations                                                                    | `{}`      | 
-| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`       | 
-| `completions`             | How much pods should finish to finish Job                                                | `1`       | 
-| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`     | 
-| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`       | 
-| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`     | 
-| `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`      |
-| `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`      |
-| `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
-| `hostAliases`             | Pods host aliases                                                                        | `[]`      |
-| `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
-| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
-| `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
-| `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
-| `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
-| `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`      |
-| `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`      |
-| `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`      |
-| `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`      |
-| `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`      |
-| `extraVolumes`            | Array of k8s Volumes to add to Hook Job                                                  | `[]`      |
-| `restartPolicy`           | Restart Policy of the Job                                                                | `"Never"` |
+| Name                      | Description                                                                              | Value            |
+|---------------------------|------------------------------------------------------------------------------------------|------------------|
+| `labels`                  | Extra Job labels                                                                         | `{}`             | 
+| `annotations`             | Extra Job annotations                                                                    | `{}`             | 
+| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`              | 
+| `completions`             | How much pods should finish to finish Job                                                | `1`              | 
+| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`            | 
+| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`              | 
+| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`            | 
+| `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`             |
+| `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`             |
+| `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`             |
+| `hostAliases`             | Pods host aliases                                                                        | `[]`             |
+| `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`             |
+| `securityContext`         | Security Context for Hook Job pods                                                       | `{}`             |
+| `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`             |
+| `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`             |
+| `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`             |
+| `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`             |
+| `image.registry`          | Image registry that will be used by default                                              | `docker.io`      |
+| `image.repository`        | Image repository tag that will be used by default                                        | `nginx`          |
+| `image.tag`               | Image tag that will be used by default                                                   | `latest`         |
+| `image.pullPolicy`        | Image pull policy that will be used by default                                           | `"IfNotPresent"` |
+| `extraImagePullSecrets`   | Array of existing pull secrets                                                           | `[]`             |
+| `initContainers`          | Array of the Hook Job initContainers ([container](#container-object-parameters) objects) | `[]`             |
+| `containers`              | Array of the Hook Job Containers ([container](#container-object-parameters) objects)     | `[]`             |
+| `volumes`                 | Array of the Hook Job typed volumes                                                      | `[]`             |
+| `extraVolumes`            | Array of k8s Volumes to add to Hook Job                                                  | `[]`             |
+| `restartPolicy`           | Restart Policy of the Job                                                                | `"Never"`        |
 
 ### ServiceMonitors parameters
 
