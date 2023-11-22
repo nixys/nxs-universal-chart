@@ -1,5 +1,6 @@
 # nxs-universal-chart
 
+![Nxs Universal Chart](https://github.com/nixys/nxs-universal-chart/assets/84891358/6ef396eb-68d5-4ae6-b60c-86958e26e8b9)
 
 ## Introduction
 
@@ -582,6 +583,10 @@ For support and feedback please contact me:
 
 * telegram: @Ruppyyy
 * email: a.danielyan@nixys.io
+
+For news and discussions subscribe the channels:
+- telegram community (news): [@nxs_universal_chart](https://t.me/nxs_universal_chart)
+- telegram community (chat): [@nxs_universal_chart_chat](https://t.me/nxs_universal_chart_chat)
 
 ## License
 
