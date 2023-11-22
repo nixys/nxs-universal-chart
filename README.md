@@ -1,6 +1,6 @@
-# nxs-universal-chart
-
 ![Nxs Universal Chart](https://github.com/nixys/nxs-universal-chart/assets/84891358/6ef396eb-68d5-4ae6-b60c-86958e26e8b9)
+
+# nxs-universal-chart
 
 ## Introduction
 
