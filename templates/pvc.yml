@@ -15,6 +15,9 @@ spec:
   {{- with .volumeMode }}
   volumeMode: {{ . }}
   {{- end }}
+  {{- with .volumeName}}
+  volumeName: 
+  {{- end }}
   resources:
     requests:
       storage: {{ .size | default "1Gi" }}
