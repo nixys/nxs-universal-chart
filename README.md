@@ -1,4 +1,4 @@
-![Nxs Universal Chart](https://github.com/nixys/nxs-universal-chart/assets/84891358/6ef396eb-68d5-4ae6-b60c-86958e26e8b9)
+![Nxs Universal Chart Logo](https://github.com/nixys/nxs-universal-chart/assets/84891358/cb86062f-e5fe-467a-bd98-207fb3026194)
 
 # nxs-universal-chart
 
