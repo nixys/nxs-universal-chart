@@ -326,7 +326,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
 | `accessModes`      | Persistent Volume access modes                       | `[]`           | 
 | `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` | 
-| `vilumeName`       | Persistent Volume volume name (if already exists)    | ``             |
+| `volumeName`       | Persistent Volume volume name (if already exists)    | ``             |
 | `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
 | `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
 
