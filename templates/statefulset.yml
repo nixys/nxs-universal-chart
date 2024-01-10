@@ -24,7 +24,7 @@ spec:
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
-      {{- with .extraSelectorLabels }}{{- include "helpers.tplFvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+      {{- with .extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
   template:
     metadata:
       labels:
