@@ -18,6 +18,8 @@ hostAliases: {{- include "helpers.tplvalues.render" (dict "value" $.Values.gener
 {{- end }}
 {{- if .affinity }}
 affinity: {{- include "helpers.tplvalues.render" ( dict "value" .affinity "context" $) | nindent 2 }}
+{{- else if $general.affinity }}
+affinity: {{- include "helpers.tplvalues.render" ( dict "value" $general.affinity "context" $) | nindent 2 }}
 {{- else if $usePredefinedAffinity }}
 affinity:
   nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values "context" $) | nindent 4 }}

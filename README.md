@@ -1,5 +1,6 @@
-# nxs-universal-chart
+![Nxs Universal Chart Logo](https://github.com/nixys/nxs-universal-chart/assets/84891358/cb86062f-e5fe-467a-bd98-207fb3026194)
 
+# nxs-universal-chart
 
 ## Introduction
 
@@ -166,6 +167,7 @@ the parameters that can be configured during installation. To check deployment e
 | `deploymentsGeneral.envFrom`               | Array of extra envFrom objects                      | `[]`    |
 | `deploymentsGeneral.extraVolumes`          | Array of k8s Volumes to add to all deployments      | `[]`    |
 | `deploymentsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all deployments | `[]`    |
+| `deploymentsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `deploymentsGeneral.usePredefinedAffinity` | Use Affinity presets in all deployments by default  | `false` |
 
 `deployments` is a map of the Deployment parameters, where key is a name of the Deployment.
@@ -210,6 +212,7 @@ the parameters that can be configured during installation. To check deployment e
 | `statefulSetsGeneral.envFrom`               | Array of extra envFrom objects                       | `[]`    |
 | `statefulSetsGeneral.extraVolumes`          | Array of k8s Volumes to add to all StatefulSets      | `[]`    |
 | `statefulSetsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
+| `statefulSetsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `statefulSetsGeneral.usePredefinedAffinity` | Use Affinity presets in all StatefulSets by default  | `false` |
 
 `statefulSets` is a map of the StatefulSets parameters, where key is a name of the StatefulSets.
@@ -323,6 +326,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
 | `accessModes`      | Persistent Volume access modes                       | `[]`           | 
 | `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` | 
+| `volumeName`       | Persistent Volume volume name (if already exists)    | ``             |
 | `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
 | `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
 
@@ -433,7 +437,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |------------------------------|-----------------------------------------------------------------------------------------|-----------|
 | `labels`                     | Extra CronJob labels                                                                    | `{}`      | 
 | `annotations`                | Extra CronJob annotations                                                               | `{}`      | 
-| `singleOnly`                 | Forbid concurrency policy                                                               | `"false"` | 
+| `singleOnly`                 | Forbid concurrency policy                                                               | `"false"` |
+| `schedule`                   | Cronjob scheduling                                                                      | ``        |
 | `startingDeadlineSeconds`    | Duration for starting CronJob                                                           | ``        | 
 | `successfulJobsHistoryLimit` | Limitation of completed jobs should be kept                                             | `3`       | 
 | `failedJobsHistoryLimit`     | Limitation of failed jobs should be kept                                                | `1`       | 
@@ -578,6 +583,10 @@ For support and feedback please contact me:
 
 * telegram: @Ruppyyy
 * email: a.danielyan@nixys.io
+
+For news and discussions subscribe the channels:
+- telegram community (news): [@nxs_universal_chart](https://t.me/nxs_universal_chart)
+- telegram community (chat): [@nxs_universal_chart_chat](https://t.me/nxs_universal_chart_chat)
 
 ## License
 

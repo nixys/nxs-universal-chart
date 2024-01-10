@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.0 - November 17, 2023
+* feature: add affinity as general option for every resourse
+* fix: added missing options to readme
+* fix: attaching pvc to existing pv
+
 ## 2.4.1 - August 23, 2023
 * fix: render serviceaccount names
 * fix: merging env if both general and container envs are used ([#50](https://github.com/nixys/nxs-universal-chart/issues/50))
