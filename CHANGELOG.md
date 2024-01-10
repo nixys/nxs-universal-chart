@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1 - January 10, 2024
+* feature: add priorityClassName as option for every workload
+* fix: statefulset typos
+
 ## 2.5.0 - November 17, 2023
 * feature: add affinity as general option for every resourse
 * fix: added missing options to readme

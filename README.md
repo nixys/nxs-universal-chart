@@ -59,6 +59,7 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`   |
 | `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`   |
 | `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`   |
+| `generic.priorityClassName`     | priorityClassName for workload pods                             | `[]`   |
 | `generic.volumes`               | Array of typed Volumes to add to all deployed workloads         | `[]`   |
 | `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`   |
 | `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`   |
@@ -186,6 +187,7 @@ the parameters that can be configured during installation. To check deployment e
 | `affinity`                      | Affinity for deployment; replicas pods assignment                                                                                 | `{}`  |
 | `securityContext`               | Security Context for deployment pods                                                                                              | `{}`  |
 | `dnsPolicy`                     | DnsPolicy for deployment pods                                                                                                     | `""`  |
+| `priorityClassName`             | priorityClassName for deployment pods                                                                                             | `""`  |
 | `nodeSelector`                  | Node labels for deployment; pods assignment                                                                                       | `{}`  |
 | `tolerations`                   | Tolerations for deployment; replicas pods assignment                                                                              | `[]`  |
 | `imagePullSecrets`              | DEPRECATED. Array of existing pull secrets                                                                                        | `[]`  |
@@ -232,6 +234,7 @@ the parameters that can be configured during installation. To check deployment e
 | `affinity`                      | Affinity for statefulSet; replicas pods assignment                                                                                                                     | `{}`  |
 | `securityContext`               | Security Context for statefulSet pods                                                                                                                                  | `{}`  |
 | `dnsPolicy`                     | DnsPolicy for statefulSet pods                                                                                                                                         | `""`  |
+| `priorityClassName`             | priorityClassName for statefulSet pods                                                                                                                                 | `""`  |
 | `nodeSelector`                  | Node labels for statefulSet; pods assignment                                                                                                                           | `{}`  |
 | `tolerations`                   | Tolerations for statefulSet; replicas pods assignment                                                                                                                  | `[]`  |
 | `imagePullSecrets`              | DEPRECATED. Array of existing pull secrets                                                                                                                             | `[]`  |
@@ -389,6 +392,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`                        |
 | `securityContext`         | Security Context for Hook Job pods                                                       | `{}`                        |
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`                        |
+| `priorityClassName`       | priorityClassName for Hook Job pods                                                      | `""`                        |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`                        |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`                        |
 | `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`                        |
@@ -454,6 +458,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `affinity`                   | Affinity for CronJob; replicas pods assignment                                          | `{}`      |
 | `securityContext`            | Security Context for CronJob pods                                                       | `{}`      |
 | `dnsPolicy`                  | DnsPolicy for CronJob pods                                                              | `""`      |
+| `priorityClassName`          | priorityClassName for CronJob pods                                                      | `""`      |
 | `nodeSelector`               | Node labels for CronJob; pods assignment                                                | `{}`      |
 | `tolerations`                | Tolerations for CronJob; replicas pods assignment                                       | `[]`      |
 | `imagePullSecrets`           | DEPRECATED. Array of existing pull secrets                                              | `[]`      |
@@ -511,6 +516,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
 | `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
 | `dnsPolicy`               | DnsPolicy for Hook Job pods                                                              | `""`      |
+| `priorityClassName`       | priorityClassName for Hook Job pods                                                      | `""`      |
 | `nodeSelector`            | Node labels for Hook Job; pods assignment                                                | `{}`      |
 | `tolerations`             | Tolerations for Hook Job; replicas pods assignment                                       | `[]`      |
 | `imagePullSecrets`        | DEPRECATED. Array of existing pull secrets                                               | `[]`      |
