@@ -135,6 +135,8 @@ the parameters that can be configured during installation. To check deployment e
 | `type`                     | Type of a service                                                     | `""`        |
 | `loadBalancerIP`           | IP of a service with LoadBalancer type                                | `""`        |
 | `loadBalancerSourceRanges` | Service Load Balancer sources                                         | `[]`        |
+| `loadBalancerClass`        | Service Load Balancer Class                                           | `""`        |
+| `allocateLoadBalancerNodePorts`  | Load Balancer NodePort allocation                               | `true`      |
 | `externalTrafficPolicy`    | Service external traffic policy                                       | `"Cluster"` |
 | `healthCheckNodePort`      | Health check node port (numeric port number) for the service          | ``          |
 | `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
