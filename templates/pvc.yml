@@ -16,7 +16,7 @@ spec:
   volumeMode: {{ . }}
   {{- end }}
   {{- with .volumeName}}
-  volumeName: 
+  volumeName: {{ . }}
   {{- end }}
   resources:
     requests:
