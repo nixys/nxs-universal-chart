@@ -21,6 +21,17 @@ spec:
   {{- if not (empty .loadBalancerIP) }}
   loadBalancerIP: {{ .loadBalancerIP }}
   {{- end }}
+  {{- if not (empty .loadBalancerClass) }}
+  loadBalancerClass: {{ .loadBalancerClass }}
+  {{- end }}
+  {{- if not ( or (.allocateLoadBalancerNodePorts) (eq (.allocateLoadBalancerNodePorts | toString) "<nil>") ) }}
+  allocateLoadBalancerNodePorts: false
+  {{- end }}
+  {{- if empty .externalTrafficPolicy }}
+  externalTrafficPolicy: "Cluster"
+  {{- else }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy }}
+  {{- end }}
   {{- if .loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
     {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
