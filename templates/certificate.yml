@@ -1,0 +1,110 @@
+{{- if $.Capabilities.APIVersions.Has "cert-manager.io/v1" }}
+{{- range $name, $cert := .Values.certificates }}
+{{- if not (.disabled | default false) }}
+
+---
+kind: Certificate
+apiVersion: cert-manager.io/v1
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  {{- with .subject }}
+  subject:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .literalSubject }}
+  literalSubject: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .commonName }}
+  commonName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .duration }}
+  duration: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .renewBefore }}
+  renewBefore: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- if .dnsNames }}
+  dnsNames:
+  {{- range .dnsNames }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- if .ipAddresses }}
+  ipAddresses:
+  {{- range .ipAddresses }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- if .uris }}
+  uris:
+  {{- range .uris }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- if .emailAddresses }}
+  emailAddresses:
+  {{- range .emailAddresses }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- with .secretName }}
+  secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- else }}
+  secretName: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  {{- end }}
+  secretTemplate:
+    {{- if or (.secretTemplate).annotations ($.Values.generic).annotations }}
+    annotations:
+        {{- $_ := include "helpers.tplvalues.render" (dict "value" (default dict (.secretTemplate).annotations) "context" $) }}
+        {{- include "helpers.app.annotations" (dict "value" $_ "context" $) |  nindent 6  -}}
+    {{- end }}
+    labels:
+    {{- include "helpers.app.labels" $ | nindent 6 }}
+    {{- with (.secretTemplate).labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+  {{- with .keystores }}
+  keystores:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .issuerRef }}
+  issuerRef:
+    {{- with .originalName }}
+    name: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- else }}
+    name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+    {{- end }}
+    {{- with .kind }}
+    kind: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- end }}
+    {{- with .group }}
+    group: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- end }}
+  {{- end }}
+  {{- with .isCA }}
+  isCA: {{ . }}
+  {{- end }}
+  {{- if .usages }}
+  usages:
+  {{- range .usages }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- with .privateKey }}
+  privateKey:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .encodeUsagesInRequest }}
+  encodeUsagesInRequest: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .revisionHistoryLimit }}
+  revisionHistoryLimit: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .additionalOutputFormats }}
+  additionalOutputFormats:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

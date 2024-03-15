@@ -12,10 +12,14 @@ metadata:
     {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
     {{- with $ing.certManager }}
     kubernetes.io/tls-acme: "true"
-    {{- if .issuerName }}
-    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ .issuerName }}
-    {{- end }}
-    {{- end }}
+    {{- if or .issuerName .originalIssuerName }}
+    {{- if .originalIssuerName }}
+    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ include "helpers.tplvalues.render" (dict "value" .originalIssuerName "context" $) }}
+    {{- else }}
+    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ include "helpers.app.fullname" (dict "name" .issuerName "context" $) }}
+    {{- end }} {{/* end  if .originalIssuerName */}}
+    {{- end }} {{/* end  if or .issuerName .originalIssuerName */}}
+    {{- end }} {{/* end  $ing.certManager */}}
     {{- with $ing.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   {{- if and (eq "true" (include "helpers.ingress.supportsIngressClass" $)) ($ing.ingressClassName) }}

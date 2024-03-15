@@ -1,0 +1,53 @@
+{{- if $.Capabilities.APIVersions.Has "cert-manager.io/v1" }}
+{{- range $name, $iss := .Values.issuers }}
+{{- if not (.disabled | default false) }}
+{{- $_ := include "helpers.tplvalues.render" (dict "value" .kind "context" $) }}
+{{- $kind := ternary "ClusterIssuer" "Issuer" (eq $_ "ClusterIssuer") }}
+
+---
+kind: {{ $kind }}
+apiVersion: cert-manager.io/v1
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  {{- with .acme }}
+  acme:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .ca }}
+  ca:
+    {{- with .originalSecretName }}
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- else }}
+    secretName: {{ include "helpers.app.fullname" (dict "name" .secretName "context" $) }}
+    {{- end }}
+    {{- if .crlDistributionPoints }}
+    crlDistributionPoints:
+    {{- range .crlDistributionPoints }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- end }}
+    {{- end }}
+    {{- if .ocspServers }}
+    ocspServers:
+    {{- range .ocspServers }}
+      - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- with .vault }}
+  vault:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if kindIs "map" .selfSigned }}
+  selfSigned:
+    {{- include "helpers.tplvalues.render" (dict "value" .selfSigned "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with .venafi }}
+  venafi:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+{{- end }} {{/* end if not .disabled */}}
+{{- end }} {{/* end range */}}
+{{- end }}
