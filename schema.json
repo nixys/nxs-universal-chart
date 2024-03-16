@@ -1,0 +1,117 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/object1667826356.json",
+  "title": "Root",
+  "type": "object",
+  "required": [
+    "defaultImage",
+    "defaultImageTag",
+    "deployments"
+  ],
+  "additionalItems": false,
+  "properties": {
+    "defaultImage": {
+      "$id": "#root/defaultImage",
+      "title": "Defaultimage",
+      "type": "string",
+      "pattern": "^.+$"
+    },
+    "defaultImageTag": {
+      "$id": "#root/defaultImageTag",
+      "title": "Defaultimagetag",
+      "type": "string",
+      "pattern": "^.+$"
+    },
+    "defaultImagePullPolicy": {
+      "$id": "#root/defaultImagePullPolicy",
+      "title": "Defaultimagepullpolicy",
+      "type": "string",
+      "default": "IfNotPresent",
+      "enum": [
+        "Always",
+        "IfNotPresent",
+        "Never"
+      ]
+    },
+    "deployments": {
+      "$id": "#root/deployments",
+      "title": "Deployments",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$id": "#root/deployments/deployment",
+          "title": "Deployment",
+          "type": "object",
+          "required": [
+            "replicas",
+            "serviceAccountName",
+            "containers"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "replicas": {
+              "$id": "#root/deployments/nginx/replicas",
+              "title": "Replicas",
+              "type": "integer",
+              "default": 0
+            },
+            "serviceAccountName": {
+              "$id": "#root/deployments/nginx/serviceAccountName",
+              "title": "Serviceaccountname",
+              "type": "string",
+              "default": "",
+              "pattern": "^.*$"
+            },
+            "containers": {
+              "$id": "#root/deployments/nginx/containers",
+              "title": "Containers",
+              "type": "array",
+              "default": [],
+              "items": {
+                "$id": "#root/deployments/nginx/containers/items",
+                "title": "Items",
+                "type": "object",
+                "required": [],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "$id": "#root/deployments/nginx/containers/items/name",
+                    "title": "Name",
+                    "type": "string",
+                    "default": "",
+                    "pattern": "^.*$"
+                  },
+                  "image": {
+                    "$id": "#root/deployments/nginx/containers/items/image",
+                    "title": "Image",
+                    "type": "string",
+                    "default": "",
+                    "pattern": "^.*$"
+                  },
+                  "imageTag": {
+                    "$id": "#root/deployments/nginx/containers/items/imageTag",
+                    "title": "Imagetag",
+                    "type": "number",
+                    "default": 0.0
+                  },
+                  "imagePullPolicy": {
+                    "$id": "#root/deployments/nginx/containers/items/imagePullPolicy",
+                    "title": "Imagepullpolicy",
+                    "type": "string",
+                    "enum": [
+                      "Always",
+                      "IfNotPresent",
+                      "Never"
+                    ],
+                    "default": "IfNotPresent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
