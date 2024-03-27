@@ -1,3 +1,8 @@
+{{- define "helpers.configmaps.decode" -}}
+{{if hasPrefix "b64:" .value}}{{trimPrefix "b64:" .value | b64dec | quote }}{{else}}{{ quote .value }}{{- end }}
+{{- end -}}
+
+
 {{- define "helpers.configmaps.renderConfigMap" -}}
 {{- $v := dict -}}
 {{- if typeIs "string" .value -}}
@@ -7,11 +12,11 @@
 {{- end -}}
 {{- range $key, $value := $v }}
 {{- if eq (typeOf $value) "float64" }}
-{{ printf "%s: %s" $key (toString $value | quote) }}
+{{ printf "%s: %s" $key (include "helpers.configmaps.decode" (dict "value" $value)) }}
 {{- else if empty $value }}
 {{ printf "%s: %s" $key ("" | quote) }}
 {{- else if kindIs "string" $value }}
-{{ printf "%s: %s" $key ($value | quote) }}
+{{ printf "%s: %s" $key (include "helpers.configmaps.decode" (dict "value" $value)) }}
 {{- else }}
 {{ $key }}: {{$value | toJson | quote }}
 {{- end -}}

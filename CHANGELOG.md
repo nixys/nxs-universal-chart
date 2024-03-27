@@ -1,4 +1,10 @@
 # Changelog
+## 2.6.0 - March 15, 2024
+* feature: Better rendering for ConfigMap resources, added support for b64 encoded strings for easier setting of values via CLI. 
+* feature: Support for certmanager custom resources ([#48](https://github.com/nixys/nxs-universal-chart/issues/48))
+* feature: Support loadBalancerClass, allocateLoadBalancerNodePorts and externalTrafficPolicy for LoadBalancer type services ([#63](https://github.com/nixys/nxs-universal-chart/issues/63))
+* fix: PVC name rendering ([#64](https://github.com/nixys/nxs-universal-chart/issues/64))
+* TODO: Add readme to new resources
 
 ## 2.5.1 - January 10, 2024
 * feature: add priorityClassName as option for every workload
