@@ -30,7 +30,7 @@ Who deploy into Kubernetes/OpenShift on regular basis.
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm repo add nixys https://registry.nixys.ru/chartrepo/public
+$ helm repo add nixys https://registry.nixys.io/chartrepo/public
 $ helm install my-release nixys/nxs-universal-chart -f values.yaml
 ```
 
