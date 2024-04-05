@@ -4,16 +4,16 @@ name: universal-chart
 version: 2.6.0
 maintainers:
 - name: Roman Andreev
-  email: r.andreev@nixys.ru
+  email: r.andreev@nixys.io
 - name: Anton Zhideev
-  email: a.zhideev@nixys.ru
+  email: a.zhideev@nixys.io
 - name: Evgenii Tereshkov
   email: evg.krsk@gmail.com
 - name: Sergey Lavrinenko
   email: s@lavr.me
 - name: Viktor Sokhan
-  email: v.sokhan@nixys.ru
+  email: v.sokhan@nixys.io
 - name: Ruslan Gainanov
   email: gromrx1@gmail.com
 - name: Artem Danielyan
-  email: a.danielyan@nixys.ru
+  email: a.danielyan@nixys.io

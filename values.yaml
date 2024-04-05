@@ -84,7 +84,7 @@ defaultImageTag: latest
 defaultImagePullPolicy: "IfNotPresent"
 
 ingresses: {}
-#  nixys.ru:
+#  nixys.io:
 #    annotations:
 #      nginx.ingress.kubernetes.io/ssl-redirect: "true"
 #      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
