@@ -108,6 +108,7 @@ deployments:
       type: pvc
     - type: configMap
       name: main-nginx-config
+      defaultMode: 420
       items:
       - key: nginx.conf
         path: nginx.conf
@@ -122,6 +123,10 @@ configMaps:
         events {
             worker_connections  1024;
         }
+  bindata:
+    binaryData:
+      file: UEsDBBQAAAAIAFhZsFjEyxqSEAAAABcAAAAEABwAdGVzdFVUCQADSIdFZkiHRWZ1eAsAAQToAwAABOgDAAAzNDIxMjQxNAIjExAGMbgAUEsBAh4DFAAAAAgAWFmwWMTLGpIQAAAAFwAAAAQAGAAAAAAAAQAAALSBAAAAAHRlc3RVVAUAA0iHRWZ1eAsAAQToAwAABOgDAABQSwUGAAAAAAEAAQBKAAAATgAAAAAA
+
 
 secrets:
   # --set "secrets.secret-files.data.api\.key=$SOME_ENV"
