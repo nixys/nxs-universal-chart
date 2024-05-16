@@ -26,7 +26,12 @@ metadata:
   annotations:
     {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
     {{- with $val.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{ end }}
+{{- if $val.data }}
 data:
-  {{- include "helpers.configmaps.renderConfigMap" ( dict "value" $val.data "context" $ ) | nindent 2 }}
+  {{- include "helpers.tplvalues.render" ( dict "value" $val.data "context" $ ) | nindent 2 }}
+{{- else if $val.binaryData }}
+binaryData:
+  {{- include "helpers.tplvalues.render" ( dict "value" $val.binaryData "context" $ ) | nindent 2 }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
