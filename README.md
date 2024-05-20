@@ -11,7 +11,7 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 * Flexible way to deploy your applications.
 * Supported any Ingress controllers (Ingress Nginx, Traefik).
 * Easy way to template any custom resource with extraDeploy feature.
-* Supported Kubernetes versions (<1.23/1.24/1.25/1.26/1.27) and OpenShift versions (3.11/<4.8/4.9/4.11/4.12/4.13).
+* Supported Kubernetes versions (<1.23/1.24/1.25/1.26/1.27/1.28/1.29/1.30) and OpenShift versions (3.11/<4.8/4.9/4.11/4.12/4.13).
 * Supported Helm versions (2/3)
 
 ### Who can use this tool
