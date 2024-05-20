@@ -574,6 +574,62 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | kind       | kind for target HPA object       | "Deployment" |
 | name       | Required name of target object   | ""           |
 
+### Issuers parameters
+
+`issuers` is map of Issuers parameters, where key is a name
+
+| Name         | Description                                                                                                               | Value           |
+|--------------|---------------------------------------------------------------------------------------------------------------------------|-----------------|
+| `kind`       | issuer type                                                                                                               | "ClusterIssuer" |
+| `acme`       | map with [acme issuerConfig](https://cert-manager.io/docs/reference/api-docs/#acme.cert-manager.io/v1.ACMEIssuer)         | `{}`            |
+| `ca`         | map with [ca issuerConfig](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CAIssuer)                  | `{}`            |
+| `vault`      | map with [vault issuerConfig](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.VaultIssuer)            | `{}`            |
+| `selfSigned` | map with [selfSigned issuerConfig](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.SelfSignedIssuer)  | `{}`            |
+| `venafi`     | map with [venafi issuerConfig](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.VenafiIssuer)          | `{}`            |
+
+### Certificates parameters
+
+ `certificates` is map of certificates parameters, where key is a name according to [CertificateSpec](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec)
+
+| Name                      | Description                                                             | Value             |
+|---------------------------|-------------------------------------------------------------------------|-------------------|
+| `kind`                    | issuer type                                                             | "ClusterIssuer"   |
+| `subject`                 | list of certificate subject attributes                                  | `[]`              |
+| `literalSubject`          | requested certificate subject attributes                                | `""`              |
+| `commonName`              | requested common name attribute                                         | `""`              |
+| `duration`                | requested lifetime of certificate                                       | `""`              |
+| `renewBefore`             | how long to wait before renewing                                        | `""`              |
+| `dnsNames`                | list of requested dns names                                             | `[]`              |
+| `ipAddresses`             | list of requested ip addresses                                          | `[]`              |
+| `uris`                    | list of requested uris                                                  | `[]`              |
+| `emailAddresses`          | list of requested email addresses                                       | `[]`              |
+| `secretName`              | name of secret to be created for certificate                            | `""`              |
+| `secretTemplate`          | [secretTemplate](#certificates-secretTemplate-object-parameters) object |                   |
+| `keystores`               | additionals (certificate keystores)[https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateKeystores]| `[]` |
+| `issuerRef`               | [issuerRef](#certificates-issuerRef-object-parameters) object           |                   |
+| `isCA`                    | check if certificate is CA on issuing                                   | `""`              |
+| `usages`                  | list of requested certificate usages                                    | `[]`              |
+| `privateKey`              | set of [privatekey options](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificatePrivateKey) | `{}`              |
+| `encodeUsagesInRequest`   | set whether key usage should be encoded                                  | `""`              |
+| `revisionHistoryLimit`    | the number of certificate requests being stored                         | `""`              |
+| `additionalOutputFormats` | extra output formats of the private key and signed certificate chain    | `""`              |
+
+### Certificates `secretTemplate` object parameters
+
+| Name           | Description                                                             | Value             |
+|----------------|-------------------------------------------------------------------------|-------------------|
+| annotations    | extra annotations for generated secrets                                 | `{}`              |
+| labels         | extra labels for generated secrets                                      | `{}`              |
+
+### Certificates `issuerRef` object parameters
+
+| Name           | Description                                                             | Value             |
+|----------------|-------------------------------------------------------------------------|-------------------|
+| originalName   | original name of Issuer resource                                        | `""`              |
+| name           | name of the resource that will be used with release prefix              | `""`              |
+| kind           | kind of the issuer resource                                             | `""`              |
+| group          | group of the issuer resource                                            | `""`              |
+
 ## Roadmap
 
 Following features are already in backlog for our development team and will be done soon:
