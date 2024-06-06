@@ -361,3 +361,186 @@ extraDeploy: {}
 
 
 
+ingressroutes: {}
+  # test: 
+  #   entryPoints: 
+  #     - test
+  #   routes:
+  #     Host(`prod-vault.ru`):
+  #       priority: 10
+  #       services:
+  #         vault-active:
+  #           port: 8200
+  #           serversTransport: vault
+  #           responseForwardingflushInterval: 10ms
+  #           stickyCookie: 
+  #             httpOnly: true
+  #             name: cookie
+  #             secure: true
+  #             sameSite: none
+  #             maxAge: 42
+  #         vault-active-2:
+  #           port: 8201
+  #           serversTransport: vault
+  #           responseForwardingflushInterval: 10ms
+  #           stickyCookie: 
+  #             httpOnly: false
+  #             name: cookie-2
+  #             secure: false
+  #             sameSite: none
+  #             maxAge: 42
+  #           weight: 12
+  #           passHostHeader: true
+  #       middlewares:
+  #       - name: middleware1
+  #         namespace: default
+  #       - name: test
+  #   tls:
+  #     secretName: supersecret 
+  #     store:
+  #       name: storetets
+  #       namespace: default
+  #     options:
+  #       name: opt
+  #       namespace: default
+  #     certResolver: foo 
+  #     domains:
+  #     - main: example.net
+  #       sans:
+  #       - a.example.net
+  #       - b.example.net
+
+middlewares: {}
+  # testmdw:
+  #   ipWhiteList:
+  #     sourceRange:
+  #     - 192.144.48.8
+  #     - 192.144.48.9
+  #     - 10.220.250.247
+  # test-2:
+  #   redirectScheme:
+  #     permanent: true
+  #     scheme: https
+
+ingressroutesUDP: {}
+  # test: 
+  #   entryPoints: 
+  #     - test
+  #   routes:
+  #     vault-active:
+  #       port: 8200
+  #     vault-passive:
+  #       port: 8201
+  #       weight: 12
+
+traefikservices: {}
+  # test:
+  #   mirroring:
+  #     name: svc1
+  #     port: 80
+  #     mirrors:
+  #       - name: svc2
+  #         port: 80
+  #         percent: 20
+  #       - name: svc3 
+  #         kind: TraefikService
+  #         percent: 15
+  # test2:
+  #   weighted:
+  #     services:
+  #       - name: whoami1
+  #         kind: Service
+  #         port: 80
+  #         weight: 1
+  #         sticky:
+  #           cookie:
+  #             name: lvl2
+  #       - name: whoami2
+  #         kind: Service
+  #         weight: 1
+  #         port: 80
+  #         sticky:
+  #           cookie:
+  #             name: lvl2
+  #     sticky:
+  #       cookie:
+  #         name: lvl1
+
+TLSOptions: {}
+  # testopt:
+  #   minVersion: VersionTLS12
+  #   maxVersion: VersionTLS13
+  #   curvePreferences:
+  #   - CurveP521
+  #   - CurveP384
+  #   cipherSuites:
+  #   - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+  #   - TLS_RSA_WITH_AES_256_GCM_SHA384
+  #   clientAuth:
+  #     secretNames:
+  #     - secret-ca1
+  #     - secret-ca2
+  #     clientAuthType: VerifyClientCertIfGiven
+  #   sniStrict: true
+  #   alpnProtocols:
+  #   - foobar
+ 
+TLSStores: {}
+  # teststore:
+  #   certificates:
+  #     - foo                      
+  #     - bar
+  #   defaultCertificate: secret
+  #   defaultGeneratedCert:
+  #     resolver: myresolver
+  #     domain:
+  #       main: example.org
+  #       sans:
+  #       - foo.example.org
+  #       - bar.example.org
+
+
+ServersTransport: {}
+  # test: 
+  #   serverName: foobar
+  #   insecureSkipVerify: true 
+  #   rootCAsSecrets:
+  #     - foobar
+  #     - foobar
+  #   certificatesSecrets:
+  #     - foobar
+  #     - foobar
+  #   maxIdleConnsPerHost: 1
+  #   forwardingTimeouts:
+  #     dialTimeout: 42s
+  #     responseHeaderTimeout: 42s
+  #     idleConnTimeout: 42s
+  #   peerCertURI: foobar
+  #   disableHTTP2: true
+  #   spiffe:
+  #     ids:
+  #     - spiffe://trust-domain/id1
+  #     - spiffe://trust-domain/id2
+  #     trustDomain: "spiffe://trust-domain"
+
+ServersTransportTCP: {}
+  # testtc:
+  #   dialTimeout: 42s
+  #   dialKeepAlive: 42s
+  #   terminationDelay: 42s
+  #   tls:
+  #     serverName: foobar
+  #     insecureSkipVerify: true
+  #     peerCertURI: foobar
+  #     rootCAsSecrets:
+  #       - foobar
+  #       - foobar
+  #     certificatesSecrets:
+  #       - foobar
+  #       - foobar
+  #   spiffe:
+  #     ids:
+  #     - spiffe://trust-domain/id1
+  #     - spiffe://trust-domain/id2
+  #     trustDomain: "spiffe://trust-domain"
+

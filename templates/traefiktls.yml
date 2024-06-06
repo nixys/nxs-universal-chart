@@ -1,0 +1,64 @@
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $tlsopt := .Values.TLSOptions }}
+---
+kind: TLSOption
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  {{- with .minVersion }}
+  minVersion: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .minVersion }}
+  maxVersion: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .curvePreferences }}
+  curvePreferences:
+  {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  {{- end }}
+  {{- with .cipherSuites }}
+  cipherSuites:
+  {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  {{- end }}
+  {{- with .clientAuth }}
+  clientAuth:
+  {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  {{- end }}
+  {{- with .sniStrict }}
+  sniStrict: {{ include "helpers.tplvalues.render" ( dict "value" . "context" $ ) }}
+  {{- end }}
+  {{- with .alpnProtocols }}
+  alpnProtocols:
+  {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $tlsstore := .Values.TLSStores }}
+---
+kind: TLSStore
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  {{- if .certificates }}
+  certificates:
+  {{- range .certificates }}
+    - secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- end }}
+  {{- with .defaultCertificate }}
+  defaultCertificate: 
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with .defaultGeneratedCert }}
+  defaultGeneratedCert:
+  {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

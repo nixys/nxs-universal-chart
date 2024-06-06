@@ -1,0 +1,267 @@
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $ingressroutes := .Values.ingressroutes }}
+---
+kind: IngressRoute
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+  {{- range .entryPoints }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  routes:
+  {{- range $matchname, $routes := $ingressroutes.routes }}
+    - kind: Rule
+      match: {{ $matchname }}
+      {{- with .priority }}
+      priority: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+      {{- if .middlewares }}
+      middlewares:
+        {{- range $mdlwr := .middlewares }}
+        - name: {{ include "helpers.tplvalues.render" (dict "value" $mdlwr.name "context" $) }}
+        {{- with $mdlwr.namespace}}
+          namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      services:
+      {{- range $svcname, $svc := .services }}
+        - name: {{ include "helpers.tplvalues.render" (dict "value" $svcname "context" $) }}
+        {{- with $svc.namespace}}
+          namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.passHostHeader}}
+          passHostHeader: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.kind}}
+          kind: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.port}}
+          port: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.responseForwardingflushInterval}}
+          responseForwarding:
+            flushInterval: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}        
+        {{- end }}
+        {{- with $svc.scheme}}
+          scheme: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.serversTransport}}
+          serversTransport: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.stickyCookie}}
+          sticky:
+            cookie: 
+            {{- with .httpOnly }}
+              httpOnly: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .name }}
+              name: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .secure }}
+              secure: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .sameSite }}
+              sameSite: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .maxAge }}
+              maxAge: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+        {{- end }}
+        {{- with $svc.strategy}}
+          strategy: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.weight}}
+          weight: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.nativeLB}}
+          nativeLB: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+      {{- end }}    
+    {{- end }}
+  {{- with .tls }}
+  tls:
+    {{- with .secretName }}
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+    {{- end }}
+    {{- with .store }}
+    store: 
+      name: {{ include "helpers.tplvalues.render" (dict "value" .name "context" $) }}
+      {{- with .namespace}}
+      namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+    {{- end }}
+    {{- with .options }}
+    options: 
+      name: {{ include "helpers.tplvalues.render" (dict "value" .name "context" $) }}
+      {{- with .namespace}}
+      namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+    {{- end }}
+    {{- with .certResolver }}
+    certResolver: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+    {{- end }}
+    {{- with .domains }}
+    domains:
+    {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+
+
+
+
+
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $ingressroutestcp := .Values.ingressroutesTCP }}
+---
+kind: IngressRouteTCP
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+  {{- range .entryPoints }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  routes:
+  {{- range $matchname, $routes := $ingressroutestcp.routes }}
+    - kind: Rule
+      match: {{ $matchname }}
+      {{- with .priority }}
+      priority: {{ . }}
+      {{- end }}
+      {{- if .middlewares }}
+      middlewares:
+        {{- range $mdlwr := .middlewares }}
+        - name: {{ include "helpers.tplvalues.render" (dict "value" $mdlwr.name "context" $) }}
+        {{- with $mdlwr.namespace}}
+          namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      services:
+      {{- range $svcname, $svc := .services }}
+        - name: {{ include "helpers.tplvalues.render" (dict "value" $svcname "context" $) }}
+        {{- with $svc.namespace}}
+          namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.passHostHeader}}
+          passHostHeader: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.port}}
+          port: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.responseForwardingflushInterval}}
+          responseForwarding:
+            flushInterval: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}        
+        {{- end }}
+        {{- with $svc.scheme}}
+          scheme: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.serversTransport}}
+          serversTransport: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.stickyCookie}}
+          sticky:
+            cookie: 
+            {{- with .httpOnly }}
+              httpOnly: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .name }}
+              name: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .secure }}
+              secure: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .sameSite }}
+              sameSite: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+            {{- with .maxAge }}
+              maxAge: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+            {{- end }}
+        {{- end }}
+        {{- with $svc.strategy}}
+          strategy: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.weight}}
+          weight: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+        {{- with $svc.nativeLB}}
+          nativeLB: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+        {{- end }}
+      {{- end }}    
+    {{- end }}
+  {{- with .tls }}
+  tls:
+    {{- with .secretName }}
+    secretName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+    {{- end }}
+    {{- with .store }}
+    store: 
+      name: {{ include "helpers.tplvalues.render" (dict "value" .name "context" $) }}
+      {{- with .namespace}}
+      namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+    {{- end }}
+    {{- with .options }}
+    options: 
+      name: {{ include "helpers.tplvalues.render" (dict "value" .name "context" $) }}
+      {{- with .namespace}}
+      namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+    {{- end }}
+    {{- with .certResolver }}
+    certResolver: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+    {{- end }}
+    {{- with .domains }}
+    domains:
+    {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- with .passthrough }}
+    passthrough: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }} 
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $ingressroutesudp := .Values.ingressroutesUDP }}
+---
+kind: IngressRouteUDP
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+  {{- range .entryPoints }}
+    - {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  routes:
+    - services:
+      {{- range $svcname, $svc := $ingressroutesudp.routes }}
+      - name: {{ include "helpers.tplvalues.render" (dict "value" $svcname "context" $) }}
+        {{- with $svc.namespace}}
+        namespace: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.passHostHeader}}
+        passHostHeader: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+        {{- end }}
+        {{- with $svc.port}}
+        port: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+      {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}
+
+

@@ -1,4 +1,10 @@
 # Changelog
+## 2.7.0 - June 06, 2024
+* feature: Implemented native support for Traefik resources. ([#68]https://github.com/nixys/nxs-universal-chart/issues/68)
+* feature: BinaryData configmaps ([#67](https://github.com/nixys/nxs-universal-chart/pull/67))
+* fix: jobsGeneral.labels not specified in template ([#69](https://github.com/nixys/nxs-universal-chart/issues/69))
+* TODO: Add readme to new resources
+
 ## 2.6.0 - March 15, 2024
 * feature: Better rendering for ConfigMap resources, added support for b64 encoded strings for easier setting of values via CLI. 
 * feature: Support for certmanager custom resources ([#48](https://github.com/nixys/nxs-universal-chart/issues/48))
