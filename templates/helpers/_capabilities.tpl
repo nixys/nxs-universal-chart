@@ -67,3 +67,12 @@
 {{- print "policy/v1" -}}
 {{- end -}}
 {{- end -}}
+
+
+{{- define "helpers.capabilities.traefik.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "traefik.io/v1alpha1" -}}
+{{- print "traefik.io/v1alpha1" -}}
+{{- else if .Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1" -}}
+{{- print "traefik.containo.us/v1alpha1" -}}
+{{- end -}}
+{{- end -}}

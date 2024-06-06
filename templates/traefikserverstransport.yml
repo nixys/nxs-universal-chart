@@ -1,0 +1,27 @@
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $serverstransport := .Values.ServersTransport }}
+---
+kind: ServersTransport
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+    {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{- if or ($.Capabilities.APIVersions.Has "traefik.io/v1alpha1") ($.Capabilities.APIVersions.Has "traefik.containo.us/v1alpha1") }}
+{{- range $name, $serverstransport := .Values.ServersTransportTCP }}
+---
+kind: ServersTransportTCP
+apiVersion: {{ include "helpers.capabilities.traefik.apiVersion" $ }}
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+spec:
+    {{- include "helpers.tplvalues.render" ( dict "value" . "context" $ ) | nindent 2 }}
+{{- end }}
+{{- end }}
