@@ -92,7 +92,7 @@ initContainers:
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}
   {{- with .lifecycle }}
-  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  lifecycle: {{- include "helpers.tplvalues.renderWithCommaSeparatedArray" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   {{- with .startupProbe }}
   startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
@@ -142,7 +142,7 @@ containers:
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}
   {{- with .lifecycle }}
-  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  lifecycle: {{- include "helpers.tplvalues.renderWithCommaSeparatedArray" ( dict "value" . "context" $) | nindent 4 }}
   {{- end }}
   {{- with .startupProbe }}
   startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
