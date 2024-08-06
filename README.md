@@ -10,6 +10,7 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 
 * Flexible way to deploy your applications.
 * Supported any Ingress controllers (Ingress Nginx, Traefik).
+* Supported basic Istio resources (Gateway, VirtualService, DestinationRule).
 * Easy way to template any custom resource with extraDeploy feature.
 * Supported Kubernetes versions (<1.23/1.24/1.25/1.26/1.27/1.28/1.29/1.30) and OpenShift versions (3.11/<4.8/4.9/4.11/4.12/4.13).
 * Supported Helm versions (2/3)
@@ -630,6 +631,206 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | kind           | kind of the issuer resource                                             | `""`              |
 | group          | group of the issuer resource                                            | `""`              |
 
+### IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters
+
+`ingressroutes`, `ingressroutesTCP`, `ingressroutesUDP` are maps of IngressRoute parameters, where key is a name
+
+| Name          | Description                                                                                                                            | Value           |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| `entryPoints` | list of entryPoints names. [EntryPoints](https://doc.traefik.io/traefik/routing/routers/#entrypoints)                                  | `[]`            |
+| `routes`      | list of routes. [Routes](#ingressroutes-routes-object-parameters) object                                                               | `[]`            |
+| `tls`         | defines TLS certificate configuration. Only for ingressroutes and ingressroutesTCP. [TLS](#ingressroutes-tls-object-parameters) object | `{}`            |
+
+### IngressRoutes `routes` object parameters
+
+| Name                                      | Description                                                                       | Value             |
+|-------------------------------------------|-----------------------------------------------------------------------------------|-------------------|
+| match                                     | defines the rule corresponding to an underlying router                            | `""`              |
+| priority                                  | defines the priority to disambiguate rules of the same length, for route matching | `""`              |
+| middlewares                               | list of reference to [Middleware](#middlewares-middlewarestcp-parameters)         | `[]`              |
+| middlewares.name                          | defines the Middleware name                                                       | `""`              |
+| middlewares.namespace                     | defines the Middleware namespace                                                  | `""`              |
+| services                                  | list of any combination of [TraefikService](#traefikservices-parameters) and reference to a Kubernetes service   | `[]`              |
+| services.name                             | defines the name of the service                                                   | `""`              |
+| services.namespace                        | defines the namespace of the service                                              | `""`              |
+| services.passHostHeader                   | defines whether the Host header should be passed to the backend services          | `true`            |
+| services.kind                             | defines the kind of service (e.g., `Service`, `TraefikService`)                   | `""`              |
+| services.port                             | defines the port of the service. This can be a reference to a named port          | `""`              |
+| services.responseForwarding.flushInterval | defines the interval for flushing response data                                   | `""`              |
+| services.scheme                           | defines the scheme used to communicate with the service (`http` or `https`)       | `""`              |
+| services.serversTransport                 | defines the [ServersTransport](#serverstransport-serverstransporttcp-parameters) name. See also [ServersTransport reference](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#serverstransport-reference) | `""`              |
+| services.sticky.cookie.httpOnly           | defines if the sticky cookie is HTTP only                                         | `true`            |
+| services.sticky.cookie.name               | defines the name of the sticky cookie                                             | `""`              |
+| services.sticky.cookie.secure             | defines if the sticky cookie is secure                                            | `true`            |
+| services.sticky.cookie.sameSite           | defines the sameSite attribute of the sticky cookie (`Strict`, `Lax`, `None`)     | `""`              |
+| services.sticky.cookie.maxAge             | defines the maxAge of the sticky cookie                                           | `0`               |
+| services.strategy                         | defines the load balancing strategy for the service (`RoundRobin`)                | `"RoundRobin"`    |
+| services.weight                           | defines the weight                                                                | `0`               |
+| services.nativeLB                         | defines if native load balancing is used                                          | `false`           |
+
+### IngressRoutes `tls` object parameters
+
+| Name                  | Description                                                                                                                                                              | Value             |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| secretName            | defines the name of the secret that contains the TLS certificate                                                                                                         | `""`              |
+| store.name            | defines the name of the [TLSStore](#tlsstore-parameters). See also [TLSStore](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-tlsstore)            | `""`              |
+| store.namespace       | defines the namespace of the [TLSStore](#tlsstore-parameters). See also [TLSStore](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-tlsstore)       | `""`              |
+| options.name          | defines the name of the [TLSOption](#tlsoptions-parameters). See also [TLSOptions](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-tlsoption)      | `""`              |
+| options.namespace     | defines the namespace of the [TLSOption](#tlsoptions-parameters). See also [TLSOptions](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-tlsoption) | `""`              |
+| certResolver          | defines the name of the Certificates Resolver to use. See also [Certificate Resolvers](https://doc.traefik.io/traefik/v3.1/https/acme/#certificate-resolvers)            | `""`              |
+| domains               | list of domains for which the certificate should be valid                                                                                                                | `[]`              |
+| passthrough           | only for ingressroutesTCP. Defines whether to enable passthrough mode for the TLS connection                                                                             | `false`           |
+
+### Middlewares, MiddlewaresTCP parameters
+
+`middlewares`, `middlewaresTCP` are maps of Middleware parameters, where key is a name
+
+| Name            | Description                                                                                                                | Value           |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------|-----------------|
+| spec            | Defines the specification for the Middleware. See also [Middlewares](https://doc.traefik.io/traefik/middlewares/overview)  | `{}`            |
+
+### ServersTransport, ServersTransportTCP parameters
+
+`ServersTransport`, `ServersTransportTCP` are maps of ServersTransport parameters, where key is a name
+
+| Name            | Description                                                                                                                                                              | Value           |
+|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| spec            | Defines the specification for the ServersTransport. See also [ServersTransport](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-serverstransport)  | `{}`            |
+
+### TraefikServices parameters
+
+`traefikservices` is a map of TraefikService parameters, where key is a name
+
+| Name            | Description                                                                                                                                                         | Value           |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| spec            | Defines the specification for the TraefikService. See also [TraefikServices](https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-traefikservice)  | `{}`            |
+
+### TLSOptions parameters
+
+`TLSOptions` is a map of TLSOption parameters, where key is a name
+
+| Name             | Description                                                                                                                                                        | Value           |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| minVersion       | defines the [minimum TLS version](https://doc.traefik.io/traefik/https/tls/#minimum-tls-version) that is acceptable                                                | `""`            |
+| maxVersion       | defines the [maximum TLS version](https://doc.traefik.io/traefik/https/tls/#maximum-tls-version) that is acceptable                                                | `""`            |
+| curvePreferences | list of the [elliptic curves references](https://doc.traefik.io/traefik/https/tls/#curve-preferences) that will be used in an ECDHE handshake, in preference order | `[]`            |
+| cipherSuites     | list of supported [cipher suites](https://doc.traefik.io/traefik/https/tls/#cipher-suites) for TLS versions up to TLS 1.2                                          | `[]`            |
+| clientAuth       | determines the server's policy for TLS [Client Authentication](https://doc.traefik.io/traefik/https/tls/#client-authentication-mtls)                               | `{}`            |
+| sniStrict        | if true, Traefik won't allow connections from clients connections that do not specify a server_name extension                                                      | `false`         |
+| alpnProtocols    | list of supported [application level protocols](https://doc.traefik.io/traefik/https/tls/#alpn-protocols) for the TLS handshake, in order of preference            | `[]`            |
+
+### TLSStores parameters
+
+`TLSStores` is a map of TLSStore parameters, where key is a name
+
+| Name                          | Description                                                                                     | Value           |
+|-------------------------------|-------------------------------------------------------------------------------------------------|-----------------|
+| certificates                  | list of Kubernetes Secrets, each of them holding a key/certificate pair to add to the store     | `[]`            |
+| certificates.secretName       | name of the secret containing the certificate                                                   | `""`            |
+| defaultCertificate            | name of a Kubernetes Secret that holds the default key/certificate pair for the store           | `{}`            |
+| defaultCertificate.secretName | name of the secret containing the default certificate                                           | `""`            |
+| defaultGeneratedCert          | defines the default generated certificate settings for the TLSStore                             | `{}`            |
+
+### Gateways parameters
+
+`istiogateways` is a map of Gateway parameters, where key is a name
+
+See more [Gateways](https://preliminary.istio.io/latest/docs/reference/config/networking/gateway/#Gateway)
+
+| Name              | Description                                                                                                   | Value           |
+|-------------------|---------------------------------------------------------------------------------------------------------------|-----------------|
+| labels            | labels to apply                                                                                               | `{}`            |
+| annotations       | annotations to apply                                                                                          | `{}`            |
+| selector          | one or more labels that indicate a specific set of pods on which this gateway configuration should be applied | `{}`            |
+| servers           | a list of server specifications. [Servers](#istiogateways-servers-object-parameters) object                   | `[]`            |
+
+### Gateways `servers` object parameters
+
+See more [Server](https://preliminary.istio.io/latest/docs/reference/config/networking/gateway/#Server)
+
+| Name          | Description                                                                                            | Value           |
+|---------------|--------------------------------------------------------------------------------------------------------|-----------------|
+| hosts         | one or more hosts exposed by this gateway                                                              | `[]`            |
+| port.name     | label assigned to the port                                                                             | `""`            |
+| port.number   | a valid non-negative integer port number                                                               | `""`            |
+| port.protocol | the protocol exposed on the port (`HTTP`, `HTTPS`, `GRPC`, `GRPC-WEB`, `HTTP2`, `MONGO`, `TCP`, `TLS`) | `""`            |
+| tls           | set of TLS related options that govern the server’s behavior                                           | `{}`            |
+
+### VirtualServices parameters
+
+`istiovirtualservices` is a map of VirtualService paramaters, where key is a name
+
+See more [VirtualServices](https://preliminary.istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService)
+
+| Name                  | Description                                                                                                                | Value           |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------|-----------------|
+| labels           | labels to apply                                                                                                                 | `{}`            |
+| annotations      | annotations to apply                                                                                                            | `{}`            |
+| hosts            | the destination hosts to which traffic is being sent                                                                            | `[]`            |
+| gateways         | the names of gateways and sidecars that should apply these routes                                                               | `[]`            |
+| http             | an ordered list of route rules for HTTP traffic. [HTTP](#istiovirtualservices-http-object-parameters) object                    | `[]`            |
+| tls              | an ordered list of route rule for non-terminated TLS & HTTPS traffic. [TLS](#istiovirtualservices-tls-object-parameters) object | `[]`            |
+| tcp              | an ordered list of route rules for opaque TCP traffic                                                                           | `[]`            |
+| exportTo         | a list of namespaces to which this virtual service is exported                                                                  | `[]`            |
+
+### VirtualServices `http` object parameters
+
+See more [HTTPRoute](https://preliminary.istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute)
+
+| Name        | Description                                                                                     | Value           |
+|-------------|-------------------------------------------------------------------------------------------------|-----------------|
+| name        | the name assigned to the route for debugging purposes                                           | `""`            |
+| match       | match conditions to be satisfied for the rule to be activated                                   | `[]`            |
+| route       | a HTTP rule can either return a direct_response, redirect or forward (default) traffic          | `[]`            |
+| retries     | retry policy for HTTP requests                                                                  | `{}`            |
+| fault       | fault injection policy to apply on HTTP traffic at the client side                              | `{}`            |
+| timeout     | timeout for HTTP requests, default is disabled                                                  | `""`            |
+| rewrite     | rewrite HTTP URIs and Authority headers                                                         | `{}`            |
+| corsPolicy  | Cross-Origin Resource Sharing policy (CORS)                                                     | `{}`            |
+
+### VirtualServices `tls` object parameters
+
+See more [TLSRoute](https://preliminary.istio.io/latest/docs/reference/config/networking/virtual-service/#TLSRoute)
+
+| Name         | Description                                                    | Value           |
+|--------------|----------------------------------------------------------------|-----------------|
+| match        | match conditions to be satisfied for the rule to be activated  | `[]`            |
+| route        | the destination to which the connection should be forwarded to | `[]`            |
+
+### DestinationRules parameters
+
+`istiodestinationrules` is a map of DestinationRule parameters, where key is a name
+
+See more [DestinationRules](https://preliminary.istio.io/latest/docs/reference/config/networking/destination-rule/#DestinationRule)
+
+| Name                         | Description                                                                                                                                | Value           |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| labels                       | labels to apply                                                                                                                            | `{}`            |
+| annotations                  | annotations to apply                                                                                                                       | `{}`            |
+| host                         | the name of a service from the service registry                                                                                            | `""`            |
+| trafficPolicy                | traffic policies to apply (load balancing policy, connection pool sizes, outlier detection)                                                | `{}`            |
+| subsets                      | one or more named sets that represent individual versions of a service. [Subsets](#istiodestinationrules-subsets-object-parameters) object | `[]`            |
+| exportTo                     | a  list of namespaces to which this destination rule is exported                                                                           | `[]`            |
+| workloadSelector             | criteria used to select the specific set of pods/VMs on which this DestinationRule configuration should be applied. [WorkloadSelector](#istiodestinationrules-workloadselector-object-parameters) object | `{}`            |
+
+### DestinationRules `subsets` object parameters
+
+See more [Subset](https://preliminary.istio.io/latest/docs/reference/config/networking/destination-rule/#Subset)
+
+| Name                 | Description                                                                   | Value           |
+|----------------------|-------------------------------------------------------------------------------|-----------------|
+| name                 | name of the subset                                                            | `""`            |
+| labels               | labels apply a filter over the endpoints of a service in the service registry | `{}`            |
+| trafficPolicy        | traffic policies that apply to this subset                                    | `{}`            |
+
+### DestinationRules `workloadSelector` object parameters
+
+See more [Workload Selector](https://preliminary.istio.io/latest/docs/reference/config/type/workload-selector/#WorkloadSelector)
+
+| Name         | Description                                                                                 | Value           |
+|--------------|---------------------------------------------------------------------------------------------|-----------------|
+| matchLabels  | one or more labels that indicate a specific set of pods on which a policy should be applied | `{}`            |
+
 ## Roadmap
 
 Following features are already in backlog for our development team and will be done soon:
@@ -645,8 +846,8 @@ Following features are already in backlog for our development team and will be d
 
 For support and feedback please contact me:
 
-* telegram: @Ruppyyy
-* email: a.danielyan@nixys.io
+* telegram: @remelyanov95
+* email: r.emelyanov@nixys.io
 
 For news and discussions subscribe the channels:
 - telegram community (news): [@nxs_universal_chart](https://t.me/nxs_universal_chart)

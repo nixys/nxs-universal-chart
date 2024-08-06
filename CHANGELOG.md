@@ -1,4 +1,9 @@
 # Changelog
+
+## 2.8.0 - August 06, 2024
+* feature: Implemented native support for Istio resources. ([#71]https://github.com/nixys/nxs-universal-chart/issues/71)
+* docs update
+
 ## 2.7.0 - June 06, 2024
 * feature: Implemented native support for Traefik resources. ([#68]https://github.com/nixys/nxs-universal-chart/issues/68)
 * feature: BinaryData configmaps ([#67](https://github.com/nixys/nxs-universal-chart/pull/67))
