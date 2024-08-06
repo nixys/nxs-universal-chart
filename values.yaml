@@ -544,3 +544,70 @@ ServersTransportTCP: {}
   #     - spiffe://trust-domain/id2
   #     trustDomain: "spiffe://trust-domain"
 
+istiogateways: {}
+  # nginx:
+  #   name: nginx-gateway
+  #   selector:
+  #     istio: ingress
+  #   servers:
+  #     - port:
+  #         number: 80
+  #         name: http
+  #         protocol: HTTP
+  #       hosts:
+  #         - "nginx.example.com"
+
+istiovirtualservices: {}
+  # nginx:
+  #   name: nginx-virtualservice
+  #   gateways:
+  #     - nginx-gateway
+  #   hosts:
+  #     - "nginx.example.com"
+  #   http:
+  #     - match:
+  #         - uri:
+  #             prefix: "/"
+  #       route:
+  #         - destination:
+  #             host: nginx-service.default.svc.cluster.local
+  #             port:
+  #               number: 80
+
+istiodestinationrules: {}
+  # nginx:
+  #   name: nginx-destinationrule
+  #   host: "nginx-service.default.svc.cluster.local"
+  #   trafficPolicy:
+  #     loadBalancer:
+  #       simple: ROUND_ROBIN
+  #     connectionPool:
+  #       http:
+  #         http1MaxPendingRequests: 500
+  #         maxRequestsPerConnection: 50
+  #     outlierDetection:
+  #       consecutiveGatewayErrors: 3
+  #       interval: 5s
+  #       baseEjectionTime: 15s
+  #   subsets:
+  #     - name: v1
+  #       labels:
+  #         app: nginx
+  #       trafficPolicy:
+  #         loadBalancer:
+  #           simple: LEAST_CONN
+  #         connectionPool:
+  #           tcp:
+  #             maxConnections: 200
+  #     - name: v2
+  #       labels:
+  #         version: v2
+  #       trafficPolicy:
+  #         loadBalancer:
+  #           simple: RANDOM
+  #         connectionPool:
+  #           http:
+  #             http2MaxRequests: 2000
+  #   exportTo:
+  #     - "."
+  #     - "another-namespace"

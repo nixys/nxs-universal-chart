@@ -1,0 +1,45 @@
+{{- range $host, $destinationrule := .Values.istiodestinationrules }}
+---
+apiVersion: {{ include "helpers.capabilities.istiodestinationrule.apiVersion" $ }}
+kind: DestinationRule
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" ($destinationrule.name | default $host) "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $destinationrule.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
+    {{- with $destinationrule.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  host: {{ $destinationrule.host | quote }}
+  trafficPolicy:
+    {{- with $destinationrule.trafficPolicy }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  subsets:
+    {{- range $subset := $destinationrule.subsets }}
+    - name: {{ $subset.name }}
+      labels:
+        {{- range $key, $value := $subset.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      trafficPolicy:
+        {{- with $subset.trafficPolicy }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+  exportTo:
+    {{- if $destinationrule.exportTo }}
+    {{- range $exportTo := $destinationrule.exportTo }}
+    - {{ $exportTo | quote }}
+    {{- end }}
+    {{- end }}
+  {{- with $destinationrule.workloadSelector }}
+  workloadSelector:
+    matchLabels:
+      {{- range $key, $value := .matchLabels }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}

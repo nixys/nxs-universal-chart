@@ -76,3 +76,21 @@
 {{- print "traefik.containo.us/v1alpha1" -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "helpers.capabilities.istiogateway.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "networking.istio.io/v1" -}}
+{{- print "networking.istio.io/v1" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.capabilities.istiovirtualservice.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "networking.istio.io/v1" -}}
+{{- print "networking.istio.io/v1" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.capabilities.istiodestinationrule.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "networking.istio.io/v1" -}}
+{{- print "networking.istio.io/v1" -}}
+{{- end -}}
+{{- end -}}

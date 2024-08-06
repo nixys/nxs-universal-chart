@@ -1,0 +1,77 @@
+{{- range $host, $virtualservice := .Values.istiovirtualservices }}
+---
+apiVersion: {{ include "helpers.capabilities.istiovirtualservice.apiVersion" $ }}
+kind: VirtualService
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" ($virtualservice.name | default $host) "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $virtualservice.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | indent 4 }}
+    {{- with $virtualservice.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  hosts:
+    {{- range $virtualservice.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+  gateways:
+    {{- range $virtualservice.gateways }}
+    - {{ . | quote }}
+    {{- end }}
+  http:
+    {{- range $httpRoute := $virtualservice.http }}
+    - name: {{ $httpRoute.name | default "" | quote }}
+      {{- with $httpRoute.match }}
+      match:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $httpRoute.route }}
+      route:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $httpRoute.retries }}
+      retries:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $httpRoute.fault }}
+      fault:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $httpRoute.timeout }}
+      timeout: {{ . }}
+      {{- end }}
+      {{- with $httpRoute.rewrite }}
+      rewrite:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $httpRoute.corsPolicy }}
+      corsPolicy:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- if $virtualservice.tls }}
+  tls:
+    {{- range $virtualservice.tls }}
+    - match:
+        {{- if .match }}
+        {{- toYaml .match | nindent 8 }}
+        {{- end }}
+      route:
+        {{- if .route }}
+        {{- toYaml .route | nindent 8 }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if $virtualservice.tcp }}
+  tcp:
+    {{- range $tcpRoute := . }}
+    - {{- toYaml $tcpRoute | nindent 6 }}
+    {{- end }}
+  {{- end }} {{/* end with $virtualservice.tcp */}}
+  {{- with $virtualservice.exportTo }}
+  exportTo:
+    {{- toYaml . | nindent 4 }}
+  {{- end }} {{/* end with $virtualservice.exportTo */}}
+{{- end }}
