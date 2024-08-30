@@ -39,9 +39,22 @@ dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 {{- with .nodeSelector }}
 nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
-{{- with .tolerations }}
-tolerations: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+
+{{- $combined := list -}}
+{{- if .tolerations }}
+  {{- $combined = .tolerations }}
+{{- else }}
+  {{- with $.Values.generic }}
+    {{- if .tolerations }}
+      {{- $combined = .tolerations }}
+    {{- end }}
+  {{- end }}
 {{- end }}
+{{- if $combined }}
+tolerations:
+  {{- toYaml $combined | nindent 2 }}
+{{- end }}
+
 {{- with .securityContext }}
 securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}

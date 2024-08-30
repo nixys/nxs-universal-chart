@@ -44,28 +44,44 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Global parameters
 
-| Name                      | Description                                              | Value |
-|---------------------------|----------------------------------------------------------|-------|
-| `global.kubeVersion`      | Global Override Kubernetes version                       | `""`  |
+| Name                                     | Description                                              | Value |
+|------------------------------------------|----------------------------------------------------------|-------|
+| `global.kubeVersion`                     | Global Override Kubernetes version                       | `""`  |
+| `global.helmVersion`                     | Global Override Helm version                             | `""`  |
+| `global.apiVersion.cronJob`              | Global Override CronJob API version                      | `""`  |
+| `global.apiVersion.deployment`           | Global Override Deployment API version                   | `""`  |
+| `global.apiVersion.statefulSet`          | Global Override StatefulSet API version                  | `""`  |
+| `global.apiVersion.ingress`              | Global Override Ingress API version                      | `""`  |
+| `global.apiVersion.pdb`                  | Global Override PodDisruptionBudget API version          | `""`  |
+| `global.apiVersion.traefik`              | Global Override Traefik resources API version            | `""`  |
+| `global.apiVersion.istioGateway`         | Global Override Istio Gateway API version                | `""`  |
+| `global.apiVersion.istioVirtualService`  | Global Override Istio VirtualService API version         | `""`  |
+| `global.apiVersion.istioDestinationRule` | Global Override Istio DestinationRule API version        | `""`  |
 
 ### Generic parameters
 
-| Name                            | Description                                                     | Value  |
-|---------------------------------|-----------------------------------------------------------------|--------|
-| `generic.labels`                | Labels to add to all deployed objects                           | `{}`   |
-| `generic.annotations`           | Annotations to add to all deployed objects                      | `{}`   |
-| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services               | `{}`   |
-| `generic.podLabels`             | Labels to add to all deployed pods                              | `{}`   |
-| `generic.podAnnotations`        | Annotations to add to all deployed pods                         | `{}`   |
-| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload               | `[]`   |
-| `generic.hostAliases`           | Pods host aliases to use by workload                            | `[]`   |
-| `generic.dnsPolicy`             | DnsPolicy for workload pods                                     | `[]`   |
-| `generic.priorityClassName`     | priorityClassName for workload pods                             | `[]`   |
-| `generic.volumes`               | Array of typed Volumes to add to all deployed workloads         | `[]`   |
-| `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads      | `[]`   |
-| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads           | `[]`   |
-| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads | `[]`   |
-| `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                | `true` |
+| Name                            | Description                                                                                         | Value  |
+|---------------------------------|-----------------------------------------------------------------------------------------------------|--------|
+| `generic.labels`                | Labels to add to all deployed objects                                                               | `{}`   |
+| `generic.annotations`           | Annotations to add to all deployed objects                                                          | `{}`   |
+| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services                                                   | `{}`   |
+| `generic.podLabels`             | Labels to add to all deployed pods                                                                  | `{}`   |
+| `generic.podAnnotations`        | Annotations to add to all deployed pods                                                             | `{}`   |
+| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload                                                   | `[]`   |
+| `generic.hostAliases`           | Pods host aliases to use by workload                                                                | `[]`   |
+| `generic.dnsPolicy`             | DnsPolicy for workload pods                                                                         | `[]`   |
+| `generic.priorityClassName`     | priorityClassName for workload pods                                                                 | `[]`   |
+| `generic.volumes`               | Array of typed Volumes to add to all deployed workloads                                             | `[]`   |
+| `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads                                          | `[]`   |
+| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads                                               | `[]`   |
+| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads                                     | `[]`   |
+| `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                                                    | `true` |
+| `generic.tolerations`           | Tolerations to add to all deployed workloads. It's overrided by the specific resource's tolerations | `[]`   |
+| `generic.tolerations.key`       | The key that the toleration applies to                                                              | `""`   |
+| `generic.tolerations.operator`  | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
+| `generic.tolerations.value`     | The value associated with the key, used when the operator is `Equal`                                | `""`   |
+| `generic.tolerations.effect`    | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+
 
 ### Common parameters
 

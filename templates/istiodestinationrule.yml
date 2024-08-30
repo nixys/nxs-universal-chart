@@ -17,6 +17,7 @@ spec:
     {{- with $destinationrule.trafficPolicy }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- if $destinationrule.subsets }}
   subsets:
     {{- range $subset := $destinationrule.subsets }}
     - name: {{ $subset.name }}
@@ -29,12 +30,13 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
+  {{- end }}
+  {{- if $destinationrule.exportTo }}
   exportTo:
-    {{- if $destinationrule.exportTo }}
     {{- range $exportTo := $destinationrule.exportTo }}
     - {{ $exportTo | quote }}
     {{- end }}
-    {{- end }}
+  {{- end }}
   {{- with $destinationrule.workloadSelector }}
   workloadSelector:
     matchLabels:
