@@ -246,6 +246,13 @@ secrets: {}
   #      "arg": "value"
   #    }
 
+sealedSecrets: {}
+  # test:
+  #   encryptedData:
+  #     foo: Yy3LvlaCgEWV50VrNY4Aow/X
+  #     bar: |-
+  #       fjVmoxIulUKX5IAserbCpw/Y
+
 configMaps: {}
   #some-cm:
   #  labels:

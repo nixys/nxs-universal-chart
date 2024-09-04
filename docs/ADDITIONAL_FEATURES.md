@@ -102,6 +102,29 @@ or
 --set-file "secrets.json-file.data.file\.json=path/to/file.json"
 ```
 
+#### SealedSecret
+
+Strings for SealedSecret are encrypted and not encoded to base64. To encrypt secret use `kubeseal` CLI:
+
+```bash
+kubeseal --raw --scope=namespace-wide --namespace=yournamespace --from-file=yoursecret.txt
+```
+
+Values file:
+
+```yaml
+sealedSecrets:
+  secretname:
+    encryptedData:
+      FOO: "encrypted-secret-string"
+```
+
+`--set` analog:
+
+```bash
+--set "sealedSecrets.secretname.encryptedData.FOO=$SOME_ENV_WITH_STRING"
+```
+
 ### Values Templating features
 
 You can use go-templates as part of your values.
