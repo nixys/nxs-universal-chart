@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.1 - September 04, 2024
+* feature: Implemented support for SealedSecrets ([#]https://github.com/nixys/nxs-universal-chart/issues/77)
+* docs update
+
 ## 2.8.0 - August 06, 2024
 * feature: Implemented native support for Istio resources. ([#71]https://github.com/nixys/nxs-universal-chart/issues/71)
 * docs update
