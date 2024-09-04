@@ -328,6 +328,16 @@ the parameters that can be configured during installation. To check deployment e
 
 Secret `data` object is a map where value can be a string, json or base64 encoded string with prefix `b64:`.
 
+### SealedSecrets paramaters
+
+`sealedSecrets` is a map of the SealedSecret parameters, where key is a name of SealedSecret.
+
+| Name               | Description                                  | Value      |
+|--------------------|----------------------------------------------|------------|
+| `labels`           | Extra SealedSecret labels                    | `{}`       | 
+| `annotations`      | Extra SealedSecret annotations               | `{}`       | 
+| `encryptedData`    | Map of SealedSecret encrypted data           | `{}`       |
+
 ### ConfigMaps parameters
 
 `configMaps` is a map of the ConfigMap parameters, where key is a name of ConfigMap.
