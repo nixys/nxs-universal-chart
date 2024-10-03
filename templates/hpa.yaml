@@ -1,7 +1,7 @@
 {{- range $name, $hpa := .Values.hpas }}
 ---
 kind: HorizontalPodAutoscaler
-apiVersion: {{ .apiVersion | default "autoscaling/v2beta1" }}
+apiVersion: {{ .apiVersion | default "autoscaling/v2" }}
 metadata:
   name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
   namespace: {{ $.Release.Namespace | quote }}
@@ -24,13 +24,25 @@ spec:
     - type: Resource
       resource:
         name: cpu
+        {{- if eq (include "hpa.apiVersion" .) "autoscaling/v2beta1" }}
         targetAverageUtilization: {{ .targetCPU }}
+        {{- else }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .targetCPU }}
+        {{- end }}
     {{- end }}
     {{- if not (empty .targetMemory) }}
     - type: Resource
       resource:
         name: memory
+        {{- if eq (include "hpa.apiVersion" .) "autoscaling/v2beta1" }}
         targetAverageUtilization: {{ .targetMemory }}
+        {{- else }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .targetMemory }}
+        {{- end }}
     {{- end }}
     {{- if .metrics }}
     {{- toYaml .metrics | nindent 4 }}
