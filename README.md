@@ -143,6 +143,13 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Services parameters
 
+`servicesGeneral` is a map of the Services parameters, which uses for all Services.
+
+| Name                                  | Description                                          | Value       |
+|---------------------------------------|------------------------------------------------------|-------------|
+| `servicesGeneral.labels`              | Labels to add to all services                        | `{}`        |
+| `servicesGeneral.annotations`         | Annotations to add to all services                   | `{}`        |
+
 `services` is a map of the Service parameters, where key is a name of Service.
 
 | Name                       | Description                                                           | Value       |
