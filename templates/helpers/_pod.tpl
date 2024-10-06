@@ -7,9 +7,9 @@
 {{- $name := .name -}}
 {{- with .value -}}
 {{- if .serviceAccountName }}
-serviceAccountName: {{- include "helpers.tplvalues.render" (dict "value" .serviceAccountName "context" $) | nindent 2 }}
+serviceAccountName: {{- include "helpers.app.fullname" (dict "name" .serviceAccountName "context" $) | nindent 2 }}
 {{- else if $.Values.generic.serviceAccountName }}
-serviceAccountName: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.serviceAccountName  "context" $) | nindent 2 }}
+serviceAccountName: {{- include "helpers.app.fullname" (dict "name" $.Values.generic.serviceAccountName "context" $) | nindent 2 }}
 {{- end }}
 {{- if .hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 2 }}
