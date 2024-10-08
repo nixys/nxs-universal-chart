@@ -81,6 +81,10 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.tolerations.operator`  | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
 | `generic.tolerations.value`     | The value associated with the key, used when the operator is `Equal`                                | `""`   |
 | `generic.tolerations.effect`    | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+| `generic.lifecycle`             | lifecycle hooks to add all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.startupProbe`          | startupProbe to add to all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.readinessProbe`        | readinessProbe to add to all workloads by default. Properties overridden by the specific resource's | `{}`   |
+| `generic.livenessProbe`         | livenessProbe to add to all workloads by default. Properties overridden by the specific resource's  | `{}`   |
 
 
 ### Common parameters

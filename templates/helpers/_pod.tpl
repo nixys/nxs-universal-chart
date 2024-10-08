@@ -154,17 +154,21 @@ containers:
   {{- with .ports }}
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}
-  {{- with .lifecycle }}
-  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- $lifecycle := merge (default (dict) .lifecycle) (default (dict) $.Values.generic.lifecycle) -}}
+  {{- $startupProbe := merge (default (dict) .startupProbe) (default (dict) $.Values.generic.startupProbe) -}}
+  {{- $livenessProbe := merge (default (dict) .livenessProbe) (default (dict) $.Values.generic.livenessProbe) -}}
+  {{- $readinessProbe := merge (default (dict) .readinessProbe) (default (dict) $.Values.generic.readinessProbe) -}}
+  {{- with $lifecycle }}
+  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" $lifecycle "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .startupProbe }}
-  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $startupProbe }}
+  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" $startupProbe "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .livenessProbe }}
-  livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $livenessProbe }}
+  livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" $livenessProbe "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .readinessProbe }}
-  readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $readinessProbe }}
+  readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" $readinessProbe "context" $) | nindent 4 }}
   {{- end }}
   {{- with .resources }}
   resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
