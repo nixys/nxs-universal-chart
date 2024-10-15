@@ -111,6 +111,8 @@ the parameters that can be configured during installation. To check deployment e
 | `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`      |
 | `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]`   |
 | `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`             |
+| `parentChart.name`          | When nxs-universal-chart used as library chart as dependency, parent chart name can be used in label app.kubernetes.io/name and helm.sh/chart instead of xs-universal-char chart values. This is important to uniquely identify app's resources with selector labels. | `""`             |
+| `parentChart.version`       | When nxs-universal-chart used as library chart as dependency, parent chart version can be used in label helm.sh/chart and app.kubernetes.io/version instead of xs-universal-char chart values | `""`             |
 
 
 ### Ingresses parameters
