@@ -113,6 +113,7 @@ ingresses: {}
 #      secretName: "nixys-tls"
 
 
+servicesGeneral: {}
 services: {}
 #  nginx:
 #    clusterIP: None
@@ -362,8 +363,8 @@ extraDeploy: {}
 
 
 ingressroutes: {}
-  # test: 
-  #   entryPoints: 
+  # test:
+  #   entryPoints:
   #     - test
   #   routes:
   #     Host(`prod-vault.ru`):
@@ -373,7 +374,7 @@ ingressroutes: {}
   #           port: 8200
   #           serversTransport: vault
   #           responseForwardingflushInterval: 10ms
-  #           stickyCookie: 
+  #           stickyCookie:
   #             httpOnly: true
   #             name: cookie
   #             secure: true
@@ -383,7 +384,7 @@ ingressroutes: {}
   #           port: 8201
   #           serversTransport: vault
   #           responseForwardingflushInterval: 10ms
-  #           stickyCookie: 
+  #           stickyCookie:
   #             httpOnly: false
   #             name: cookie-2
   #             secure: false
@@ -396,14 +397,14 @@ ingressroutes: {}
   #         namespace: default
   #       - name: test
   #   tls:
-  #     secretName: supersecret 
+  #     secretName: supersecret
   #     store:
   #       name: storetets
   #       namespace: default
   #     options:
   #       name: opt
   #       namespace: default
-  #     certResolver: foo 
+  #     certResolver: foo
   #     domains:
   #     - main: example.net
   #       sans:
@@ -423,8 +424,8 @@ middlewares: {}
   #     scheme: https
 
 ingressroutesUDP: {}
-  # test: 
-  #   entryPoints: 
+  # test:
+  #   entryPoints:
   #     - test
   #   routes:
   #     vault-active:
@@ -442,7 +443,7 @@ traefikservices: {}
   #       - name: svc2
   #         port: 80
   #         percent: 20
-  #       - name: svc3 
+  #       - name: svc3
   #         kind: TraefikService
   #         percent: 15
   # test2:
@@ -484,11 +485,11 @@ TLSOptions: {}
   #   sniStrict: true
   #   alpnProtocols:
   #   - foobar
- 
+
 TLSStores: {}
   # teststore:
   #   certificates:
-  #     - foo                      
+  #     - foo
   #     - bar
   #   defaultCertificate: secret
   #   defaultGeneratedCert:
@@ -501,9 +502,9 @@ TLSStores: {}
 
 
 ServersTransport: {}
-  # test: 
+  # test:
   #   serverName: foobar
-  #   insecureSkipVerify: true 
+  #   insecureSkipVerify: true
   #   rootCAsSecrets:
   #     - foobar
   #     - foobar
