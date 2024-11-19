@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.1 - November 18, 2024
+* feature: make `progressDeadlineSeconds` configurable in deployments
+
 ## 2.8.0 - August 06, 2024
 * feature: Implemented native support for Istio resources. ([#71]https://github.com/nixys/nxs-universal-chart/issues/71)
 * docs update
