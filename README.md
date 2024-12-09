@@ -471,6 +471,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `labels`                     | Extra CronJob labels                                                                    | `{}`      | 
 | `annotations`                | Extra CronJob annotations                                                               | `{}`      | 
 | `singleOnly`                 | Forbid concurrency policy                                                               | `"false"` |
+| `suspend`                    | Suspend execution of Jobs                                                               | `false`   |
 | `schedule`                   | Cronjob scheduling                                                                      | ``        |
 | `startingDeadlineSeconds`    | Duration for starting CronJob                                                           | ``        | 
 | `successfulJobsHistoryLimit` | Limitation of completed jobs should be kept                                             | `3`       | 
