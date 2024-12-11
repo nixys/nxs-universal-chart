@@ -33,7 +33,7 @@
     {{- with .originalName }}
     claimName: {{ tpl . $ctx }}
     {{- else }}
-    claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    claimName: {{ include "helpers.tplvalues.render" (dict "value" .name "context" $ctx) }}
     {{- end }}
     {{- with .items }}
     items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 4 }}
