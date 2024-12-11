@@ -2,24 +2,25 @@
 {{- $ctx := .context -}}
 {{- range .volumes -}}
 {{- if eq .type "configMap" }}
-- name: {{ .name }}
+{{- if eq .type "configMap" }}
+- name: {{ tpl .name $ctx }}
   configMap:
     {{- with .originalName }}
-    name: {{ . }}
+    name: {{ tpl . $ctx }}
     {{- else }}
     name: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
     {{- with .defaultMode }}
-    defaultMode: {{ . }}
+    defaultMode: {{ tpl . $ctx }}
     {{- end }}
     {{- with .items }}
     items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 4 }}
     {{- end }}
 {{- else if eq .type "secret" }}
-- name: {{ .name }}
+- name: {{ tpl .name $ctx }}
   secret:
     {{- with .originalName }}
-    secretName: {{ . }}
+    secretName: {{ tpl . $ctx }}
     {{- else }}
     secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
     {{- end }}
@@ -27,12 +28,15 @@
     items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 4 }}
     {{- end }}
 {{- else if eq .type "pvc" }}
-- name: {{ .name }}
+- name: {{ tpl .name $ctx }}
   persistentVolumeClaim:
     {{- with .originalName }}
-    claimName: {{ . }}
+    claimName: {{ tpl . $ctx }}
     {{- else }}
     claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+    {{- with .items }}
+    items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 4 }}
     {{- end }}
 {{- else if eq .type "emptyDir" }}
 - name: {{ .name }}
