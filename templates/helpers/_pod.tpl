@@ -40,19 +40,10 @@ dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
 
-{{- $combined := list -}}
-{{- if .tolerations }}
-  {{- $combined = .tolerations }}
-{{- else }}
-  {{- with $.Values.generic }}
-    {{- if .tolerations }}
-      {{- $combined = .tolerations }}
-    {{- end }}
-  {{- end }}
-{{- end }}
+{{- $combined := .tolerations | default ( $.Values.generic.tolerations | default list ) }}
 {{- if $combined }}
 tolerations:
-  {{- toYaml $combined | nindent 2 }}
+  {{- tpl $combined $ | nindent 2 }}
 {{- end }}
 
 {{- with .securityContext }}
