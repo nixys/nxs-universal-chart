@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.8.2 - December 09, 2024
+* feature: Implemented support for SealedSecrets ([#77](https://github.com/nixys/nxs-universal-chart/issues/77))
+* feature: Added cronjob suspend parameter
+* docs update
+
+## 2.8.1 - August 30, 2024
+* feature: Added the ability to set k8s version, helm version, API versions of k8s-resources via values.yaml (global.helmVersion etc.)
+* feature: Added the ability to set tolerations at the level of all deployed workloads. It's important to note that tolerations at the level of a specific resource will override global tolerations
+* fix: Fixed syntax errors in _app.tpl that caused lines to stick together (helpers.app.selectorLabels, helpers.app.genericSelectorLabels)
+* fix: Fixed template for Istio DestinationRule: added conditions to check if subsets and exportTo are set in values.yaml
+
 ## 2.8.0 - August 06, 2024
 * feature: Implemented native support for Istio resources. ([#71]https://github.com/nixys/nxs-universal-chart/issues/71)
 * docs update

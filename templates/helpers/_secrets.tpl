@@ -54,3 +54,15 @@
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "helpers.secrets.renderSealed" -}}
+{{- $v := dict -}}
+{{- if kindIs "string" .value -}}
+{{- $v = fromYaml .value }}
+{{- else -}}
+{{- $v = .value }}
+{{- end -}}
+{{- range $key, $value := $v }}
+{{ printf "%s: %s" $key $value }}
+{{- end -}}
+{{- end -}}
