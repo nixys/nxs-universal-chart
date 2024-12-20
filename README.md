@@ -315,18 +315,23 @@ the parameters that can be configured during installation. To check deployment e
 
 `serviceAccount` is a map of the ServiceAccount parameters, where key is name of the service account.
 
-| Name                         | Description                                                                             | Value     |
-|------------------------------|-----------------------------------------------------------------------------------------|-----------|
-| `labels`                     | Extra ServiceAccount, role and binding labels                                           | `{}`      |
-| `annotations`                | Extra ServiceAccount annotations                                                        | `{}`      |
-| `role`                       | Map of role parametres to create and bind                                               | `{}`      |
-| `role.name`                  | Name of role to create/bind                                                             | `{}`      |
-| `role.rules`                 | List of rules for role                                                                  | `{}`      |
-| `clusterRole`                | Map of clusterRole parametres to create and bind                                        | `{}`      |
-| `clusterRole.name`           | Name of clusterRole to create/bind                                                      | `{}`      |
-| `clusterRole.rules`          | List of rules for clusterRole                                                           | `{}`      |
+| Name                         | Description                                                                                           | Value     |
+|------------------------------|-------------------------------------------------------------------------------------------------------|-----------|
+| `labels`                     | Extra ServiceAccount, role and binding labels                                                         | `{}`      |
+| `annotations`                | Extra ServiceAccount annotations                                                                      | `{}`      |
+| `roles`                      | List of [role](#role-or-clusterrole-rules-object-parameters) parameters to create and bind            | `[]`      |
+| `clusterRoles`               | List of [clusterRole](#role-or-clusterrole-rules-object-parameters) parameters to create and bind     | `[]`      |
 
-`role/clusterRole` is a map of parameters of role/clusterrole. If *rules* are not set then only binding to existing role/clusterrole will be created. If *rules* are set then corresponding role/clusterrole will be created and binded to service account. Service account can be created without corresponding roles and bindings.
+`roles/clusterRoles` are list of maps of parameters of role/clusterrole. Service account can be created without corresponding roles and bindings.
+
+#### Role or ClusterRole rules object parameters
+
+| Name               | Description                                  | Value      |
+|--------------------|----------------------------------------------|------------|
+| `name`             | Name of role/clusterRole to create/bind      | `""`       |
+| `rules`            | List of rules for Role/ClusterRole           | `[]`       |
+
+If *rules* is empty then only binding to existing role/clusterrole will be created. If any *rules* exist then corresponding role/clusterrole will be created and binded to service account.
 
 ### Secrets parameters
 
