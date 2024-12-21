@@ -306,6 +306,7 @@ the parameters that can be configured during installation. To check deployment e
 | `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
 
 ### Service accounts parameters
+
 `serviceAccountGeneral` is a map of the ServiceAccount parameters, which uses for all service accounts and its roles/clusterroles and corresponding bindings.
 
 | Name                                         | Description                                                                                | Value   |
@@ -329,9 +330,10 @@ the parameters that can be configured during installation. To check deployment e
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
 | `name`             | Name of role/clusterRole to create/bind      | `""`       |
+| `clusterScope`     | If rules not present, for RoleBinding it's possible to bind either Role or ClusterRole (clusterScope=true). This parameter is ignored for clusterRoles and roles with rules. Default value is false          | `false`    |
 | `rules`            | List of rules for Role/ClusterRole           | `[]`       |
 
-If *rules* is empty then only binding to existing role/clusterrole will be created. If any *rules* exist then corresponding role/clusterrole will be created and binded to service account.
+If *rules* is empty then only binding to existing role/clusterRole will be created. If any *rules* exist then corresponding role/clusterRole will be created and binded to service account.
 
 ### Secrets parameters
 
@@ -352,8 +354,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
-| `labels`           | Extra SealedSecret labels                    | `{}`       | 
-| `annotations`      | Extra SealedSecret annotations               | `{}`       | 
+| `labels`           | Extra SealedSecret labels                    | `{}`       |
+| `annotations`      | Extra SealedSecret annotations               | `{}`       |
 | `encryptedData`    | Map of SealedSecret encrypted data           | `{}`       |
 
 ### ConfigMaps parameters
