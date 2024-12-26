@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.3 - December 26, 2024
+* feature: Made `progressDeadlineSeconds` configurable in deployments
+
 ## 2.8.2 - December 09, 2024
 * feature: Implemented support for SealedSecrets ([#77](https://github.com/nixys/nxs-universal-chart/issues/77))
 * feature: Added cronjob suspend parameter
