@@ -211,6 +211,7 @@ the parameters that can be configured during installation. To check deployment e
 | `annotations`                   | Extra annotations for deployment                                                                                                  | `{}`  |
 | `replicas`                      | Deployment replicas count                                                                                                         | `1`   |
 | `strategy`                      | Deployment strategy                                                                                                               | `{}`  |
+| `progressDeadlineSeconds`       | The maximum time in seconds for a deployment to make progress before it is considered failed | `600`  |
 | `extraSelectorLabels`           | Extra selectorLabels for deployment                                                                                               | `{}`  |
 | `podLabels`                     | Extra pod labels for deployment                                                                                                   | `{}`  |
 | `podAnnotations`                | Extra pod annotations for deployment                                                                                              | `{}`  |
