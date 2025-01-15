@@ -55,9 +55,24 @@ tolerations:
   {{- toYaml $combined | nindent 2 }}
 {{- end }}
 
+{{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.podSecurityContext }}
+{{- $podSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.podSecurityContext "mergeWithGeneric") -}}
+{{- with $podSecurityContext }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- end }}
+{{- else }}
+{{- if .securityContext }}
 {{- with .securityContext }}
 securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
+{{- else if $.Values.generic.podSecurityContext }}
+{{- with $.Values.generic.podSecurityContext }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+
 {{ if or $.Values.imagePullSecrets $.Values.generic.extraImagePullSecrets .extraImagePullSecrets .imagePullSecrets }}
 imagePullSecrets:
 {{- range $sName, $v := $.Values.imagePullSecrets }}
@@ -82,9 +97,22 @@ initContainers:
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- with .securityContext }}
-  securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.containerSecurityContext }}
+  {{- $containerSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.containerSecurityContext "mergeWithGeneric") -}}
+  {{- with $containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- else }}
+  {{- if .securityContext }}
+  {{- with .securityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- else if $.Values.generic.containerSecurityContext }}
+  {{- with $.Values.generic.containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end -}}
   {{- if $.Values.diagnosticMode.enabled }}
   args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if .args }}
@@ -132,9 +160,22 @@ containers:
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- with .securityContext }}
-  securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.containerSecurityContext }}
+  {{- $containerSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.containerSecurityContext "mergeWithGeneric") -}}
+  {{- with $containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- else }}
+  {{- if .securityContext }}
+  {{- with .securityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- else if $.Values.generic.containerSecurityContext }}
+  {{- with $.Values.generic.containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end -}}
   {{- if $.Values.diagnosticMode.enabled }}
   args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if .args }}

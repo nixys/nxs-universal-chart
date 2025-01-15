@@ -60,31 +60,33 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Generic parameters
 
-| Name                            | Description                                                                                         | Value  |
-|---------------------------------|-----------------------------------------------------------------------------------------------------|--------|
-| `generic.labels`                | Labels to add to all deployed objects                                                               | `{}`   |
-| `generic.annotations`           | Annotations to add to all deployed objects                                                          | `{}`   |
-| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services                                                   | `{}`   |
-| `generic.podLabels`             | Labels to add to all deployed pods                                                                  | `{}`   |
-| `generic.podAnnotations`        | Annotations to add to all deployed pods                                                             | `{}`   |
-| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload                                                   | `[]`   |
-| `generic.hostAliases`           | Pods host aliases to use by workload                                                                | `[]`   |
-| `generic.dnsPolicy`             | DnsPolicy for workload pods                                                                         | `[]`   |
-| `generic.priorityClassName`     | priorityClassName for workload pods                                                                 | `[]`   |
-| `generic.volumes`               | Array of typed Volumes to add to all deployed workloads                                             | `[]`   |
-| `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads                                          | `[]`   |
-| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads                                               | `[]`   |
-| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads                                     | `[]`   |
-| `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                                                    | `true` |
-| `generic.tolerations`           | Tolerations to add to all deployed workloads. It's overrided by the specific resource's tolerations | `[]`   |
-| `generic.tolerations.key`       | The key that the toleration applies to                                                              | `""`   |
-| `generic.tolerations.operator`  | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
-| `generic.tolerations.value`     | The value associated with the key, used when the operator is `Equal`                                | `""`   |
-| `generic.tolerations.effect`    | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
-| `generic.lifecycle`             | lifecycle hooks to add all workloads by default. Properties overridden by the specific resource's   | `{}`   |
-| `generic.startupProbe`          | startupProbe to add to all workloads by default. Properties overridden by the specific resource's   | `{}`   |
-| `generic.readinessProbe`        | readinessProbe to add to all workloads by default. Properties overridden by the specific resource's | `{}`   |
-| `generic.livenessProbe`         | livenessProbe to add to all workloads by default. Properties overridden by the specific resource's  | `{}`   |
+| Name                                  | Description                                                                                         | Value  |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------|--------|
+| `generic.labels`                      | Labels to add to all deployed objects                                                               | `{}`   |
+| `generic.annotations`                 | Annotations to add to all deployed objects                                                          | `{}`   |
+| `generic.extraSelectorLabels`         | SelectorLabels to add to deployments and services                                                   | `{}`   |
+| `generic.podLabels`                   | Labels to add to all deployed pods                                                                  | `{}`   |
+| `generic.podAnnotations`              | Annotations to add to all deployed pods                                                             | `{}`   |
+| `generic.serviceAccountName`          | The name of the ServiceAccount to use by workload                                                   | `[]`   |
+| `generic.hostAliases`                 | Pods host aliases to use by workload                                                                | `[]`   |
+| `generic.dnsPolicy`                   | DnsPolicy for workload pods                                                                         | `[]`   |
+| `generic.priorityClassName`           | priorityClassName for workload pods                                                                 | `[]`   |
+| `generic.volumes`                     | Array of typed Volumes to add to all deployed workloads                                             | `[]`   |
+| `generic.volumeMounts`                | Array of k8s VolumeMounts to add to all deployed workloads                                          | `[]`   |
+| `generic.extraVolumes`                | Array of k8s Volumes to add to all deployed workloads                                               | `[]`   |
+| `generic.extraImagePullSecrets`       | Array of existing pull secrets to add to all deployed workloads                                     | `[]`   |
+| `generic.usePredefinedAffinity`       | Use Affinity presets in all workloads by default                                                    | `true` |
+| `generic.tolerations`                 | Tolerations to add to all deployed workloads. It's overrided by the specific resource's tolerations | `[]`   |
+| `generic.tolerations.key`             | The key that the toleration applies to                                                              | `""`   |
+| `generic.tolerations.operator`        | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
+| `generic.tolerations.value`           | The value associated with the key, used when the operator is `Equal`                                | `""`   |
+| `generic.tolerations.effect`          | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+| `generic.lifecycle`                   | lifecycle hooks to add all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.startupProbe`                | startupProbe to add to all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.readinessProbe`              | readinessProbe to add to all workloads by default. Properties overridden by the specific resource's | `{}`   |
+| `generic.livenessProbe`               | livenessProbe to add to all workloads by default. Properties overridden by the specific resource's  | `{}`   |
+| `generic.podSecurityContext`          | podSecurityContext adds `securityContext` to pod level to all workloads by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`. | `{}`   |
+| `generic.containerSecurityContext`    | containerSecurityContext adds `securityContext` to container level to all containers by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`.  | `{}`   |
 
 
 ### Common parameters

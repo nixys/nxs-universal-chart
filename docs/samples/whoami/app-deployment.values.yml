@@ -1,3 +1,7 @@
+generic:
+  podSecurityContext:
+    runAsNonRoot: true
+
 services:
   app-web:
     type: ClusterIP
@@ -10,6 +14,8 @@ services:
 deployments:
   app:
     securityContext:
+      # mergeWithGeneric will merge generic.podSecurityContext.runAsNonRoot into here (and mergeWithGeneric itself will be removed).
+      mergeWithGeneric: true
       runAsUser: 1000
       runAsGroup: 3000
       fsGroup: 2000
