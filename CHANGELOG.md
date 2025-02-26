@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.4 - January 27, 2025
+* fix: Fixed `global.apiVersions` key miss spelling in README.md
+
 ## 2.8.3 - December 26, 2024
 * feature: Made `progressDeadlineSeconds` configurable in deployments
 

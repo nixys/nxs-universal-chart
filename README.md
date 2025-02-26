@@ -44,19 +44,19 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Global parameters
 
-| Name                                     | Description                                              | Value |
-|------------------------------------------|----------------------------------------------------------|-------|
-| `global.kubeVersion`                     | Global Override Kubernetes version                       | `""`  |
-| `global.helmVersion`                     | Global Override Helm version                             | `""`  |
-| `global.apiVersion.cronJob`              | Global Override CronJob API version                      | `""`  |
-| `global.apiVersion.deployment`           | Global Override Deployment API version                   | `""`  |
-| `global.apiVersion.statefulSet`          | Global Override StatefulSet API version                  | `""`  |
-| `global.apiVersion.ingress`              | Global Override Ingress API version                      | `""`  |
-| `global.apiVersion.pdb`                  | Global Override PodDisruptionBudget API version          | `""`  |
-| `global.apiVersion.traefik`              | Global Override Traefik resources API version            | `""`  |
-| `global.apiVersion.istioGateway`         | Global Override Istio Gateway API version                | `""`  |
-| `global.apiVersion.istioVirtualService`  | Global Override Istio VirtualService API version         | `""`  |
-| `global.apiVersion.istioDestinationRule` | Global Override Istio DestinationRule API version        | `""`  |
+| Name                                      | Description                                              | Value |
+|-------------------------------------------|----------------------------------------------------------|-------|
+| `global.kubeVersion`                      | Global Override Kubernetes version                       | `""`  |
+| `global.helmVersion`                      | Global Override Helm version                             | `""`  |
+| `global.apiVersions.cronJob`              | Global Override CronJob API version                      | `""`  |
+| `global.apiVersions.deployment`           | Global Override Deployment API version                   | `""`  |
+| `global.apiVersions.statefulSet`          | Global Override StatefulSet API version                  | `""`  |
+| `global.apiVersions.ingress`              | Global Override Ingress API version                      | `""`  |
+| `global.apiVersions.pdb`                  | Global Override PodDisruptionBudget API version          | `""`  |
+| `global.apiVersions.traefik`              | Global Override Traefik resources API version            | `""`  |
+| `global.apiVersions.istioGateway`         | Global Override Istio Gateway API version                | `""`  |
+| `global.apiVersions.istioVirtualService`  | Global Override Istio VirtualService API version         | `""`  |
+| `global.apiVersions.istioDestinationRule` | Global Override Istio DestinationRule API version        | `""`  |
 
 ### Generic parameters
 
