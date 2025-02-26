@@ -75,7 +75,7 @@ imagePullSecrets: {}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
 diagnosticMode:
-  enbled: false
+  enabled: false
   command: ["sleep"]
   args: ["infinity"]
 
