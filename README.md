@@ -138,6 +138,7 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.tolerations.operator`  | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
 | `generic.tolerations.value`     | The value associated with the key, used when the operator is `Equal`                                | `""`   |
 | `generic.tolerations.effect`    | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+| `generic.hookAnnotations`       | Helm hook annotations to add for all deployed configmaps or secrets                                 | `{}`   |
 
 
 ### Common parameters
