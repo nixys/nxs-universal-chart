@@ -1,59 +1,10 @@
 ![Nxs Universal Chart Logo](https://github.com/nixys/nxs-universal-chart/assets/84891358/cb86062f-e5fe-467a-bd98-207fb3026194)
 
+# nxs-universal-chart
+
 ## Introduction
 
 nxs-universal-chart is a Helm chart you can use to install any of your applications into Kubernetes/OpenShift and other orchestrators compatible with native Kubernetes API.
-
-- [Quickstart](#quickstart)
-  - [Install](#install)
-    - [Kubernetes/OpenShift](#kubernetesopenshift)
-  - [Settings](#settings)
-    - [Global parameters](#global-parameters)
-    - [Generic parameters](#generic-parameters)
-    - [Common parameters](#common-parameters)
-    - [Ingresses parameters](#ingresses-parameters)
-      - [Ingress `hosts` object parameters](#ingress-hosts-object-parameters)
-      - [Ingress `paths` object parameters](#ingress-paths-object-parameters)
-    - [Services parameters](#services-parameters)
-      - [Service `ports` object parameters:](#service-ports-object-parameters)
-    - [Deployments parameters](#deployments-parameters)
-    - [StatefulSets parameters](#statefulsets-parameters)
-      - [Container object parameters](#container-object-parameters)
-    - [Service accounts parameters](#service-accounts-parameters)
-    - [Secrets parameters](#secrets-parameters)
-    - [ConfigMaps parameters](#configmaps-parameters)
-    - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
-    - [typed Volumes parameters](#typed-volumes-parameters)
-    - [Hooks parameters](#hooks-parameters)
-    - [CronJobs parameters](#cronjobs-parameters)
-    - [Jobs parameters](#jobs-parameters)
-    - [ServiceMonitors parameters](#servicemonitors-parameters)
-    - [PodDisruptionBudget parameters](#poddisruptionbudget-parameters)
-    - [HorizontalPodAutoscaler parameters](#horizontalpodautoscaler-parameters)
-    - [HPA `scaleTargetRef` object parameters](#hpa-scaletargetref-object-parameters)
-    - [Issuers parameters](#issuers-parameters)
-    - [Certificates parameters](#certificates-parameters)
-    - [Certificates `secretTemplate` object parameters](#certificates-secrettemplate-object-parameters)
-    - [Certificates `issuerRef` object parameters](#certificates-issuerref-object-parameters)
-    - [IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters](#ingressroutes-ingressroutestcp-ingressroutesudp-parameters)
-    - [IngressRoutes `routes` object parameters](#ingressroutes-routes-object-parameters)
-    - [IngressRoutes `tls` object parameters](#ingressroutes-tls-object-parameters)
-    - [Middlewares, MiddlewaresTCP parameters](#middlewares-middlewarestcp-parameters)
-    - [ServersTransport, ServersTransportTCP parameters](#serverstransport-serverstransporttcp-parameters)
-    - [TraefikServices parameters](#traefikservices-parameters)
-    - [TLSOptions parameters](#tlsoptions-parameters)
-    - [TLSStores parameters](#tlsstores-parameters)
-    - [Gateways parameters](#gateways-parameters)
-    - [Gateways `servers` object parameters](#gateways-servers-object-parameters)
-    - [VirtualServices parameters](#virtualservices-parameters)
-    - [VirtualServices `http` object parameters](#virtualservices-http-object-parameters)
-    - [VirtualServices `tls` object parameters](#virtualservices-tls-object-parameters)
-    - [DestinationRules parameters](#destinationrules-parameters)
-    - [DestinationRules `subsets` object parameters](#destinationrules-subsets-object-parameters)
-    - [DestinationRules `workloadSelector` object parameters](#destinationrules-workloadselector-object-parameters)
-  - [Roadmap](#roadmap)
-  - [Feedback](#feedback)
-  - [License](#license)
 
 ### Features
 
@@ -70,6 +21,63 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 * DevOps engineers 
 
 Who deploy into Kubernetes/OpenShift on regular basis.
+
+- [Quickstart](#quickstart)
+  - [Install](#install)
+    - [Kubernetes/OpenShift](#kubernetesopenshift)
+  - [Settings](#settings)
+    - [Global parameters](#global-parameters)
+    - [Generic parameters](#generic-parameters)
+    - [Common parameters](#common-parameters)
+    - Native resources
+      - [Service accounts parameters](#service-accounts-parameters)
+      - [Secrets parameters](#secrets-parameters)
+      - [ConfigMaps parameters](#configmaps-parameters)
+      - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
+      - [Deployments parameters](#deployments-parameters)
+      - [StatefulSets parameters](#statefulsets-parameters)
+        - [Container object parameters](#container-object-parameters)
+      - [typed Volumes parameters](#typed-volumes-parameters)
+      - [PodDisruptionBudget parameters](#poddisruptionbudget-parameters)
+      - [HorizontalPodAutoscaler parameters](#horizontalpodautoscaler-parameters)
+      - [HPA `scaleTargetRef` object parameters](#hpa-scaletargetref-object-parameters)
+      - [Services parameters](#services-parameters)
+        - [Service `ports` object parameters:](#service-ports-object-parameters)
+      - [Ingresses parameters](#ingresses-parameters)
+        - [Ingress `hosts` object parameters](#ingress-hosts-object-parameters)
+        - [Ingress `paths` object parameters](#ingress-paths-object-parameters)
+      - [Jobs parameters](#jobs-parameters)      
+      - [CronJobs parameters](#cronjobs-parameters)
+    - Helm hooks
+      - [Hooks parameters](#hooks-parameters)
+    - Prometheus-operator resources
+      - [ServiceMonitors parameters](#servicemonitors-parameters)
+    - Cert-manager resources
+      - [Issuers parameters](#issuers-parameters)
+      - [Certificates parameters](#certificates-parameters)
+      - [Certificates `secretTemplate` object parameters](#certificates-secrettemplate-object-parameters)
+      - [Certificates `issuerRef` object parameters](#certificates-issuerref-object-parameters)
+    - Traefik resources
+      - [IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters](#ingressroutes-ingressroutestcp-ingressroutesudp-parameters)
+      - [IngressRoutes `routes` object parameters](#ingressroutes-routes-object-parameters)
+      - [IngressRoutes `tls` object parameters](#ingressroutes-tls-object-parameters)
+      - [Middlewares, MiddlewaresTCP parameters](#middlewares-middlewarestcp-parameters)
+      - [ServersTransport, ServersTransportTCP parameters](#serverstransport-serverstransporttcp-parameters)
+      - [TraefikServices parameters](#traefikservices-parameters)
+      - [TLSOptions parameters](#tlsoptions-parameters)
+      - [TLSStores parameters](#tlsstores-parameters)
+    - Istio resources
+      - [Gateways parameters](#gateways-parameters)
+      - [Gateways `servers` object parameters](#gateways-servers-object-parameters)
+      - [VirtualServices parameters](#virtualservices-parameters)
+      - [VirtualServices `http` object parameters](#virtualservices-http-object-parameters)
+      - [VirtualServices `tls` object parameters](#virtualservices-tls-object-parameters)
+      - [DestinationRules parameters](#destinationrules-parameters)
+      - [DestinationRules `subsets` object parameters](#destinationrules-subsets-object-parameters)
+      - [DestinationRules `workloadSelector` object parameters](#destinationrules-workloadselector-object-parameters)
+  - [Roadmap](#roadmap)
+  - [Feedback](#feedback)
+  - [License](#license)
 
 # Quickstart
 
