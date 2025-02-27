@@ -43,7 +43,7 @@ nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $
 {{- $combined := .tolerations | default ( $.Values.generic.tolerations | default list ) }}
 {{- if $combined }}
 tolerations:
-  {{- tpl $combined $ | nindent 2 }}
+  {{- include "helpers.tplvalues.render" (dict "value" $combined "context" $) | nindent 2 }}
 {{- end }}
 
 {{- with .securityContext }}
