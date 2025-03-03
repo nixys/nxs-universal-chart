@@ -18,10 +18,14 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 ### Who can use this tool
 
 * Development
-* DevOps engineers 
+* DevOps engineers
 
 Who deploy into Kubernetes/OpenShift on regular basis.
 
+- [nxs-universal-chart](#nxs-universal-chart)
+  - [Introduction](#introduction)
+    - [Features](#features)
+    - [Who can use this tool](#who-can-use-this-tool)
 - [Quickstart](#quickstart)
   - [Install](#install)
     - [Kubernetes/OpenShift](#kubernetesopenshift)
@@ -29,52 +33,48 @@ Who deploy into Kubernetes/OpenShift on regular basis.
     - [Global parameters](#global-parameters)
     - [Generic parameters](#generic-parameters)
     - [Common parameters](#common-parameters)
-    - Native resources
-      - [Service accounts parameters](#service-accounts-parameters)
-      - [Secrets parameters](#secrets-parameters)
-      - [ConfigMaps parameters](#configmaps-parameters)
-      - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
-      - [Deployments parameters](#deployments-parameters)
-      - [StatefulSets parameters](#statefulsets-parameters)
-        - [Container object parameters](#container-object-parameters)
-      - [typed Volumes parameters](#typed-volumes-parameters)
-      - [PodDisruptionBudget parameters](#poddisruptionbudget-parameters)
-      - [HorizontalPodAutoscaler parameters](#horizontalpodautoscaler-parameters)
-      - [HPA `scaleTargetRef` object parameters](#hpa-scaletargetref-object-parameters)
-      - [Services parameters](#services-parameters)
-        - [Service `ports` object parameters:](#service-ports-object-parameters)
-      - [Ingresses parameters](#ingresses-parameters)
-        - [Ingress `hosts` object parameters](#ingress-hosts-object-parameters)
-        - [Ingress `paths` object parameters](#ingress-paths-object-parameters)
-      - [Jobs parameters](#jobs-parameters)      
-      - [CronJobs parameters](#cronjobs-parameters)
-    - Helm hooks
-      - [Hooks parameters](#hooks-parameters)
-    - Prometheus-operator resources
-      - [ServiceMonitors parameters](#servicemonitors-parameters)
-    - Cert-manager resources
-      - [Issuers parameters](#issuers-parameters)
-      - [Certificates parameters](#certificates-parameters)
-      - [Certificates `secretTemplate` object parameters](#certificates-secrettemplate-object-parameters)
-      - [Certificates `issuerRef` object parameters](#certificates-issuerref-object-parameters)
-    - Traefik resources
-      - [IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters](#ingressroutes-ingressroutestcp-ingressroutesudp-parameters)
-      - [IngressRoutes `routes` object parameters](#ingressroutes-routes-object-parameters)
-      - [IngressRoutes `tls` object parameters](#ingressroutes-tls-object-parameters)
-      - [Middlewares, MiddlewaresTCP parameters](#middlewares-middlewarestcp-parameters)
-      - [ServersTransport, ServersTransportTCP parameters](#serverstransport-serverstransporttcp-parameters)
-      - [TraefikServices parameters](#traefikservices-parameters)
-      - [TLSOptions parameters](#tlsoptions-parameters)
-      - [TLSStores parameters](#tlsstores-parameters)
-    - Istio resources
-      - [Gateways parameters](#gateways-parameters)
-      - [Gateways `servers` object parameters](#gateways-servers-object-parameters)
-      - [VirtualServices parameters](#virtualservices-parameters)
-      - [VirtualServices `http` object parameters](#virtualservices-http-object-parameters)
-      - [VirtualServices `tls` object parameters](#virtualservices-tls-object-parameters)
-      - [DestinationRules parameters](#destinationrules-parameters)
-      - [DestinationRules `subsets` object parameters](#destinationrules-subsets-object-parameters)
-      - [DestinationRules `workloadSelector` object parameters](#destinationrules-workloadselector-object-parameters)
+    - [Ingresses parameters](#ingresses-parameters)
+      - [Ingress `hosts` object parameters](#ingress-hosts-object-parameters)
+      - [Ingress `paths` object parameters](#ingress-paths-object-parameters)
+    - [Services parameters](#services-parameters)
+      - [Service `ports` object parameters:](#service-ports-object-parameters)
+    - [Deployments parameters](#deployments-parameters)
+    - [StatefulSets parameters](#statefulsets-parameters)
+      - [Container object parameters](#container-object-parameters)
+    - [Service accounts parameters](#service-accounts-parameters)
+      - [Role or ClusterRole rules object parameters](#role-or-clusterrole-rules-object-parameters)
+    - [Secrets parameters](#secrets-parameters)
+    - [SealedSecrets paramaters](#sealedsecrets-paramaters)
+    - [ConfigMaps parameters](#configmaps-parameters)
+    - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
+    - [typed Volumes parameters](#typed-volumes-parameters)
+    - [Hooks parameters](#hooks-parameters)
+    - [CronJobs parameters](#cronjobs-parameters)
+    - [Jobs parameters](#jobs-parameters)
+    - [ServiceMonitors parameters](#servicemonitors-parameters)
+    - [PodDisruptionBudget parameters](#poddisruptionbudget-parameters)
+    - [HorizontalPodAutoscaler parameters](#horizontalpodautoscaler-parameters)
+    - [HPA `scaleTargetRef` object parameters](#hpa-scaletargetref-object-parameters)
+    - [Issuers parameters](#issuers-parameters)
+    - [Certificates parameters](#certificates-parameters)
+    - [Certificates `secretTemplate` object parameters](#certificates-secrettemplate-object-parameters)
+    - [Certificates `issuerRef` object parameters](#certificates-issuerref-object-parameters)
+    - [IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters](#ingressroutes-ingressroutestcp-ingressroutesudp-parameters)
+    - [IngressRoutes `routes` object parameters](#ingressroutes-routes-object-parameters)
+    - [IngressRoutes `tls` object parameters](#ingressroutes-tls-object-parameters)
+    - [Middlewares, MiddlewaresTCP parameters](#middlewares-middlewarestcp-parameters)
+    - [ServersTransport, ServersTransportTCP parameters](#serverstransport-serverstransporttcp-parameters)
+    - [TraefikServices parameters](#traefikservices-parameters)
+    - [TLSOptions parameters](#tlsoptions-parameters)
+    - [TLSStores parameters](#tlsstores-parameters)
+    - [Gateways parameters](#gateways-parameters)
+    - [Gateways `servers` object parameters](#gateways-servers-object-parameters)
+    - [VirtualServices parameters](#virtualservices-parameters)
+    - [VirtualServices `http` object parameters](#virtualservices-http-object-parameters)
+    - [VirtualServices `tls` object parameters](#virtualservices-tls-object-parameters)
+    - [DestinationRules parameters](#destinationrules-parameters)
+    - [DestinationRules `subsets` object parameters](#destinationrules-subsets-object-parameters)
+    - [DestinationRules `workloadSelector` object parameters](#destinationrules-workloadselector-object-parameters)
   - [Roadmap](#roadmap)
   - [Feedback](#feedback)
   - [License](#license)
@@ -117,28 +117,34 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Generic parameters
 
-| Name                            | Description                                                                                         | Value  |
-|---------------------------------|-----------------------------------------------------------------------------------------------------|--------|
-| `generic.labels`                | Labels to add to all deployed objects                                                               | `{}`   |
-| `generic.annotations`           | Annotations to add to all deployed objects                                                          | `{}`   |
-| `generic.extraSelectorLabels`   | SelectorLabels to add to deployments and services                                                   | `{}`   |
-| `generic.podLabels`             | Labels to add to all deployed pods                                                                  | `{}`   |
-| `generic.podAnnotations`        | Annotations to add to all deployed pods                                                             | `{}`   |
-| `generic.serviceAccountName`    | The name of the ServiceAccount to use by workload                                                   | `[]`   |
-| `generic.hostAliases`           | Pods host aliases to use by workload                                                                | `[]`   |
-| `generic.dnsPolicy`             | DnsPolicy for workload pods                                                                         | `[]`   |
-| `generic.priorityClassName`     | priorityClassName for workload pods                                                                 | `[]`   |
-| `generic.volumes`               | Array of typed Volumes to add to all deployed workloads                                             | `[]`   |
-| `generic.volumeMounts`          | Array of k8s VolumeMounts to add to all deployed workloads                                          | `[]`   |
-| `generic.extraVolumes`          | Array of k8s Volumes to add to all deployed workloads                                               | `[]`   |
-| `generic.extraImagePullSecrets` | Array of existing pull secrets to add to all deployed workloads                                     | `[]`   |
-| `generic.usePredefinedAffinity` | Use Affinity presets in all workloads by default                                                    | `true` |
-| `generic.tolerations`           | Tolerations to add to all deployed workloads. It's overrided by the specific resource's tolerations | `[]`   |
-| `generic.tolerations.key`       | The key that the toleration applies to                                                              | `""`   |
-| `generic.tolerations.operator`  | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
-| `generic.tolerations.value`     | The value associated with the key, used when the operator is `Equal`                                | `""`   |
-| `generic.tolerations.effect`    | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
-| `generic.hookAnnotations`       | Helm hook annotations to add for all deployed configmaps or secrets                                 | `{}`   |
+| Name                                  | Description                                                                                         | Value  |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------|--------|
+| `generic.labels`                      | Labels to add to all deployed objects                                                               | `{}`   |
+| `generic.annotations`                 | Annotations to add to all deployed objects                                                          | `{}`   |
+| `generic.extraSelectorLabels`         | SelectorLabels to add to deployments and services                                                   | `{}`   |
+| `generic.podLabels`                   | Labels to add to all deployed pods                                                                  | `{}`   |
+| `generic.podAnnotations`              | Annotations to add to all deployed pods                                                             | `{}`   |
+| `generic.serviceAccountName`          | The name of the ServiceAccount to use by workload                                                   | `[]`   |
+| `generic.hostAliases`                 | Pods host aliases to use by workload                                                                | `[]`   |
+| `generic.dnsPolicy`                   | DnsPolicy for workload pods                                                                         | `[]`   |
+| `generic.priorityClassName`           | priorityClassName for workload pods                                                                 | `[]`   |
+| `generic.volumes`                     | Array of typed Volumes to add to all deployed workloads                                             | `[]`   |
+| `generic.volumeMounts`                | Array of k8s VolumeMounts to add to all deployed workloads                                          | `[]`   |
+| `generic.extraVolumes`                | Array of k8s Volumes to add to all deployed workloads                                               | `[]`   |
+| `generic.extraImagePullSecrets`       | Array of existing pull secrets to add to all deployed workloads                                     | `[]`   |
+| `generic.usePredefinedAffinity`       | Use Affinity presets in all workloads by default                                                    | `true` |
+| `generic.tolerations`                 | Tolerations to add to all deployed workloads. It's overrided by the specific resource's tolerations | `[]`   |
+| `generic.tolerations.key`             | The key that the toleration applies to                                                              | `""`   |
+| `generic.tolerations.operator`        | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
+| `generic.tolerations.value`           | The value associated with the key, used when the operator is `Equal`                                | `""`   |
+| `generic.tolerations.effect`          | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+| `generic.hookAnnotations`             | Helm hook annotations to add for all deployed configmaps or secrets                                 | `{}`   |
+| `generic.lifecycle`                   | lifecycle hooks to add all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.startupProbe`                | startupProbe to add to all workloads by default. Properties overridden by the specific resource's   | `{}`   |
+| `generic.readinessProbe`              | readinessProbe to add to all workloads by default. Properties overridden by the specific resource's | `{}`   |
+| `generic.livenessProbe`               | livenessProbe to add to all workloads by default. Properties overridden by the specific resource's  | `{}`   |
+| `generic.podSecurityContext`          | podSecurityContext adds `securityContext` to pod level to all workloads by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`. | `{}`   |
+| `generic.containerSecurityContext`    | containerSecurityContext adds `securityContext` to container level to all containers by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`.  | `{}`   |
 
 
 ### Common parameters
@@ -165,6 +171,8 @@ the parameters that can be configured during installation. To check deployment e
 | `diagnosticMode.command`    | Command to override all containers in the deployment                                                          | `["sleep"]`      |
 | `diagnosticMode.args`       | Args to override all containers in the deployment                                                             | `["infinity"]`   |
 | `releasePrefix`             | Override prefix for all manifests names. Release name used by default. You should use `"-"` to make it empty. | `""`             |
+| `parentChart.name`          | When nxs-universal-chart used as library chart as dependency, parent chart name can be used in label app.kubernetes.io/name and helm.sh/chart instead of xs-universal-char chart values. This is important to uniquely identify app's resources with selector labels. | `""`             |
+| `parentChart.version`       | When nxs-universal-chart used as library chart as dependency, parent chart version can be used in label helm.sh/chart and app.kubernetes.io/version instead of xs-universal-char chart values | `""`             |
 
 
 ### Ingresses parameters
@@ -201,6 +209,13 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Services parameters
 
+`servicesGeneral` is a map of the Services parameters, which uses for all Services.
+
+| Name                                  | Description                                          | Value       |
+|---------------------------------------|------------------------------------------------------|-------------|
+| `servicesGeneral.labels`              | Labels to add to all services                        | `{}`        |
+| `servicesGeneral.annotations`         | Annotations to add to all services                   | `{}`        |
+
 `services` is a map of the Service parameters, where key is a name of Service.
 
 | Name                       | Description                                                           | Value       |
@@ -214,20 +229,20 @@ the parameters that can be configured during installation. To check deployment e
 | `allocateLoadBalancerNodePorts`  | Load Balancer NodePort allocation                               | `true`      |
 | `externalTrafficPolicy`    | Service external traffic policy                                       | `"Cluster"` |
 | `healthCheckNodePort`      | Health check node port (numeric port number) for the service          | ``          |
-| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        | 
-| `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        | 
-| `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        | 
-| `clusterIP`                | Service clusterIP parameter value                                     | `""`        | 
+| `externalIPs`              | Array of the external IPs that route to one or more cluster nodes     | `[]`        |
+| `ports`                    | Array of the service [port](#service-ports-object-parameters) objects | `[]`        |
+| `extraSelectorLabels`      | Extra selectorLabels for select workload                              | `{}`        |
+| `clusterIP`                | Service clusterIP parameter value                                     | `""`        |
 
 #### Service `ports` object parameters:
 
 | Name         | Description                  | Value   |
 |--------------|------------------------------|---------|
-| `name`       | Name of the service port     | `""`    | 
-| `protocol`   | Protocol of the service port | `"TCP"` | 
-| `port`       | Service port number          | ``      | 
-| `targetPort` | Service target port number   | ``      | 
-| `nodePort`   | Service NodePort number      | ``      | 
+| `name`       | Name of the service port     | `""`    |
+| `protocol`   | Protocol of the service port | `"TCP"` |
+| `port`       | Service port number          | ``      |
+| `targetPort` | Service target port number   | ``      |
+| `nodePort`   | Service NodePort number      | ``      |
 
 ### Deployments parameters
 
@@ -352,6 +367,7 @@ the parameters that can be configured during installation. To check deployment e
 | `volumeMounts`         | Array of the [k8s Volume mounts](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#volumemount-v1-core) | `[]`             |
 
 ### Service accounts parameters
+
 `serviceAccountGeneral` is a map of the ServiceAccount parameters, which uses for all service accounts and its roles/clusterroles and corresponding bindings.
 
 | Name                                         | Description                                                                                | Value   |
@@ -361,18 +377,24 @@ the parameters that can be configured during installation. To check deployment e
 
 `serviceAccount` is a map of the ServiceAccount parameters, where key is name of the service account.
 
-| Name                         | Description                                                                             | Value     |
-|------------------------------|-----------------------------------------------------------------------------------------|-----------|
-| `labels`                     | Extra ServiceAccount, role and binding labels                                           | `{}`      | 
-| `annotations`                | Extra ServiceAccount annotations                                                        | `{}`      | 
-| `role`                       | Map of role parametres to create and bind                                               | `{}`      | 
-| `role.name`                  | Name of role to create/bind                                                             | `{}`      | 
-| `role.rules`                 | List of rules for role                                                                  | `{}`      | 
-| `clusterRole`                | Map of clusterRole parametres to create and bind                                        | `{}`      | 
-| `clusterRole.name`           | Name of clusterRole to create/bind                                                      | `{}`      | 
-| `clusterRole.rules`          | List of rules for clusterRole                                                           | `{}`      | 
+| Name                         | Description                                                                                           | Value     |
+|------------------------------|-------------------------------------------------------------------------------------------------------|-----------|
+| `labels`                     | Extra ServiceAccount, role and binding labels                                                         | `{}`      |
+| `annotations`                | Extra ServiceAccount annotations                                                                      | `{}`      |
+| `roles`                      | List of [role](#role-or-clusterrole-rules-object-parameters) parameters to create and bind            | `[]`      |
+| `clusterRoles`               | List of [clusterRole](#role-or-clusterrole-rules-object-parameters) parameters to create and bind     | `[]`      |
 
-`role/clusterRole` is a map of parameters of role/clusterrole. If *rules* are not set then only binding to existing role/clusterrole will be created. If *rules* are set then corresponding role/clusterrole will be created and binded to service account. Service account can be created without corresponding roles and bindings.
+`roles/clusterRoles` are list of maps of parameters of role/clusterrole. Service account can be created without corresponding roles and bindings.
+
+#### Role or ClusterRole rules object parameters
+
+| Name               | Description                                  | Value      |
+|--------------------|----------------------------------------------|------------|
+| `name`             | Name of role/clusterRole to create/bind      | `""`       |
+| `clusterScope`     | If rules not present, for RoleBinding it's possible to bind either Role or ClusterRole (clusterScope=true). This parameter is ignored for clusterRoles and roles with rules. Default value is false          | `false`    |
+| `rules`            | List of rules for Role/ClusterRole           | `[]`       |
+
+If *rules* is empty then only binding to existing role/clusterRole will be created. If any *rules* exist then corresponding role/clusterRole will be created and binded to service account.
 
 ### Secrets parameters
 
@@ -380,10 +402,10 @@ the parameters that can be configured during installation. To check deployment e
 
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
-| `type`             | Secret type                                  | `"Opaque"` | 
-| `labels`           | Extra secret labels                          | `{}`       | 
-| `annotations`      | Extra secret annotations                     | `{}`       | 
-| `data`             | Map of Secret data                           | `{}`       | 
+| `type`             | Secret type                                  | `"Opaque"` |
+| `labels`           | Extra secret labels                          | `{}`       |
+| `annotations`      | Extra secret annotations                     | `{}`       |
+| `data`             | Map of Secret data                           | `{}`       |
 
 Secret `data` object is a map where value can be a string, json or base64 encoded string with prefix `b64:`.
 
@@ -393,8 +415,8 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                  | Value      |
 |--------------------|----------------------------------------------|------------|
-| `labels`           | Extra SealedSecret labels                    | `{}`       | 
-| `annotations`      | Extra SealedSecret annotations               | `{}`       | 
+| `labels`           | Extra SealedSecret labels                    | `{}`       |
+| `annotations`      | Extra SealedSecret annotations               | `{}`       |
 | `encryptedData`    | Map of SealedSecret encrypted data           | `{}`       |
 
 ### ConfigMaps parameters
@@ -403,9 +425,9 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                     | Value     |
 |--------------------|-------------------------------------------------|-----------|
-| `labels`           | Extra ConfigMap labels                          | `{}`      | 
-| `annotations`      | Extra ConfigMap annotations                     | `{}`      | 
-| `data`             | Map of ConfigMap data                           | `{}`      | 
+| `labels`           | Extra ConfigMap labels                          | `{}`      |
+| `annotations`      | Extra ConfigMap annotations                     | `{}`      |
+| `data`             | Map of ConfigMap data                           | `{}`      |
 
 ### PersistentVolumeClaims parameters
 
@@ -413,13 +435,13 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name               | Description                                          | Value          |
 |--------------------|------------------------------------------------------|----------------|
-| `labels`           | Extra Persistent Volume Claim labels                 | `{}`           | 
-| `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           | 
-| `accessModes`      | Persistent Volume access modes                       | `[]`           | 
-| `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` | 
+| `labels`           | Extra Persistent Volume Claim labels                 | `{}`           |
+| `annotations`      | Extra Persistent Volume Claim annotations            | `{}`           |
+| `accessModes`      | Persistent Volume access modes                       | `[]`           |
+| `volumeMode`       | Persistent Volume volume mode                        | `"Filesystem"` |
 | `volumeName`       | Persistent Volume volume name (if already exists)    | ``             |
-| `storageClassName` | Persistent Volume Storage Class name                 | `""`           | 
-| `selector`         | Labels selector to further filter the set of volumes | `{}`           | 
+| `storageClassName` | Persistent Volume Storage Class name                 | `""`           |
+| `selector`         | Labels selector to further filter the set of volumes | `{}`           |
 
 ### typed Volumes parameters
 
@@ -444,11 +466,11 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `hooksGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                               | `[]`    |
 | `hooksGeneral.envSecrets`              | Array of Secrets names with extra envs                                                  | `[]`    |
 | `hooksGeneral.envFrom`                 | Array of extra envFrom objects                                                          | `[]`    |
-| `hooksGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Hook level)                 | `1`     | 
-| `hooksGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Hook level)            | `1`     | 
-| `hooksGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Hook level)                                  | `100`   | 
-| `hooksGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Hook level) | `6`     | 
-| `hooksGeneral.ttlSecondsAfterFinished` | TTL for delete finished Hook Job (ignored if defined on Hook level)                     | `100`   | 
+| `hooksGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Hook level)                 | `1`     |
+| `hooksGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Hook level)            | `1`     |
+| `hooksGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Hook level)                                  | `100`   |
+| `hooksGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Hook level) | `6`     |
+| `hooksGeneral.ttlSecondsAfterFinished` | TTL for delete finished Hook Job (ignored if defined on Hook level)                     | `100`   |
 | `hooksGeneral.podLabels`               | Extra pod labels for Hook Job (ignored if defined on Hook level)                        | `{}`    |
 | `hooksGeneral.podAnnotations`          | Extra pod annotations for Hook Job (ignored if defined on Hook level)                   | `{}`    |
 | `hooksGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Hook Job (ignored if defined on Hook level)    | `""`    |
@@ -463,16 +485,16 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name                      | Description                                                                              | Value                       |
 |---------------------------|------------------------------------------------------------------------------------------|-----------------------------|
-| `labels`                  | Extra Hook Job labels                                                                    | `{}`                        | 
-| `annotations`             | Extra Hook Job annotations                                                               | `{}`                        | 
-| `kind`                    | Kind of the Helm Hook                                                                    | `"pre-install,pre-upgrade"` | 
-| `weight`                  | Weight of the Helm Hook                                                                  | `"5"`                       | 
-| `deletePolicy`            | Delete Policy of the Helm Hook                                                           | `"before-hook-creation"`    | 
-| `parallelism`             | How much pods of Jobs can be run in parallel                                             | `1`                         | 
-| `completions`             | How much pods should finish to finish Job                                                | `1`                         | 
-| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`                       | 
-| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`                         | 
-| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`                       | 
+| `labels`                  | Extra Hook Job labels                                                                    | `{}`                        |
+| `annotations`             | Extra Hook Job annotations                                                               | `{}`                        |
+| `kind`                    | Kind of the Helm Hook                                                                    | `"pre-install,pre-upgrade"` |
+| `weight`                  | Weight of the Helm Hook                                                                  | `"5"`                       |
+| `deletePolicy`            | Delete Policy of the Helm Hook                                                           | `"before-hook-creation"`    |
+| `parallelism`             | How much pods of Jobs can be run in parallel                                             | `1`                         |
+| `completions`             | How much pods should finish to finish Job                                                | `1`                         |
+| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`                       |
+| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`                         |
+| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`                       |
 | `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`                        |
 | `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`                        |
 | `serviceAccountName`      | The name of the ServiceAccount to use by Hook Job                                        | `""`                        |
@@ -527,19 +549,19 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name                         | Description                                                                             | Value     |
 |------------------------------|-----------------------------------------------------------------------------------------|-----------|
-| `labels`                     | Extra CronJob labels                                                                    | `{}`      | 
-| `annotations`                | Extra CronJob annotations                                                               | `{}`      | 
+| `labels`                     | Extra CronJob labels                                                                    | `{}`      |
+| `annotations`                | Extra CronJob annotations                                                               | `{}`      |
 | `singleOnly`                 | Forbid concurrency policy                                                               | `"false"` |
 | `suspend`                    | Suspend execution of Jobs                                                               | `false`   |
 | `schedule`                   | Cronjob scheduling                                                                      | ``        |
-| `startingDeadlineSeconds`    | Duration for starting CronJob                                                           | ``        | 
-| `successfulJobsHistoryLimit` | Limitation of completed jobs should be kept                                             | `3`       | 
-| `failedJobsHistoryLimit`     | Limitation of failed jobs should be kept                                                | `1`       | 
-| `parallelism`                | How much pods of CronJob can be run in parallel                                         | `1`       | 
-| `completions`                | How much pods should finish to finish Job                                               | `1`       | 
-| `activeDeadlineSeconds`      | Duration of the Job                                                                     | `100`     | 
-| `backoffLimit`               | Number of retries before considering a Job as failed                                    | `6`       | 
-| `ttlSecondsAfterFinished`    | TTL for delete finished CronJob                                                         | `100`     | 
+| `startingDeadlineSeconds`    | Duration for starting CronJob                                                           | ``        |
+| `successfulJobsHistoryLimit` | Limitation of completed jobs should be kept                                             | `3`       |
+| `failedJobsHistoryLimit`     | Limitation of failed jobs should be kept                                                | `1`       |
+| `parallelism`                | How much pods of CronJob can be run in parallel                                         | `1`       |
+| `completions`                | How much pods should finish to finish Job                                               | `1`       |
+| `activeDeadlineSeconds`      | Duration of the Job                                                                     | `100`     |
+| `backoffLimit`               | Number of retries before considering a Job as failed                                    | `6`       |
+| `ttlSecondsAfterFinished`    | TTL for delete finished CronJob                                                         | `100`     |
 | `podLabels`                  | Extra pod labels for CronJob                                                            | `{}`      |
 | `podAnnotations`             | Extra pod annotations for CronJob                                                       | `{}`      |
 | `serviceAccountName`         | The name of the ServiceAccount to use by CronJob                                        | `""`      |
@@ -572,11 +594,11 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `jobsGeneral.envConfigmaps`           | Array of Configmaps names with extra envs                                              | `[]`    |
 | `jobsGeneral.envSecrets`              | Array of Secrets names with extra envs                                                 | `[]`    |
 | `jobsGeneral.envFrom`                 | Array of extra envFrom objects                                                         | `[]`    |
-| `jobsGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Job level)                 | `1`     | 
-| `jobsGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Job level)            | `1`     | 
-| `jobsGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Job level)                                  | `100`   | 
-| `jobsGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Job level) | `6`     | 
-| `jobsGeneral.ttlSecondsAfterFinished` | TTL for delete finished Job (ignored if defined on Job level)                          | `100`   | 
+| `jobsGeneral.parallelism`             | How much Jobs can be run in parallel (ignored if defined on Job level)                 | `1`     |
+| `jobsGeneral.completions`             | How much Pods should finish to finish Job (ignored if defined on Job level)            | `1`     |
+| `jobsGeneral.activeDeadlineSeconds`   | Duration of the Job (ignored if defined on Job level)                                  | `100`   |
+| `jobsGeneral.backoffLimit`            | Number of retries before considering a Job as failed (ignored if defined on Job level) | `6`     |
+| `jobsGeneral.ttlSecondsAfterFinished` | TTL for delete finished Job (ignored if defined on Job level)                          | `100`   |
 | `jobsGeneral.podLabels`               | Extra pod labels for Job (ignored if defined on Job level)                             | `{}`    |
 | `jobsGeneral.podAnnotations`          | Extra pod annotations for Job (ignored if defined on Job level)                        | `{}`    |
 | `jobsGeneral.serviceAccountName`      | The name of the ServiceAccount to use by Job (ignored if defined on Job level)         | `""`    |
@@ -591,13 +613,13 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 | Name                      | Description                                                                              | Value     |
 |---------------------------|------------------------------------------------------------------------------------------|-----------|
-| `labels`                  | Extra Job labels                                                                         | `{}`      | 
-| `annotations`             | Extra Job annotations                                                                    | `{}`      | 
-| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`       | 
-| `completions`             | How much pods should finish to finish Job                                                | `1`       | 
-| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`     | 
-| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`       | 
-| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`     | 
+| `labels`                  | Extra Job labels                                                                         | `{}`      |
+| `annotations`             | Extra Job annotations                                                                    | `{}`      |
+| `parallelism`             | How much pods of Job can be run in parallel                                              | `1`       |
+| `completions`             | How much pods should finish to finish Job                                                | `1`       |
+| `activeDeadlineSeconds`   | Duration of the Job                                                                      | `100`     |
+| `backoffLimit`            | Number of retries before considering a Job as failed                                     | `6`       |
+| `ttlSecondsAfterFinished` | TTL for delete finished Hook Job                                                         | `100`     |
 | `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`      |
 | `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`      |
 | `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
@@ -645,7 +667,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 |------------------|-------------------------------------------------------------------------|-------------------------|
 | `labels`         | Extra HPA labels                                                        | `{}`                    |
 | `annotations`    | Extra HPA annotations                                                   | `{}`                    |
-| `apiVersion`     | apiVersion for HPA object                                               | `"autoscaling/v2beta1"` |
+| `apiVersion`     | apiVersion for HPA object                                               | `"autoscaling/v2"`      |
 | `minReplicas`    | minimum replicas for HPA                                                | `2`                     |
 | `maxReplicas`    | maximum replicas for HPA                                                | `3`                     |
 | `scaleTargetRef` | Required [scaleTargetRef](#hpa-scaletargetref-object-parameters) object |                         |

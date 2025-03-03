@@ -7,9 +7,9 @@
 {{- $name := .name -}}
 {{- with .value -}}
 {{- if .serviceAccountName }}
-serviceAccountName: {{- include "helpers.tplvalues.render" (dict "value" .serviceAccountName "context" $) | nindent 2 }}
+serviceAccountName: {{- include "helpers.app.fullname" (dict "name" .serviceAccountName "context" $) | nindent 2 }}
 {{- else if $.Values.generic.serviceAccountName }}
-serviceAccountName: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.serviceAccountName  "context" $) | nindent 2 }}
+serviceAccountName: {{- include "helpers.app.fullname" (dict "name" $.Values.generic.serviceAccountName "context" $) | nindent 2 }}
 {{- end }}
 {{- if .hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 2 }}
@@ -46,9 +46,24 @@ tolerations:
   {{- include "helpers.tplvalues.render" (dict "value" $combined "context" $) | nindent 2 }}
 {{- end }}
 
+{{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.podSecurityContext }}
+{{- $podSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.podSecurityContext "mergeWithGeneric") -}}
+{{- with $podSecurityContext }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- end }}
+{{- else }}
+{{- if .securityContext }}
 {{- with .securityContext }}
 securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
 {{- end }}
+{{- else if $.Values.generic.podSecurityContext }}
+{{- with $.Values.generic.podSecurityContext }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+
 {{ if or $.Values.imagePullSecrets $.Values.generic.extraImagePullSecrets .extraImagePullSecrets .imagePullSecrets }}
 imagePullSecrets:
 {{- range $sName, $v := $.Values.imagePullSecrets }}
@@ -73,9 +88,22 @@ initContainers:
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- with .securityContext }}
-  securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.containerSecurityContext }}
+  {{- $containerSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.containerSecurityContext "mergeWithGeneric") -}}
+  {{- with $containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- else }}
+  {{- if .securityContext }}
+  {{- with .securityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- else if $.Values.generic.containerSecurityContext }}
+  {{- with $.Values.generic.containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end -}}
   {{- if $.Values.diagnosticMode.enabled }}
   args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if .args }}
@@ -123,9 +151,22 @@ containers:
   {{- $imageTag := $.Values.defaultImageTag }}{{ with .imageTag }}{{ $imageTag = include "helpers.tplvalues.render" ( dict "value" . "context" $) }}{{ end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ .imagePullPolicy | default $.Values.defaultImagePullPolicy }}
-  {{- with .securityContext }}
-  securityContext: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- if and .securityContext .securityContext.mergeWithGeneric $.Values.generic.containerSecurityContext }}
+  {{- $containerSecurityContext := merge (omit .securityContext "mergeWithGeneric") (omit $.Values.generic.containerSecurityContext "mergeWithGeneric") -}}
+  {{- with $containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
+  {{- else }}
+  {{- if .securityContext }}
+  {{- with .securityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- else if $.Values.generic.containerSecurityContext }}
+  {{- with $.Values.generic.containerSecurityContext }}
+  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end -}}
   {{- if $.Values.diagnosticMode.enabled }}
   args: {{- include "helpers.tplvalues.render" ( dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if .args }}
@@ -145,17 +186,21 @@ containers:
   {{- with .ports }}
   ports: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 2 }}
   {{- end }}
-  {{- with .lifecycle }}
-  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- $lifecycle := merge (default (dict) .lifecycle) (default (dict) $.Values.generic.lifecycle) -}}
+  {{- $startupProbe := merge (default (dict) .startupProbe) (default (dict) $.Values.generic.startupProbe) -}}
+  {{- $livenessProbe := merge (default (dict) .livenessProbe) (default (dict) $.Values.generic.livenessProbe) -}}
+  {{- $readinessProbe := merge (default (dict) .readinessProbe) (default (dict) $.Values.generic.readinessProbe) -}}
+  {{- with $lifecycle }}
+  lifecycle: {{- include "helpers.tplvalues.render" ( dict "value" $lifecycle "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .startupProbe }}
-  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $startupProbe }}
+  startupProbe: {{- include "helpers.tplvalues.render" ( dict "value" $startupProbe "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .livenessProbe }}
-  livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $livenessProbe }}
+  livenessProbe: {{- include "helpers.tplvalues.render" ( dict "value" $livenessProbe "context" $) | nindent 4 }}
   {{- end }}
-  {{- with .readinessProbe }}
-  readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
+  {{- with $readinessProbe }}
+  readinessProbe: {{- include "helpers.tplvalues.render" ( dict "value" $readinessProbe "context" $) | nindent 4 }}
   {{- end }}
   {{- with .resources }}
   resources: {{- include "helpers.tplvalues.render" ( dict "value" . "context" $) | nindent 4 }}
