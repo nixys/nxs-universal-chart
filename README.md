@@ -22,6 +22,63 @@ nxs-universal-chart is a Helm chart you can use to install any of your applicati
 
 Who deploy into Kubernetes/OpenShift on regular basis.
 
+- [nxs-universal-chart](#nxs-universal-chart)
+  - [Introduction](#introduction)
+    - [Features](#features)
+    - [Who can use this tool](#who-can-use-this-tool)
+- [Quickstart](#quickstart)
+  - [Install](#install)
+    - [Kubernetes/OpenShift](#kubernetesopenshift)
+  - [Settings](#settings)
+    - [Global parameters](#global-parameters)
+    - [Generic parameters](#generic-parameters)
+    - [Common parameters](#common-parameters)
+    - [Ingresses parameters](#ingresses-parameters)
+      - [Ingress `hosts` object parameters](#ingress-hosts-object-parameters)
+      - [Ingress `paths` object parameters](#ingress-paths-object-parameters)
+    - [Services parameters](#services-parameters)
+      - [Service `ports` object parameters:](#service-ports-object-parameters)
+    - [Deployments parameters](#deployments-parameters)
+    - [StatefulSets parameters](#statefulsets-parameters)
+      - [Container object parameters](#container-object-parameters)
+    - [Service accounts parameters](#service-accounts-parameters)
+      - [Role or ClusterRole rules object parameters](#role-or-clusterrole-rules-object-parameters)
+    - [Secrets parameters](#secrets-parameters)
+    - [SealedSecrets paramaters](#sealedsecrets-paramaters)
+    - [ConfigMaps parameters](#configmaps-parameters)
+    - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
+    - [typed Volumes parameters](#typed-volumes-parameters)
+    - [Hooks parameters](#hooks-parameters)
+    - [CronJobs parameters](#cronjobs-parameters)
+    - [Jobs parameters](#jobs-parameters)
+    - [ServiceMonitors parameters](#servicemonitors-parameters)
+    - [PodDisruptionBudget parameters](#poddisruptionbudget-parameters)
+    - [HorizontalPodAutoscaler parameters](#horizontalpodautoscaler-parameters)
+    - [HPA `scaleTargetRef` object parameters](#hpa-scaletargetref-object-parameters)
+    - [Issuers parameters](#issuers-parameters)
+    - [Certificates parameters](#certificates-parameters)
+    - [Certificates `secretTemplate` object parameters](#certificates-secrettemplate-object-parameters)
+    - [Certificates `issuerRef` object parameters](#certificates-issuerref-object-parameters)
+    - [IngressRoutes, IngressRoutesTCP, IngressRoutesUDP parameters](#ingressroutes-ingressroutestcp-ingressroutesudp-parameters)
+    - [IngressRoutes `routes` object parameters](#ingressroutes-routes-object-parameters)
+    - [IngressRoutes `tls` object parameters](#ingressroutes-tls-object-parameters)
+    - [Middlewares, MiddlewaresTCP parameters](#middlewares-middlewarestcp-parameters)
+    - [ServersTransport, ServersTransportTCP parameters](#serverstransport-serverstransporttcp-parameters)
+    - [TraefikServices parameters](#traefikservices-parameters)
+    - [TLSOptions parameters](#tlsoptions-parameters)
+    - [TLSStores parameters](#tlsstores-parameters)
+    - [Gateways parameters](#gateways-parameters)
+    - [Gateways `servers` object parameters](#gateways-servers-object-parameters)
+    - [VirtualServices parameters](#virtualservices-parameters)
+    - [VirtualServices `http` object parameters](#virtualservices-http-object-parameters)
+    - [VirtualServices `tls` object parameters](#virtualservices-tls-object-parameters)
+    - [DestinationRules parameters](#destinationrules-parameters)
+    - [DestinationRules `subsets` object parameters](#destinationrules-subsets-object-parameters)
+    - [DestinationRules `workloadSelector` object parameters](#destinationrules-workloadselector-object-parameters)
+  - [Roadmap](#roadmap)
+  - [Feedback](#feedback)
+  - [License](#license)
+
 # Quickstart
 
 ## Install
@@ -44,19 +101,19 @@ the parameters that can be configured during installation. To check deployment e
 
 ### Global parameters
 
-| Name                                     | Description                                              | Value |
-|------------------------------------------|----------------------------------------------------------|-------|
-| `global.kubeVersion`                     | Global Override Kubernetes version                       | `""`  |
-| `global.helmVersion`                     | Global Override Helm version                             | `""`  |
-| `global.apiVersion.cronJob`              | Global Override CronJob API version                      | `""`  |
-| `global.apiVersion.deployment`           | Global Override Deployment API version                   | `""`  |
-| `global.apiVersion.statefulSet`          | Global Override StatefulSet API version                  | `""`  |
-| `global.apiVersion.ingress`              | Global Override Ingress API version                      | `""`  |
-| `global.apiVersion.pdb`                  | Global Override PodDisruptionBudget API version          | `""`  |
-| `global.apiVersion.traefik`              | Global Override Traefik resources API version            | `""`  |
-| `global.apiVersion.istioGateway`         | Global Override Istio Gateway API version                | `""`  |
-| `global.apiVersion.istioVirtualService`  | Global Override Istio VirtualService API version         | `""`  |
-| `global.apiVersion.istioDestinationRule` | Global Override Istio DestinationRule API version        | `""`  |
+| Name                                      | Description                                              | Value |
+|-------------------------------------------|----------------------------------------------------------|-------|
+| `global.kubeVersion`                      | Global Override Kubernetes version                       | `""`  |
+| `global.helmVersion`                      | Global Override Helm version                             | `""`  |
+| `global.apiVersions.cronJob`              | Global Override CronJob API version                      | `""`  |
+| `global.apiVersions.deployment`           | Global Override Deployment API version                   | `""`  |
+| `global.apiVersions.statefulSet`          | Global Override StatefulSet API version                  | `""`  |
+| `global.apiVersions.ingress`              | Global Override Ingress API version                      | `""`  |
+| `global.apiVersions.pdb`                  | Global Override PodDisruptionBudget API version          | `""`  |
+| `global.apiVersions.traefik`              | Global Override Traefik resources API version            | `""`  |
+| `global.apiVersions.istioGateway`         | Global Override Istio Gateway API version                | `""`  |
+| `global.apiVersions.istioVirtualService`  | Global Override Istio VirtualService API version         | `""`  |
+| `global.apiVersions.istioDestinationRule` | Global Override Istio DestinationRule API version        | `""`  |
 
 ### Generic parameters
 
@@ -81,6 +138,7 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.tolerations.operator`        | Operator used to compare the key. Allowed values: `Exists` or `Equal`                               | `""`   |
 | `generic.tolerations.value`           | The value associated with the key, used when the operator is `Equal`                                | `""`   |
 | `generic.tolerations.effect`          | Effect of the toleration. Allowed values: `NoSchedule`, `PreferNoSchedule`, `NoExecute`             | `""`   |
+| `generic.hookAnnotations`             | Helm hook annotations to add for all deployed configmaps or secrets                                 | `{}`   |
 | `generic.lifecycle`                   | lifecycle hooks to add all workloads by default. Properties overridden by the specific resource's   | `{}`   |
 | `generic.startupProbe`                | startupProbe to add to all workloads by default. Properties overridden by the specific resource's   | `{}`   |
 | `generic.readinessProbe`              | readinessProbe to add to all workloads by default. Properties overridden by the specific resource's | `{}`   |

@@ -4,6 +4,18 @@ generic:
   #  general-label: general-label-value
   annotations: {}
   #  general-annotation: general-annotation-value
+  hookAnnotations: {}
+    #helm.sh/hook: "pre-install,pre-upgrade"
+    # helm.sh/hook-weight: "-999"
+    # helm.sh/hook-delete-policy: before-hook-creation
+    # helm.sh/resource-policy: keep
+  # default annotation that will be added to configmaps and secrets
+  # docs: https://helm.sh/docs/topics/charts_hooks/
+  # necessary this default hooks if it used in other hooks, see a note
+  # https://github.com/helm/helm/issues/2622#issuecomment-526519546
+  # but the resources with hooks currently not tracked or managed as part of the release
+  # i.e. configmap with helm-hooks will not removed when release has removed
+  # https://helm.sh/docs/topics/charts_hooks/#hook-resources-are-not-managed-with-corresponding-releases
   extraSelectorLabels: {}
   #  label: special
   podLabels: {}
@@ -75,7 +87,7 @@ imagePullSecrets: {}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
 diagnosticMode:
-  enbled: false
+  enabled: false
   command: ["sleep"]
   args: ["infinity"]
 
