@@ -53,17 +53,16 @@ spec:
   externalIPs: {{- toYaml .externalIPs | nindent 4 }}
   {{- end }}
   {{- end }}
-  ports:
-  {{- range .ports }}
-  - name: {{ .name | default $name}}
-    protocol: {{ .protocol | default "TCP"}}
-    port: {{ .port }}
-    {{- if not (empty .targetPort) }}
-    targetPort: {{ .targetPort }}
-    {{- end }}
+  {{- with .ports }}
+  {{- $processedPorts := list -}}
+  {{- range . }}
+    {{- $port := dict "name" (.name | default $name) "protocol" (.protocol | default "TCP") "port" .port "targetPort" .targetPort -}}
     {{- if not (empty .nodePort) }}
-    nodePort: {{ .nodePort }}
+      {{- $_ := set $port "nodePort" .nodePort }}
     {{- end }}
+    {{- $processedPorts = append $processedPorts $port -}}
+  {{- end }}
+  ports: {{- include "helpers.tplvalues.renderAndCoerce" ( dict "value" $processedPorts "context" $) | nindent 2 }}
   {{- end }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}

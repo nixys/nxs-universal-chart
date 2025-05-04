@@ -145,7 +145,7 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.livenessProbe`               | livenessProbe to add to all workloads by default. Properties overridden by the specific resource's  | `{}`   |
 | `generic.podSecurityContext`          | podSecurityContext adds `securityContext` to pod level to all workloads by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`. | `{}`   |
 | `generic.containerSecurityContext`    | containerSecurityContext adds `securityContext` to container level to all containers by default. Specific resource's `securityContext` can override this or merge with it by defining `securityContext.mergeWithGeneric` with value `true`.  | `{}`   |
-
+| `generic.openshift.securityContextConstraintsCompatibility` | Enables compatibility with OpenShift Security Context Constraints (SCC). When set to `true`, the chart omits `runAsUser`, `runAsGroup`, and `fsGroup` from `securityContext` if the target cluster is OpenShift. This allows OpenShift to auto-assign these values based on SCC namespace ranges. | `false` |
 
 ### Common parameters
 

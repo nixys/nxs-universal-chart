@@ -8,8 +8,8 @@ metadata:
   labels: {{- include "helpers.app.labels" $ | nindent 4 }}
   annotations: {{- include "helpers.app.defaultHookAnnotations" $ | nindent 4 }}
 data:
-  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envs) | indent 2 }}
-  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envsString) | indent 2 }}
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envs "context" $) | indent 2 }}
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" .Values.envsString "context" $) | indent 2 }}
 {{- end }}
 
 {{- range $cName, $val := .Values.configMaps -}}

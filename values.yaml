@@ -30,6 +30,8 @@ generic:
   extraImagePullSecrets: []
   #- name: regcred
   usePredefinedAffinity: true
+  openshift:
+    securityContextConstraintsCompatibility: false
 
 # Predefined Affinity block
 # Pod affinity preset
