@@ -38,6 +38,12 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.capabilities.isOpenshift" -}}
+{{- if .Capabilities.APIVersions.Has "security.openshift.io/v1" -}}
+{{- true -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.capabilities.cronJob.apiVersion" -}}
 {{- if .Values.global }}
 {{- if .Values.global.apiVersions.cronJob }}

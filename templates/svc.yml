@@ -1,3 +1,4 @@
+{{- $general := $.Values.servicesGeneral -}}
 {{- range $name, $s := $.Values.services }}
 ---
 kind: Service
@@ -7,9 +8,11 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
     {{- with $.Values.generic.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
   {{- if not (empty .clusterIP ) }}
@@ -50,17 +53,16 @@ spec:
   externalIPs: {{- toYaml .externalIPs | nindent 4 }}
   {{- end }}
   {{- end }}
-  ports:
-  {{- range .ports }}
-  - name: {{ .name | default $name}}
-    protocol: {{ .protocol | default "TCP"}}
-    port: {{ .port }}
-    {{- if not (empty .targetPort) }}
-    targetPort: {{ .targetPort }}
-    {{- end }}
+  {{- with .ports }}
+  {{- $processedPorts := list -}}
+  {{- range . }}
+    {{- $port := dict "name" (.name | default $name) "protocol" (.protocol | default "TCP") "port" .port "targetPort" .targetPort -}}
     {{- if not (empty .nodePort) }}
-    nodePort: {{ .nodePort }}
+      {{- $_ := set $port "nodePort" .nodePort }}
     {{- end }}
+    {{- $processedPorts = append $processedPorts $port -}}
+  {{- end }}
+  ports: {{- include "helpers.tplvalues.renderAndCoerce" ( dict "value" $processedPorts "context" $) | nindent 2 }}
   {{- end }}
   selector:
     {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
