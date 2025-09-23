@@ -11,6 +11,11 @@ serviceAccountName: {{ include "helpers.app.fullname" (dict "name" .serviceAccou
 {{- else if $ctx.Values.generic.serviceAccountName }}
 serviceAccountName: {{ include "helpers.app.fullname" (dict "name" $.Values.generic.serviceAccountName "context" $ctx) }}
 {{- end }}
+{{- if hasKey . "automountServiceAccountToken" }}
+automountServiceAccountToken: {{ .automountServiceAccountToken }}
+{{- else if hasKey $ctx.Values.generic "automountServiceAccountToken" }}
+automountServiceAccountToken: {{ $ctx.Values.generic.automountServiceAccountToken }}
+{{- end }}
 {{- if .hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $ctx) | nindent 2 }}
 {{- else if $ctx.Values.generic.hostAliases }}

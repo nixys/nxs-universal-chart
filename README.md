@@ -125,6 +125,7 @@ the parameters that can be configured during installation. To check deployment e
 | `generic.podLabels`                   | Labels to add to all deployed pods                                                                  | `{}`   |
 | `generic.podAnnotations`              | Annotations to add to all deployed pods                                                             | `{}`   |
 | `generic.serviceAccountName`          | The name of the ServiceAccount to use by workload                                                   | `[]`   |
+| `generic.automountServiceAccountToken`| Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `false`   |
 | `generic.hostAliases`                 | Pods host aliases to use by workload                                                                | `[]`   |
 | `generic.dnsPolicy`                   | DnsPolicy for workload pods                                                                         | `[]`   |
 | `generic.priorityClassName`           | priorityClassName for workload pods                                                                 | `[]`   |
@@ -276,6 +277,7 @@ the parameters that can be configured during installation. To check deployment e
 | `podLabels`                     | Extra pod labels for deployment                                                                                                   | `{}`  |
 | `podAnnotations`                | Extra pod annotations for deployment                                                                                              | `{}`  |
 | `serviceAccountName`            | The name of the ServiceAccount to use by deployment                                                                               | `""`  |
+| `automountServiceAccountToken`  | Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `generic.automountServiceAccountToken`   |
 | `hostAliases`                   | Pods host aliases                                                                                                                 | `[]`  |
 | `affinity`                      | Affinity for deployment; replicas pods assignment                                                                                 | `{}`  |
 | `securityContext`               | Security Context for deployment pods                                                                                              | `{}`  |
@@ -323,6 +325,7 @@ the parameters that can be configured during installation. To check deployment e
 | `podLabels`                     | Extra pod labels for statefulSet                                                                                                                                       | `{}`  |
 | `podAnnotations`                | Extra pod annotations for statefulSet                                                                                                                                  | `{}`  |
 | `serviceAccountName`            | The name of the ServiceAccount to use by statefulSet                                                                                                                   | `""`  |
+| `automountServiceAccountToken`  | Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `generic.automountServiceAccountToken`   |
 | `hostAliases`                   | Pods host aliases                                                                                                                                                      | `[]`  |
 | `affinity`                      | Affinity for statefulSet; replicas pods assignment                                                                                                                     | `{}`  |
 | `securityContext`               | Security Context for statefulSet pods                                                                                                                                  | `{}`  |
@@ -498,6 +501,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`                        |
 | `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`                        |
 | `serviceAccountName`      | The name of the ServiceAccount to use by Hook Job                                        | `""`                        |
+| `automountServiceAccountToken`  | Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `generic.automountServiceAccountToken`   |
 | `hostAliases`             | Pods host aliases                                                                        | `[]`                        |
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`                        |
 | `securityContext`         | Security Context for Hook Job pods                                                       | `{}`                        |
@@ -565,6 +569,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `podLabels`                  | Extra pod labels for CronJob                                                            | `{}`      |
 | `podAnnotations`             | Extra pod annotations for CronJob                                                       | `{}`      |
 | `serviceAccountName`         | The name of the ServiceAccount to use by CronJob                                        | `""`      |
+| `automountServiceAccountToken`  | Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `generic.automountServiceAccountToken`   |
 | `hostAliases`                | Pods host aliases                                                                       | `[]`      |
 | `affinity`                   | Affinity for CronJob; replicas pods assignment                                          | `{}`      |
 | `securityContext`            | Security Context for CronJob pods                                                       | `{}`      |
@@ -623,6 +628,7 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 | `podLabels`               | Extra pod labels for Hook Job                                                            | `{}`      |
 | `podAnnotations`          | Extra pod annotations for Hook Job                                                       | `{}`      |
 | `serviceAccountName`      | The name of the ServiceAccount to use by deployment                                      | `""`      |
+| `automountServiceAccountToken`  | Wheather you don't want the kubelet to automatically mount a ServiceAccount's API credentials, you can opt out of the default behavior. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/  | `generic.automountServiceAccountToken`   |
 | `hostAliases`             | Pods host aliases                                                                        | `[]`      |
 | `affinity`                | Affinity for Hook Job; replicas pods assignment                                          | `{}`      |
 | `securityContext`         | Security Context for Hook Job pods                                                       | `{}`      |
