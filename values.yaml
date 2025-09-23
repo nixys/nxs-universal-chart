@@ -32,6 +32,8 @@ generic:
   usePredefinedAffinity: true
   openshift:
     securityContextConstraintsCompatibility: false
+  # Default value is true in Kubernetes. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/.
+  #automountServiceAccountToken: true
 
 # Predefined Affinity block
 # Pod affinity preset
