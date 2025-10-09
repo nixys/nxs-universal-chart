@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.5 - Unreleased
+* refactor: Created `helpers.container` template to eliminate code duplication between containers and initContainers in `helpers.pod` ([#38](https://github.com/nixys/nxs-universal-chart/issues/38))
+
 ## 2.8.4 - Unreleased
 * feature: Added support for VMServiceScrape (VictoriaMetrics ServiceMonitor equivalent)
 
