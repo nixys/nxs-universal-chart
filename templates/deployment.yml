@@ -16,7 +16,8 @@ metadata:
     {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with .annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
 spec:
-  replicas: {{ .replicas | default 1 }}
+  {{- $replicas := dig "replicas" (dig "replicas" 1 $general) $d }}
+  replicas: {{ include "helpers.tplvalues.render" (dict "value" $replicas "context" $) | int }}
   {{- with .strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}

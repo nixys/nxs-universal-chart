@@ -261,6 +261,7 @@ the parameters that can be configured during installation. To check deployment e
 | `deploymentsGeneral.envFrom`               | Array of extra envFrom objects                      | `[]`    |
 | `deploymentsGeneral.extraVolumes`          | Array of k8s Volumes to add to all deployments      | `[]`    |
 | `deploymentsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all deployments | `[]`    |
+| `deploymentsGeneral.replicas`              | Default replicas count for all deployments (overridden by an individual deployment `replicas`) | `1`    |
 | `deploymentsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `deploymentsGeneral.usePredefinedAffinity` | Use Affinity presets in all deployments by default  | `false` |
 
@@ -309,6 +310,7 @@ the parameters that can be configured during installation. To check deployment e
 | `statefulSetsGeneral.envFrom`               | Array of extra envFrom objects                       | `[]`    |
 | `statefulSetsGeneral.extraVolumes`          | Array of k8s Volumes to add to all StatefulSets      | `[]`    |
 | `statefulSetsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
+| `statefulSetsGeneral.replicas`              | Default replicas count for all statefulSets (overridden by an individual statefulSet `replicas`) | `1`    |
 | `statefulSetsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `statefulSetsGeneral.usePredefinedAffinity` | Use Affinity presets in all StatefulSets by default  | `false` |
 
