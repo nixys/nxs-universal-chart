@@ -48,6 +48,7 @@ Who deploy into Kubernetes/OpenShift on regular basis.
     - [ConfigMaps parameters](#configmaps-parameters)
     - [PersistentVolumeClaims parameters](#persistentvolumeclaims-parameters)
     - [typed Volumes parameters](#typed-volumes-parameters)
+      - [Projected volume `sources` objects](#projected-volume-sources-objects)
     - [Hooks parameters](#hooks-parameters)
     - [CronJobs parameters](#cronjobs-parameters)
     - [Jobs parameters](#jobs-parameters)
@@ -261,6 +262,7 @@ the parameters that can be configured during installation. To check deployment e
 | `deploymentsGeneral.envFrom`               | Array of extra envFrom objects                      | `[]`    |
 | `deploymentsGeneral.extraVolumes`          | Array of k8s Volumes to add to all deployments      | `[]`    |
 | `deploymentsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all deployments | `[]`    |
+| `deploymentsGeneral.replicas`              | Default replicas count for all deployments (overridden by an individual deployment `replicas`) | `1`    |
 | `deploymentsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `deploymentsGeneral.usePredefinedAffinity` | Use Affinity presets in all deployments by default  | `false` |
 
@@ -309,6 +311,7 @@ the parameters that can be configured during installation. To check deployment e
 | `statefulSetsGeneral.envFrom`               | Array of extra envFrom objects                       | `[]`    |
 | `statefulSetsGeneral.extraVolumes`          | Array of k8s Volumes to add to all StatefulSets      | `[]`    |
 | `statefulSetsGeneral.volumeMounts`          | Array of k8s VolumeMounts to add to all StatefulSets | `[]`    |
+| `statefulSetsGeneral.replicas`              | Default replicas count for all statefulSets (overridden by an individual statefulSet `replicas`) | `1`    |
 | `statefulSetsGeneral.affinity`                   | Affinity for CronJob; replicas pods assignment (ignored if defined on CronJob level)       | `{}`    |
 | `statefulSetsGeneral.usePredefinedAffinity` | Use Affinity presets in all StatefulSets by default  | `false` |
 
@@ -448,12 +451,138 @@ Secret `data` object is a map where value can be a string, json or base64 encode
 
 ### typed Volumes parameters
 
-| Name           | Description                                                | Value |
-|----------------|------------------------------------------------------------|-------|
-| `type`         | Resource type of the volume ("configMap","secret","pvc")   | `""`  |
-| `name`         | Name of the resource that will be used with release prefix | `""`  |
-| `originalName` | Original name of the resource                              | `""`  |
-| `items`        | Array of volume items                                      | `[]`  |
+| Name            | Description                                                                                                                                                                                                                                   | Value |
+|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| `type`          | Resource type of the volume (one of `configMap`, `secret`, `pvc`, `emptyDir`, `projected`).                                                                                                                                                   | `""`  |
+| `name`          | Name of the resource that will be used with release prefix (ignored if `originalName` specified for externally existing resources).                                                                                                           | `""`  |
+| `originalName`  | Original name of the existing resource (bypasses release prefix).                                                                                                                                                                             | `""`  |
+| `items`         | Array of key/path mappings (supported for `configMap`, `secret`, and projected sub-sources `configMap`/`secret`).                                                                                                                             | `[]`  |
+| `defaultMode`   | Optional default file mode (octal or decimal) for `configMap`, `secret`, or `projected` volumes. For projected, applies to the whole projected volume.                                                                                     | ``    |
+| `sizeLimit`     | For `emptyDir` only: maximum size of the volume (e.g. `512Mi`).                                                                                                                                                                               | ``    |
+| `medium`        | For `emptyDir` only: set to `Memory` to use tmpfs.                                                                                                                                                                                            | ``    |
+| `sources`       | For `projected` only: array of sub-sources (`serviceAccountToken`, `configMap`, `secret`, `downwardAPI`).                                                                                                                                     | `[]`  |
+
+#### Projected volume `sources` objects
+
+Each entry in `sources` is a map containing exactly one of the supported keys. Supported sub-source schemas:
+
+1. serviceAccountToken:
+
+   ```yaml
+   serviceAccountToken:
+     path: token                # required file path inside the volume
+     expirationSeconds: 3600    # optional
+     audience: my-audience      # optional
+   ```
+
+2. configMap:
+
+   ```yaml
+   configMap:
+     name: my-config            # required
+     optional: true             # optional
+     items:                     # optional list
+       - key: config.yaml
+         path: config.yaml
+   ```
+
+3. secret:
+
+   ```yaml
+   secret:
+     name: my-secret            # required
+     optional: true             # optional
+     items:
+       - key: password
+         path: password
+   ```
+
+4. downwardAPI:
+
+   ```yaml
+   downwardAPI:
+     items:
+       - path: labels
+         fieldRef:
+           fieldPath: metadata.labels
+       - path: annotations
+         fieldRef:
+           fieldPath: metadata.annotations
+   ```
+
+Example projected volume combining multiple sources:
+
+```yaml
+volumes:
+  - type: projected
+    name: identity-bundle
+    defaultMode: 0444
+    sources:
+      - serviceAccountToken:
+          path: token
+          expirationSeconds: 3600
+      - configMap:
+          name: my-config
+          items:
+            - key: app.yml
+              path: app.yml
+      - secret:
+          name: my-secret
+          items:
+            - key: password
+              path: password
+      - downwardAPI:
+          items:
+            - path: namespace
+              fieldRef:
+                fieldPath: metadata.namespace
+```
+
+To mount this volume, remember to add a corresponding `volumeMounts` entry in each container that needs it:
+
+```yaml
+containers:
+  - name: app
+    volumeMounts:
+      - name: identity-bundle
+        mountPath: /var/run/secrets/identity
+        readOnly: true
+```
+
+Minimal example: mount only a service account token (no configMap, no secret, no downwardAPI extras):
+
+```yaml
+deployments:
+  myapp:
+    volumes:
+      - type: projected
+        name: sa-token
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 3600   # (optional) rotate more frequently than default (1h)
+    containers:
+      - name: app
+        volumeMounts:
+          - name: sa-token
+            mountPath: /var/run/secrets/serviceaccount
+            readOnly: true
+```
+
+Explanation of keys (minimal example):
+
+| Key | Why it’s needed |
+|-----|------------------|
+| `type: projected` | Use a projected volume so we can specify a `serviceAccountToken` source. |
+| `name: sa-token` | Volume identifier; must match the `volumeMounts[].name`. |
+| `sources` | List of one or more sub-sources composing the projected volume. |
+| `serviceAccountToken` | Special source that requests a fresh token file from the kubelet. |
+| `path: token` | File name inside the mounted directory; app reads it as `<mountPath>/token`. |
+| `expirationSeconds: 3600` | (Optional) Shorter token lifetime; omit to use kubelet default (typically ~1 hour). |
+| `volumeMounts[].mountPath` | Where in the container filesystem the projected directory appears. |
+| `readOnly: true` | Recommended best practice; projected volumes aren’t meant to be written to. |
+
+If you later want to add the namespace file or CA bundle, extend the `sources` with `downwardAPI` and a `configMap` entry as shown in the longer example above.
 
 ### Hooks parameters
 

@@ -47,6 +47,48 @@
   {{- else }}
   emptyDir: {}
   {{- end }}
+{{- else if eq .type "projected" }}
+- name: {{ .name }}
+  projected:
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
+    sources:
+    {{- range .sources }}
+    {{- if .serviceAccountToken }}
+    - serviceAccountToken:
+        path: {{ .serviceAccountToken.path }}
+        {{- with .serviceAccountToken.expirationSeconds }}
+        expirationSeconds: {{ . }}
+        {{- end }}
+        {{- with .serviceAccountToken.audience }}
+        audience: {{ . }}
+        {{- end }}
+    {{- else if .configMap }}
+    - configMap:
+        name: {{ .configMap.name }}
+        {{- with .configMap.optional }}
+        optional: {{ . }}
+        {{- end }}
+        {{- with .configMap.items }}
+        items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 8 }}
+        {{- end }}
+    {{- else if .secret }}
+    - secret:
+        name: {{ .secret.name }}
+        {{- with .secret.optional }}
+        optional: {{ . }}
+        {{- end }}
+        {{- with .secret.items }}
+        items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 8 }}
+        {{- end }}
+    {{- else if .downwardAPI }}
+    - downwardAPI:
+        {{- with .downwardAPI.items }}
+        items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 8 }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -81,3 +123,4 @@
   []
 {{- end }}
 {{- end }}
+
