@@ -2,7 +2,8 @@
 {{- if and .Values.parentChart .Values.parentChart.name -}}
   {{- .Values.parentChart.name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-  {{- include "helpers.app.release.name" .context -}}
+  {{- /* Support being called with either chart context or dict containing .context */ -}}
+  {{- include "helpers.app.release.name" (default . .context) -}}
 {{- end -}}
 {{- end -}}
 
@@ -34,7 +35,7 @@ Create chart version as used by the chart label.
 {{- if and .Values.parentChart .Values.parentChart.version -}}
   {{ .Values.parentChart.version | quote }}
 {{- else -}}
-  {{ .Chart.version | quote }}
+  {{ .Chart.Version | quote }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
