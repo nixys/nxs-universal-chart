@@ -42,6 +42,7 @@ Who deploy into Kubernetes/OpenShift on regular basis.
     - [StatefulSets parameters](#statefulsets-parameters)
       - [Container object parameters](#container-object-parameters)
     - [Service accounts parameters](#service-accounts-parameters)
+      - [ServiceAccount imagePullSecrets (platform default)](#serviceaccount-imagepullsecrets-platform-default)
       - [Role or ClusterRole rules object parameters](#role-or-clusterrole-rules-object-parameters)
     - [Secrets parameters](#secrets-parameters)
     - [SealedSecrets paramaters](#sealedsecrets-paramaters)
@@ -160,6 +161,7 @@ the parameters that can be configured during installation. To check deployment e
 | `secretEnvs`                | Map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs`             | `{}`             |
 | `secretEnvsString`          | String with map of environment variables which will be deplyed as Secret with name `RELEASE_NAME-secret-envs` | `""`             |
 | `imagePullSecrets`          | Map of registry secrets in `.dockerconfigjson` format                                                         | `{}`             |
+| `serviceAccountDefaultImagePullSecretName` | Default image pull secret name to attach to ServiceAccounts created by this chart (when enabled via ServiceAccount imagePullSecrets settings) | `""` |
 | `defaultImage`              | Docker image that will be used by default                                                                     | `[]`             |
 | `defaultImageTag`           | Docker image tag that will be used by default                                                                 | `[]`             |
 | `defaultImagePullPolicy`    | Docker image pull policy that will be used by default                                                         | `"IfNotPresent"` |
@@ -376,10 +378,35 @@ the parameters that can be configured during installation. To check deployment e
 
 `serviceAccountGeneral` is a map of the ServiceAccount parameters, which uses for all service accounts and its roles/clusterroles and corresponding bindings.
 
+#### ServiceAccount imagePullSecrets (platform default)
+
+This chart can attach `imagePullSecrets` to **ServiceAccounts created by the chart** (preferred over pod-level `imagePullSecrets`).
+
+- **Primary**: ServiceAccount `imagePullSecrets`
+- **Fallback**: pod spec `generic.extraImagePullSecrets`
+
+Example (platform sets one default secret name; app enables it):
+
+```yaml
+serviceAccountDefaultImagePullSecretName: platform-registry-pull-secret
+
+serviceAccountGeneral:
+  imagePullSecrets:
+    includePlatformDefault: true
+
+serviceAccount:
+  app:
+    imagePullSecrets:
+      additional:
+        - name: vendor-regcred
+```
+
 | Name                                         | Description                                                                                | Value   |
 |----------------------------------------------|--------------------------------------------------------------------------------------------|---------|
 | `serviceAccountGeneral.labels`               | Extra labels for all ServiceAccounts                                                       | `{}`    |
 | `serviceAccountGeneral.annotations`          | Extra annotations for all ServiceAccounts                                                  | `{}`    |
+| `serviceAccountGeneral.imagePullSecrets.includePlatformDefault` | Whether to include `serviceAccountDefaultImagePullSecretName` in ServiceAccount `imagePullSecrets` by default | `false` |
+| `serviceAccountGeneral.imagePullSecrets.additional` | Additional imagePullSecrets to attach to all ServiceAccounts created by this chart (items can be a string secret name or `{name: ...}`) | `[]` |
 
 `serviceAccount` is a map of the ServiceAccount parameters, where key is name of the service account.
 
@@ -387,6 +414,8 @@ the parameters that can be configured during installation. To check deployment e
 |------------------------------|-------------------------------------------------------------------------------------------------------|-----------|
 | `labels`                     | Extra ServiceAccount, role and binding labels                                                         | `{}`      |
 | `annotations`                | Extra ServiceAccount annotations                                                                      | `{}`      |
+| `imagePullSecrets.includePlatformDefault` | Override for this ServiceAccount: whether to include `serviceAccountDefaultImagePullSecretName` in `imagePullSecrets` | `serviceAccountGeneral.imagePullSecrets.includePlatformDefault` |
+| `imagePullSecrets.additional` | Additional imagePullSecrets for this ServiceAccount. Merged with `serviceAccountGeneral.imagePullSecrets.additional` (items can be a string secret name or `{name: ...}`) | `serviceAccountGeneral.imagePullSecrets.additional` |
 | `roles`                      | List of [role](#role-or-clusterrole-rules-object-parameters) parameters to create and bind            | `[]`      |
 | `clusterRoles`               | List of [clusterRole](#role-or-clusterrole-rules-object-parameters) parameters to create and bind     | `[]`      |
 

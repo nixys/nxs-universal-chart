@@ -90,6 +90,15 @@ imagePullSecrets: {}
 #    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
 #  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
+#
+# Default imagePullSecret name to attach to ServiceAccounts created by this chart.
+# Intended for platform teams to set once via a central override and then enabled per chart via
+# `serviceAccountGeneral.imagePullSecrets.includePlatformDefault` (and/or per SA override).
+#
+# Example:
+# serviceAccountDefaultImagePullSecretName: platform-registry-pull-secret
+serviceAccountDefaultImagePullSecretName: ""
+
 diagnosticMode:
   enabled: false
   command: ["sleep"]
@@ -202,6 +211,12 @@ statefulSets: {}
 
 serviceAccount: {}
 #  firstaccount:
+#    # Attach imagePullSecrets to this ServiceAccount (preferred vs pod-level imagePullSecrets).
+#    # If not set here, defaults can be inherited from serviceAccountGeneral.imagePullSecrets.
+#    imagePullSecrets:
+#      includePlatformDefault: true
+#      additional: []
+#      # - name: other-regcred
 #    role:
 #      name: test-role
 #      rules:
@@ -331,9 +346,17 @@ jobs: {}
 #    commandDurationAlert: 30
 #    commandMaxDuration: 60
 
-serviceAccountGeneral: {}
+#
+# Default settings applied to all ServiceAccounts created by this chart.
+#
+serviceAccountGeneral:
 #  annotations:
 #    test: test2
+  # Default imagePullSecrets behavior for all ServiceAccounts created by this chart.
+  # Can be overridden per ServiceAccount via serviceAccount.<name>.imagePullSecrets.
+  imagePullSecrets:
+    includePlatformDefault: false
+    additional: []
 
 serviceMonitors: {}
 #  app-sm:
