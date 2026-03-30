@@ -1,0 +1,193 @@
+# NXS Universal Chart
+
+![Nxs Universal Chart Logo](https://github.com/nixys/nxs-universal-chart/assets/84891358/cb86062f-e5fe-467a-bd98-207fb3026194)
+
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/nixys)](https://artifacthub.io/packages/search?repo=nixys)
+
+## Introduction
+
+nxs-universal-chart is a Helm chart you can use to install any of your applications into Kubernetes/OpenShift and other orchestrators compatible with native Kubernetes API.
+
+The chart renders through the shared `nuc-common` library chart. `Chart.yaml` points at the published dependency, and local workflows resolve it with `make deps` or `bash scripts/helm-deps.sh .`.
+
+### Features
+
+* Flexible way to deploy your applications.
+* Supported any Ingress controllers (Ingress Nginx, Traefik, Istio).
+* Easy way to template any custom resource with extraDeploy feature.
+* Supported Kubernetes versions (1.23 or newer) and OpenShift versions (3.11/<4.8/4.9/4.11/4.12/4.13).
+* Supported Helm versions (2/3/4)
+
+### Who can use this tool
+
+* Development
+* DevOps engineers
+
+## Quick Start
+
+Login to the Nixys OCI registry:
+
+```bash
+helm repo add nixys https://registry.nixys.io/nuc
+```
+
+Install the chart:
+
+```bash
+helm install nxs-universal-chart nixys/nxs-universal-chart \
+  --namespace app-system \
+  --create-namespace
+```
+
+The command deploys your application with custom values on the Kubernetes/OpenShift cluster. For additional ways to customize your experience with nxs-universal-chart please check [Additional features](docs/ADDITIONAL_FEATURES.md).
+
+Install the local README generator hook:
+
+```bash
+pre-commit install
+pre-commit install-hooks
+```
+
+## Supported Resources
+
+The chart can render these Kubernetes resource families:
+
+- `Deployment`
+- `StatefulSet`
+- `Service`
+- `Ingress`
+- `ConfigMap`
+- `Secret`
+- `SealedSecret`
+- `PersistentVolumeClaim`
+- `ServiceAccount`, `Role`, `RoleBinding`, `ClusterRoleBinding`
+- `Job`
+- `CronJob`
+- `HorizontalPodAutoscaler`
+- `PodDisruptionBudget`
+- raw resources through `extraDeploy`
+
+## Dependency Subcharts
+
+The chart also declares reusable dependency subcharts. `nuc-common` is always loaded as the shared helper library; the remaining `nuc-*` dependencies are enabled only through their matching `.Values.<name>.enabled` flags.
+
+| Subchart | Enabled by | Source chart | Includes |
+|----------|------------|--------------|----------|
+| `nuc-common` | always | [nuc-common](https://github.com/nixys/nuc-common) | Shared Helm library helpers for capability detection, pod/workload rendering, labels, templating, configmaps, secrets, ingress, volumes, and deprecation notices. |
+| `nuc-traefik` | `nuc-traefik.enabled` | [nuc-traefik](https://github.com/nixys/nuc-traefik) | Traefik CRDs: `IngressRoute`, `IngressRouteTCP`, `IngressRouteUDP`, `Middleware`, `MiddlewareTCP`, `TLSOption`, `TLSStore`, `ServersTransport`, `ServersTransportTCP`, and `TraefikService`. |
+| `nuc-certificates` | `nuc-certificates.enabled` | [nuc-certificates](https://github.com/nixys/nuc-certificates) | cert-manager resources: `Certificate`, `CertificateRequest`, `Issuer`, `ClusterIssuer`, `Challenge`, and `Order`. |
+| `nuc-istio` | `nuc-istio.enabled` | [nuc-istio](https://github.com/nixys/nuc-istio) | Istio traffic-management resources: `Gateway`, `VirtualService`, and `DestinationRule`. |
+| `nuc-knative` | `nuc-knative.enabled` | [nuc-knative](https://github.com/nixys/nuc-knative) | Knative Serving resources including `Service`, `Route`, `Configuration`, `Revision`, `Ingress`, `PodAutoscaler`, `ServerlessService`, `DomainMapping`, and related serving objects. |
+| `nuc-kserve` | `nuc-kserve.enabled` | [nuc-kserve](https://github.com/nixys/nuc-kserve) | KServe resources such as `InferenceService`, `InferenceGraph`, `ServingRuntime`, `ClusterServingRuntime`, `TrainedModel`, and model cache/storage CRDs. |
+| `nuc-kube-prometheus-stack` | `nuc-kube-prometheus-stack.enabled` | [nuc-kube-prometheus-stack](https://github.com/nixys/nuc-kube-prometheus-stack) | Prometheus Operator monitoring resources: `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, and `ServiceMonitor`. |
+| `nuc-native-gateway` | `nuc-native-gateway.enabled` | [nuc-native-gateway](https://github.com/nixys/nuc-native-gateway) | Gateway API resources: `GatewayClass`, `Gateway`, `HTTPRoute`, `GRPCRoute`, `TLSRoute`, `ReferenceGrant`, `BackendTLSPolicy`, and `ListenerSet`. |
+| `nuc-victoria-metrics` | `nuc-victoria-metrics.enabled` | [nuc-victoria-metrics](https://github.com/nixys/nuc-victoria-metrics) | VictoriaMetrics Operator resources: `VMAlert`, `VMRule`, `VMProbe`, `VMScrapeConfig`, `VMServiceScrape`, and `VMStaticScrape`. |
+| `nuc-vault-secret-operator` | `nuc-vault-secret-operator.enabled` | [nuc-vault-secret-operator](https://github.com/nixys/nuc-vault-secret-operator) | Vault Secret Operator resources: `VaultAuth` and `VaultStaticSecret`. |
+| `nuc-argocd` | `nuc-argocd.enabled` | [nuc-argocd](https://github.com/nixys/nuc-argocd) | Argo CD resources: `Application`, `ApplicationSet`, and `AppProject`. |
+| `nuc-keda` | `nuc-keda.enabled` | [nuc-keda](https://github.com/nixys/nuc-keda) | KEDA autoscaling resources: `ScaledObject`, `ScaledJob`, `TriggerAuthentication`, and `ClusterTriggerAuthentication`. |
+
+## Values Model
+
+The values contract is grouped by resource family:
+
+- `deployments`, `statefulSets`
+- `services`, `ingresses`
+- `configMaps`, `secrets`, `sealedSecrets`, `pvcs`
+- `jobs`, `cronJobs`, `hooks`
+- `serviceAccount`
+- `hpas`, `pdbs`
+- `extraDeploy`
+
+Shared controls:
+
+- `generic.*` for common labels, annotations, selectors, pod metadata, shared mounts, templated variables, and helper capability overrides
+- `envs` / `secretEnvs` for generated shared ConfigMap and Secret resources
+- `defaultImage*` for container image defaults
+- affinity presets and optional `generic` capability overrides
+
+Additional keys under `generic` are available to `tpl` rendering as `.Values.generic.*`, so one shared variable set can be reused across resources without a separate `global` block.
+
+The values contract is validated by [values.schema.json](values.schema.json).
+
+## Helm Values
+
+This section is generated from [values.yaml](values.yaml) by `helm-docs`. Edit [values.yaml](values.yaml) comments or [docs/README.md.gotmpl](docs/README.md.gotmpl), then run `pre-commit run helm-docs --all-files` or `make docs` if you need to refresh it outside a commit.
+
+{{ template "chart.valuesTable" . }}
+
+## Included Values Files
+
+- [values.yaml](values.yaml): minimal defaults that render no resources.
+- [values.yaml.example](values.yaml.example): representative example covering every supported template family.
+- [tests/e2e/values/install.values.yaml](tests/e2e/values/install.values.yaml): cluster-safe installation fixture used by the local e2e runner.
+
+## Testing
+
+The repository uses four verification layers:
+
+- `make lint`
+- `make test-unit`
+- `make test-compat`
+- `make test-smoke` / `make test-smoke-fast`
+- `make test-e2e`
+
+Representative commands:
+
+```bash
+make deps
+helm lint . -f values.yaml.example
+make deps
+helm unittest --with-subchart=false -f 'tests/units/*_test.yaml' .
+sh tests/units/backward_compatibility_test.sh
+python3 tests/smokes/run/smoke.py --scenario example-render
+make test-e2e
+```
+
+Detailed test documentation is available in [docs/TESTS.MD](docs/TESTS.MD).
+
+Local dependency setup instructions are available in [docs/DEPENDENCY.md](docs/DEPENDENCY.md).
+
+## Repository Layout
+
+| Path | Purpose |
+|------|---------|
+| [Chart.yaml](Chart.yaml) | Chart metadata. |
+| [Chart.lock](Chart.lock) | Locked dependency metadata refreshed by `make deps` / `scripts/helm-deps.sh`. |
+| [values.yaml](values.yaml) | Minimal default values and `helm-docs` source comments. |
+| [values.yaml.example](values.yaml.example) | Representative example covering all template families. |
+| [values.schema.json](values.schema.json) | JSON schema for chart values. |
+| [templates/](templates) | Application resource templates that consume shared helpers from the `nuc-common` dependency. |
+| [tests/units/](tests/units) | Helm unit suites and compatibility checks. |
+| [tests/smokes/](tests/smokes) | Smoke scenarios for linting, rendering, and schema validation. |
+| [tests/e2e/](tests/e2e) | kind-based end-to-end installation checks. |
+| [docs/README.md.gotmpl](docs/README.md.gotmpl) | Template used by `helm-docs` to build this README. |
+| [scripts/helm-docs.sh](scripts/helm-docs.sh) | Local wrapper around `helm-docs`. |
+
+## Notes
+
+- `SealedSecret` is a CRD-backed resource. Smoke `kubeconform` skips it by default, and e2e uses a CRD-free fixture so the local cluster flow stays lightweight.
+- Shared helper behavior comes from the `nuc-common` library dependency; run `make deps` before direct `helm lint`, `helm template`, or `helm install` commands.
+- Previous umbrella-chart toggles such as `nuc-common.enabled` remain in the values contract for compatibility.
+- `diagnosticMode.enbled` is still accepted for backward compatibility, but `diagnosticMode.enabled` is the supported field.
+
+## Roadmap
+
+Following features are already in backlog for our development team and will be done soon:
+
+* Test operability on newer versions of Kubernetes/OpenShift.
+* Add samples
+
+## Feedback
+
+For support and feedback please contact me:
+
+* telegram: @Peter_Rukin
+* email: p.rukin@nixys.io
+
+For news and discussions subscribe the channels:
+- telegram community (news): [@nxs_universal_chart](https://t.me/nxs_universal_chart)
+- telegram community (chat): [@nxs_universal_chart_chat](https://t.me/nxs_universal_chart_chat)
+
+## License
+
+nxs-universal-chart is released under the [Apache License 2.0](LICENSE).

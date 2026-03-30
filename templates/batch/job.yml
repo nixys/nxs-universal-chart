@@ -1,0 +1,85 @@
+{{- $general := $.Values.jobsGeneral | default dict -}}
+{{- $jobs := dict -}}
+{{- $modeEnabled := eq "true" (include "helpers.workloads.modeEnabled" (dict "kind" "job" "context" $)) -}}
+{{- if kindIs "string" .Values.jobs -}}
+{{- $jobs = fromYaml .Values.jobs | default dict -}}
+{{- else if kindIs "map" .Values.jobs -}}
+{{- $jobs = .Values.jobs -}}
+{{- end -}}
+{{- if $modeEnabled }}
+{{- range $name := keys $jobs | sortAlpha }}
+{{- $job := get $jobs $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $job)) }}
+{{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $job.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $job.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- with (coalesce $job.parallelism $general.parallelism) }}
+  parallelism: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.completions $general.completions) }}
+  completions: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.activeDeadlineSeconds $general.activeDeadlineSeconds) }}
+  activeDeadlineSeconds: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.backoffLimit $general.backoffLimit) }}
+  backoffLimit: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.ttlSecondsAfterFinished $general.ttlSecondsAfterFinished) }}
+  ttlSecondsAfterFinished: {{ . }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $job.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+      annotations:
+        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 8 }}
+        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $job.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+    spec:
+      {{- include "helpers.pod" (dict "value" $job "general" $general "name" $name "context" $) | nindent 6 }}
+      restartPolicy: {{ $job.restartPolicy | default "Never" }}
+{{- if $job.commandDurationAlert }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: job-{{ $fullName }}
+  namespace: {{ $job.commandDurationAlertNamespace | default $.Release.Namespace }}
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: jobs_rules
+      interval: 1m
+      rules:
+        - alert: job-{{ $fullName }}-too-long-execution
+          expr: '((time() - kube_job_status_start_time{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $fullName }}-.*"}) and kube_job_status_active{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $fullName }}-.*"} == 1) > {{ $job.commandDurationAlert }}'
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            message: "Job {{ $.Release.Namespace }}/{{ $fullName }} is taking more than {{ $job.commandDurationAlert }} to complete"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

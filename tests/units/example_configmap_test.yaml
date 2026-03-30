@@ -1,0 +1,64 @@
+suite: example configmap
+templates:
+  - templates/misc/configmap.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the shared env ConfigMap example with tpl-resolved values
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-envs
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.APP_MODE
+          value: production
+      - equal:
+          path: data.CLUSTER_DOMAIN
+          value: cluster.local
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "5"
+      - equal:
+          path: metadata.labels.gitops-profile
+          value: platform
+
+  - it: renders the application ConfigMap example with component labels and rendered values
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-app-settings
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.labels.component
+          value: api
+      - equal:
+          path: data.APP_FEATURE
+          value: enabled
+      - equal:
+          path: data.APP_PUBLIC_HOST
+          value: api.cluster.local
+
+  - it: renders the shared file ConfigMap example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-shared-config
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data["shared.conf"]
+          value: environment=production

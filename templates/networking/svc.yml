@@ -1,0 +1,97 @@
+{{- range $name := keys (.Values.services | default dict) | sortAlpha }}
+{{- $service := get $.Values.services $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $service)) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $service) | nindent 4 }}
+    {{- with $service.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $service) | nindent 4 }}
+    {{- with $service.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- if not (empty $service.clusterIP) }}
+  clusterIP: {{ $service.clusterIP }}
+  {{- end }}
+  {{- if not (empty $service.type) }}
+  type: {{ $service.type }}
+  {{- if eq $service.type "LoadBalancer" }}
+    {{- if not (empty $service.loadBalancerIP) }}
+  loadBalancerIP: {{ $service.loadBalancerIP }}
+    {{- end }}
+    {{- if not (empty $service.loadBalancerClass) }}
+  loadBalancerClass: {{ $service.loadBalancerClass }}
+    {{- end }}
+    {{- if not (or $service.allocateLoadBalancerNodePorts (eq ($service.allocateLoadBalancerNodePorts | toString) "<nil>")) }}
+  allocateLoadBalancerNodePorts: false
+    {{- end }}
+  externalTrafficPolicy: {{ $service.externalTrafficPolicy | default "Cluster" }}
+    {{- with $service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml . | nindent 4 }}
+    {{- end }}
+  {{- else if eq $service.type "NodePort" }}
+  externalTrafficPolicy: {{ $service.externalTrafficPolicy | default "Cluster" }}
+    {{- with $service.healthCheckNodePort }}
+  healthCheckNodePort: {{ . }}
+    {{- end }}
+  {{- end }}
+    {{- with $service.externalIPs }}
+  externalIPs:
+{{ toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  ports:
+    {{- range $port := $service.ports }}
+    - name: {{ $port.name | default $name }}
+      protocol: {{ $port.protocol | default "TCP" }}
+      port: {{ $port.port }}
+      {{- with $port.targetPort }}
+      targetPort: {{ . }}
+      {{- end }}
+      {{- with $port.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
+    {{- end }}
+  selector:
+    {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
+    {{- with $service.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+{{ end }}
+{{- end }}
+
+{{- range $name := keys (.Values.statefulSets | default dict) | sortAlpha }}
+{{- $statefulSet := get $.Values.statefulSets $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $statefulSet)) }}
+{{- $serviceKey := $statefulSet.serviceName | default $name -}}
+{{- if not (hasKey ($.Values.services | default dict) $serviceKey) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helpers.statefulsets.governingServiceName" (dict "name" $name "statefulSet" $statefulSet "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $statefulSet) | nindent 4 }}
+    {{- with $statefulSet.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $statefulSet) | nindent 4 }}
+    {{- with $statefulSet.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    {{- include "helpers.statefulsets.governingServicePorts" (dict "name" $name "statefulSet" $statefulSet "context" $) | nindent 4 }}
+  selector:
+    {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
+    {{- with $statefulSet.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

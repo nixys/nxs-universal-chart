@@ -1,0 +1,60 @@
+{{- range $host := keys (.Values.ingresses | default dict) | sortAlpha }}
+{{- $ingress := get $.Values.ingresses $host -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $ingress)) }}
+---
+apiVersion: {{ include "helpers.capabilities.ingress.apiVersion" $ }}
+kind: Ingress
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" ($ingress.name | default $host) "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $ingress) | nindent 4 }}
+    {{- with $ingress.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $ingress) | nindent 4 }}
+    {{- with $ingress.certManager }}
+    kubernetes.io/tls-acme: "true"
+    {{- if or .issuerName .originalIssuerName }}
+    {{- if .originalIssuerName }}
+    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ include "helpers.tplvalues.render" (dict "value" .originalIssuerName "context" $) }}
+    {{- else }}
+    cert-manager.io/{{ .issuerType | default "cluster-issuer" }}: {{ include "helpers.app.fullname" (dict "name" .issuerName "context" $) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- with $ingress.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- if and (eq "true" (include "helpers.ingress.supportsIngressClass" $)) $ingress.ingressClassName }}
+  ingressClassName: {{ $ingress.ingressClassName }}
+  {{- end }}
+  rules:
+    {{- range $ingressHost := $ingress.hosts }}
+    - host: {{ include "helpers.tplvalues.render" (dict "value" ($ingressHost.hostname | default $host) "context" $) }}
+      http:
+        paths:
+          {{- range $path := $ingressHost.paths }}
+          - path: {{ $path.path | default "/" }}
+            {{- if eq "true" (include "helpers.ingress.supportsPathType" $) }}
+            pathType: {{ $path.pathType | default "Prefix" }}
+            {{- end }}
+            backend:
+              {{- include "helpers.ingress.backend" (dict "serviceName" (include "helpers.app.fullname" (dict "name" $path.serviceName "context" $)) "servicePort" $path.servicePort "context" $) | nindent 14 }}
+          {{- end }}
+    {{- end }}
+  {{- if or $ingress.certManager $ingress.extraTls }}
+  tls:
+    {{- if $ingress.certManager }}
+    - hosts:
+        {{- range $ingressHost := $ingress.hosts }}
+        - {{ include "helpers.tplvalues.render" (dict "value" ($ingressHost.hostname | default $host) "context" $) }}
+        {{- end }}
+      secretName: {{ $ingress.tlsName | default (printf "%s-tls" (include "helpers.app.fullname" (dict "name" ($ingress.name | default $host) "context" $))) }}
+    {{- end }}
+    {{- with $ingress.extraTls }}
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

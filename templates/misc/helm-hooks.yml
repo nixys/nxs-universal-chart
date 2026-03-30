@@ -1,0 +1,65 @@
+{{- $general := $.Values.hooksGeneral | default dict -}}
+{{- $hooks := dict -}}
+{{- $modeEnabled := eq "true" (include "helpers.workloads.modeEnabled" (dict "kind" "hook" "context" $)) -}}
+{{- if kindIs "string" .Values.hooks -}}
+{{- $hooks = fromYaml .Values.hooks | default dict -}}
+{{- else if kindIs "map" .Values.hooks -}}
+{{- $hooks = .Values.hooks -}}
+{{- end -}}
+{{- if $modeEnabled }}
+{{- range $name := keys $hooks | sortAlpha }}
+{{- $hook := get $hooks $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $hook)) }}
+{{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $hook) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $hook.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    "helm.sh/hook": {{ $hook.kind | default "pre-install,pre-upgrade" | quote }}
+    "helm.sh/hook-weight": {{ $hook.weight | default "5" | quote }}
+    "helm.sh/hook-delete-policy": {{ $hook.deletePolicy | default "before-hook-creation" | quote }}
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $hook) | nindent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $hook.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- with (coalesce $hook.parallelism $general.parallelism) }}
+  parallelism: {{ . }}
+  {{- end }}
+  {{- with (coalesce $hook.completions $general.completions) }}
+  completions: {{ . }}
+  {{- end }}
+  {{- with (coalesce $hook.activeDeadlineSeconds $general.activeDeadlineSeconds) }}
+  activeDeadlineSeconds: {{ . }}
+  {{- end }}
+  {{- with (coalesce $hook.backoffLimit $general.backoffLimit) }}
+  backoffLimit: {{ . }}
+  {{- end }}
+  {{- with (coalesce $hook.ttlSecondsAfterFinished $general.ttlSecondsAfterFinished) }}
+  ttlSecondsAfterFinished: {{ . }}
+  {{- end }}
+  template:
+    metadata:
+      name: {{ $fullName }}
+      labels:
+        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $hook.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+      annotations:
+        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $hook) | nindent 8 }}
+        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $hook.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+    spec:
+      {{- include "helpers.pod" (dict "value" $hook "general" $general "name" $name "context" $) | nindent 6 }}
+      restartPolicy: {{ $hook.restartPolicy | default "Never" }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,50 @@
+{{- $general := $.Values.deploymentsGeneral | default dict -}}
+{{- $modeEnabled := eq "true" (include "helpers.workloads.modeEnabled" (dict "kind" "deployment" "context" $)) -}}
+{{- if $modeEnabled }}
+{{- range $name := keys (.Values.deployments | default dict) | sortAlpha }}
+{{- $deployment := get $.Values.deployments $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $deployment)) }}
+---
+apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
+kind: Deployment
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $deployment) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $deployment.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $deployment) | nindent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $deployment.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  replicas: {{ $deployment.replicas | default 1 }}
+  {{- with $deployment.strategy }}
+  strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  progressDeadlineSeconds: {{ $deployment.progressDeadlineSeconds | default 600 }}
+  selector:
+    matchLabels:
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with $deployment.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "helpers.app.selectorLabels" $ | nindent 8 }}
+        {{- with $deployment.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $deployment.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+      annotations:
+        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $deployment) | nindent 8 }}
+        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $deployment.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+    spec:
+      {{- include "helpers.pod" (dict "value" $deployment "general" $general "name" $name "extraLabels" $deployment.extraSelectorLabels "context" $) | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

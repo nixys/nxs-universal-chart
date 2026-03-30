@@ -1,0 +1,49 @@
+suite: example cronjob
+templates:
+  - templates/batch/cronjob.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the cronjob example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-cleanup
+    asserts:
+      - isKind:
+          of: CronJob
+      - equal:
+          path: spec.schedule
+          value: "*/30 * * * *"
+      - equal:
+          path: spec.timeZone
+          value: UTC
+      - equal:
+          path: metadata.labels.component
+          value: housekeeping
+      - equal:
+          path: spec.suspend
+          value: false
+      - equal:
+          path: spec.jobTemplate.spec.template.metadata.labels["workload-tier"]
+          value: backend
+      - exists:
+          path: spec.jobTemplate.spec.template.metadata.annotations["checksum/configmap-shared-config"]
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.restartPolicy
+          value: Never
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.imagePullSecrets[0].name
+          value: registry.example.com
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].image
+          value: busybox:1.36.1
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].command[1]
+          value: -c
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].args[0]
+          value: echo cleanup

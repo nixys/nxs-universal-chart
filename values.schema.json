@@ -1,0 +1,1635 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "nxs-universal-chart values",
+  "description": "Schema for nxs-universal-chart Helm chart values.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "nameOverride": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "releasePrefix": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "kubeVersion": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "workloadMode": {
+      "type": "string",
+      "enum": ["auto", "deployment", "daemonset", "pod", "statefulset", "batch", "job", "cronjob", "hook", "none", "jobs", "jobs-only", "jobsonly"]
+    },
+    "gitops": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commonLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "commonAnnotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "argo": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "syncWave": {},
+            "syncOptions": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "compareOptions": {
+              "$ref": "#/definitions/freeFormArray"
+            }
+          }
+        },
+        "flux": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "$ref": "#/definitions/stringMap"
+            },
+            "annotations": {
+              "$ref": "#/definitions/stringMap"
+            }
+          }
+        }
+      }
+    },
+    "gitOps": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "safeMode": {
+          "type": "boolean"
+        }
+      }
+    },
+    "generic": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "fullnameOverride": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "nameSuffix": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "deterministicNames": {
+          "type": "boolean"
+        },
+        "autoRolloutChecksums": {
+          "type": "boolean"
+        },
+        "extraSelectorLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "podLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "podAnnotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "defaultURL": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "helmVersion": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "kubeVersion": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "apiVersions": {
+          "$ref": "#/definitions/apiVersionOverrideMap"
+        },
+        "volumes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraVolumes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "volumeMounts": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraVolumeMounts": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraImagePullSecrets": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "tolerations": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "topologySpreadConstraints": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "hostAliases": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "priorityClassName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "dnsPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "serviceAccountName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "usePredefinedAffinity": {
+          "type": "boolean"
+        }
+      }
+    },
+    "nuc-common": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-traefik": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-certificates": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-istio": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-knative": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-kserve": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-kube-prometheus-stack": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-native-gateway": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-victoria-metrics": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-vault-secret-operator": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-argocd": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-fluxcd": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-keda": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "podAffinityPreset": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "podAntiAffinityPreset": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "nodeAffinityPreset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "key": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "envs": {
+      "$ref": "#/definitions/sharedEnvMap"
+    },
+    "envsString": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "secretEnvs": {
+      "$ref": "#/definitions/sharedSecretEnvMap"
+    },
+    "secretEnvsString": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "imagePullSecrets": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "diagnosticMode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "enbled": {
+          "type": "boolean"
+        },
+        "command": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "args": {
+          "$ref": "#/definitions/freeFormArray"
+        }
+      }
+    },
+    "defaultImage": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "defaultImageTag": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "defaultImagePullPolicy": {
+      "$ref": "#/definitions/stringValue"
+    },
+    "ingresses": {
+      "$ref": "#/definitions/ingressResourceMap"
+    },
+    "services": {
+      "$ref": "#/definitions/serviceResourceMap"
+    },
+    "networkPolicies": {
+      "$ref": "#/definitions/networkPolicyResourceOrYamlMap"
+    },
+    "deploymentsGeneral": {
+      "$ref": "#/definitions/deploymentWorkloadGeneral"
+    },
+    "deployments": {
+      "$ref": "#/definitions/deploymentWorkloadMap"
+    },
+    "daemonSetsGeneral": {
+      "$ref": "#/definitions/daemonSetWorkloadGeneral"
+    },
+    "daemonSets": {
+      "$ref": "#/definitions/daemonSetWorkloadMap"
+    },
+    "podsGeneral": {
+      "$ref": "#/definitions/podWorkloadGeneral"
+    },
+    "pods": {
+      "$ref": "#/definitions/podWorkloadMap"
+    },
+    "statefulSetsGeneral": {
+      "$ref": "#/definitions/statefulSetWorkloadGeneral"
+    },
+    "statefulSets": {
+      "$ref": "#/definitions/statefulSetWorkloadMap"
+    },
+    "serviceAccountGeneral": {
+      "$ref": "#/definitions/serviceAccountGeneralConfig"
+    },
+    "serviceAccount": {
+      "$ref": "#/definitions/serviceAccountResourceOrYamlMap"
+    },
+    "secrets": {
+      "$ref": "#/definitions/secretResourceMap"
+    },
+    "sealedSecrets": {
+      "$ref": "#/definitions/sealedSecretResourceMap"
+    },
+    "configMaps": {
+      "$ref": "#/definitions/configMapResourceMap"
+    },
+    "pvs": {
+      "$ref": "#/definitions/persistentVolumeResourceMap"
+    },
+    "pvcs": {
+      "$ref": "#/definitions/persistentVolumeClaimResourceMap"
+    },
+    "hooksGeneral": {
+      "$ref": "#/definitions/hookWorkloadGeneral"
+    },
+    "hooks": {
+      "$ref": "#/definitions/hookWorkloadOrYamlMap"
+    },
+    "cronJobsGeneral": {
+      "$ref": "#/definitions/cronJobWorkloadGeneral"
+    },
+    "cronJobs": {
+      "$ref": "#/definitions/cronJobWorkloadOrYamlMap"
+    },
+    "jobsGeneral": {
+      "$ref": "#/definitions/jobWorkloadGeneral"
+    },
+    "jobs": {
+      "$ref": "#/definitions/jobWorkloadOrYamlMap"
+    },
+    "pdbs": {
+      "$ref": "#/definitions/pdbResourceMap"
+    },
+    "hpas": {
+      "$ref": "#/definitions/hpaResourceMap"
+    },
+    "extraDeploy": {
+      "$ref": "#/definitions/stringOrObjectMap"
+    }
+  },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringValue": {
+      "type": "string"
+    },
+    "enabledToggle": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "stringMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "freeFormObject": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": true
+    },
+    "freeFormArray": {
+      "type": "array",
+      "default": [],
+      "items": {}
+    },
+    "apiVersionOverrideMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {}
+    },
+    "sharedEnvMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {}
+    },
+    "sharedSecretEnvMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {}
+    },
+    "objectMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "type": ["object", "null"]
+      }
+    },
+    "workloadContainer": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "image": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "imageTag": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "imagePullPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/stringValue"
+            },
+            {
+              "$ref": "#/definitions/freeFormArray"
+            }
+          ]
+        },
+        "args": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "env": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "envFrom": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "envConfigmaps": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "envSecrets": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "envsFromConfigmap": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "envsFromSecret": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "ports": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "lifecycle": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "startupProbe": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "livenessProbe": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "readinessProbe": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "resources": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "securityContext": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "volumeMounts": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraVolumeMounts": {
+          "$ref": "#/definitions/freeFormArray"
+        }
+      }
+    },
+    "workloadContainerMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/workloadContainer"
+      }
+    },
+    "workloadContainerListOrMap": {
+      "anyOf": [
+        {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/workloadContainer"
+          }
+        },
+        {
+          "$ref": "#/definitions/workloadContainerMap"
+        }
+      ]
+    },
+    "typedVolume": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "type": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "originalName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "defaultMode": {
+          "type": "integer"
+        },
+        "items": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "sizeLimit": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "medium": {
+          "$ref": "#/definitions/stringValue"
+        }
+      }
+    },
+    "typedVolumeList": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/definitions/typedVolume"
+      }
+    },
+    "resourceGitopsConfig": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "commonLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "commonAnnotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "argo": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "syncWave": {},
+            "syncOptions": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "compareOptions": {
+              "$ref": "#/definitions/freeFormArray"
+            }
+          }
+        },
+        "flux": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "labels": {
+              "$ref": "#/definitions/stringMap"
+            },
+            "annotations": {
+              "$ref": "#/definitions/stringMap"
+            }
+          }
+        }
+      }
+    },
+    "serviceAccountGeneralConfig": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        }
+      }
+    },
+    "serviceResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "clusterIP": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "type": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "loadBalancerIP": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "loadBalancerClass": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "allocateLoadBalancerNodePorts": {
+          "type": "boolean"
+        },
+        "externalTrafficPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "loadBalancerSourceRanges": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "externalIPs": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "healthCheckNodePort": {
+          "type": "integer"
+        },
+        "ports": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraSelectorLabels": {
+          "$ref": "#/definitions/stringMap"
+        }
+      }
+    },
+    "serviceResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/serviceResource"
+      }
+    },
+    "ingressResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "name": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "ingressClassName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "hosts": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "certManager": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "tlsName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "extraTls": {
+          "$ref": "#/definitions/freeFormArray"
+        }
+      }
+    },
+    "ingressResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/ingressResource"
+      }
+    },
+    "configMapResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "data": {
+          "$ref": "#/definitions/sharedEnvMap"
+        },
+        "binaryData": {
+          "$ref": "#/definitions/sharedEnvMap"
+        }
+      }
+    },
+    "configMapResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/configMapResource"
+      }
+    },
+    "secretResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "type": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "data": {
+          "$ref": "#/definitions/sharedSecretEnvMap"
+        }
+      }
+    },
+    "secretResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/secretResource"
+      }
+    },
+    "sealedSecretResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "encryptedData": {
+          "$ref": "#/definitions/sharedSecretEnvMap"
+        }
+      }
+    },
+    "sealedSecretResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/sealedSecretResource"
+      }
+    },
+    "persistentVolumeResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "spec": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "size": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "accessModes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "volumeMode": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "storageClassName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "persistentVolumeReclaimPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "mountOptions": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "claimRef": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "nodeAffinity": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "hostPath": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "local": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "nfs": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "csi": {
+          "$ref": "#/definitions/freeFormObject"
+        }
+      }
+    },
+    "persistentVolumeResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/persistentVolumeResource"
+      }
+    },
+    "persistentVolumeClaimResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "accessModes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "volumeMode": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "volumeName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "size": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "storageClassName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "selector": {
+          "$ref": "#/definitions/freeFormObject"
+        }
+      }
+    },
+    "persistentVolumeClaimResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/persistentVolumeClaimResource"
+      }
+    },
+    "networkPolicyResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "spec": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "podSelector": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "policyTypes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "ingress": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "egress": {
+          "$ref": "#/definitions/freeFormArray"
+        }
+      }
+    },
+    "networkPolicyResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/networkPolicyResource"
+      }
+    },
+    "networkPolicyResourceOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/networkPolicyResourceMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "serviceAccountResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "role": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "clusterRole": {
+          "$ref": "#/definitions/freeFormObject"
+        }
+      }
+    },
+    "serviceAccountResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/serviceAccountResource"
+      }
+    },
+    "serviceAccountResourceOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/serviceAccountResourceMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "pdbResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "minAvailable": {},
+        "maxUnavailable": {},
+        "extraSelectorLabels": {
+          "$ref": "#/definitions/stringMap"
+        }
+      }
+    },
+    "pdbResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/pdbResource"
+      }
+    },
+    "hpaResource": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "apiVersion": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "scaleTargetRef": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "minReplicas": {
+          "type": "integer"
+        },
+        "maxReplicas": {
+          "type": "integer"
+        },
+        "targetCPU": {},
+        "targetMemory": {},
+        "metrics": {
+          "$ref": "#/definitions/freeFormArray"
+        }
+      }
+    },
+    "hpaResourceMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/hpaResource"
+      }
+    },
+    "baseWorkloadGeneral": {
+      "$ref": "#/definitions/baseWorkload"
+    },
+    "baseWorkload": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "podLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "podAnnotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "extraSelectorLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        },
+        "serviceAccountName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "hostAliases": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "affinity": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "topologySpreadConstraints": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "priorityClassName": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "dnsPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "restartPolicy": {
+          "$ref": "#/definitions/stringValue"
+        },
+        "nodeSelector": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "tolerations": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "securityContext": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "imagePullSecrets": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "extraImagePullSecrets": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer"
+        },
+        "initContainers": {
+          "$ref": "#/definitions/workloadContainerListOrMap"
+        },
+        "containers": {
+          "$ref": "#/definitions/workloadContainerListOrMap"
+        },
+        "volumes": {
+          "$ref": "#/definitions/typedVolumeList"
+        },
+        "extraVolumes": {
+          "$ref": "#/definitions/freeFormArray"
+        },
+        "usePredefinedAffinity": {
+          "type": "boolean"
+        }
+      }
+    },
+    "deploymentWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "replicas": {
+              "type": "integer"
+            },
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "progressDeadlineSeconds": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "deploymentWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "progressDeadlineSeconds": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "deploymentWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/deploymentWorkload"
+      }
+    },
+    "daemonSetWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "minReadySeconds": {
+              "type": "integer"
+            },
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            }
+          }
+        }
+      ]
+    },
+    "daemonSetWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "minReadySeconds": {
+              "type": "integer"
+            },
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            }
+          }
+        }
+      ]
+    },
+    "daemonSetWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/daemonSetWorkload"
+      }
+    },
+    "podWorkload": {
+      "$ref": "#/definitions/baseWorkload"
+    },
+    "podWorkloadGeneral": {
+      "$ref": "#/definitions/baseWorkloadGeneral"
+    },
+    "podWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/podWorkload"
+      }
+    },
+    "statefulSetWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "replicas": {
+              "type": "integer"
+            },
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "serviceName": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "minReadySeconds": {
+              "type": "integer"
+            },
+            "volumeClaimTemplates": {
+              "$ref": "#/definitions/freeFormArray"
+            }
+          }
+        }
+      ]
+    },
+    "statefulSetWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "strategy": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "minReadySeconds": {
+              "type": "integer"
+            },
+            "volumeClaimTemplates": {
+              "$ref": "#/definitions/freeFormArray"
+            }
+          }
+        }
+      ]
+    },
+    "statefulSetWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/statefulSetWorkload"
+      }
+    },
+    "jobWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "parallelism": {
+              "type": "integer"
+            },
+            "completions": {
+              "type": "integer"
+            },
+            "activeDeadlineSeconds": {
+              "type": "integer"
+            },
+            "backoffLimit": {
+              "type": "integer"
+            },
+            "ttlSecondsAfterFinished": {
+              "type": "integer"
+            },
+            "restartPolicy": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "commandDurationAlert": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "commandDurationAlertNamespace": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "jobWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "parallelism": {
+              "type": "integer"
+            },
+            "completions": {
+              "type": "integer"
+            },
+            "activeDeadlineSeconds": {
+              "type": "integer"
+            },
+            "backoffLimit": {
+              "type": "integer"
+            },
+            "ttlSecondsAfterFinished": {
+              "type": "integer"
+            },
+            "restartPolicy": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "commandDurationAlert": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "commandDurationAlertNamespace": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "jobWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/jobWorkload"
+      }
+    },
+    "jobWorkloadOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/jobWorkloadMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "hookWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/jobWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "kind": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "weight": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "deletePolicy": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "hookWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/hookWorkload"
+      }
+    },
+    "hookWorkloadOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/hookWorkloadMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "hookWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/jobWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "kind": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "weight": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "deletePolicy": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "cronJobWorkload": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/jobWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "suspend": {
+              "type": "boolean"
+            },
+            "schedule": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "timeZone": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "singleOnly": {
+              "type": "boolean"
+            },
+            "startingDeadlineSeconds": {
+              "type": "integer"
+            },
+            "successfulJobsHistoryLimit": {
+              "type": "integer"
+            },
+            "failedJobsHistoryLimit": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "cronJobWorkloadGeneral": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/jobWorkloadGeneral"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "suspend": {
+              "type": "boolean"
+            },
+            "timeZone": {
+              "$ref": "#/definitions/stringValue"
+            },
+            "singleOnly": {
+              "type": "boolean"
+            },
+            "startingDeadlineSeconds": {
+              "type": "integer"
+            },
+            "successfulJobsHistoryLimit": {
+              "type": "integer"
+            },
+            "failedJobsHistoryLimit": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "cronJobWorkloadMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/cronJobWorkload"
+      }
+    },
+    "cronJobWorkloadOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/cronJobWorkloadMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "objectOrYamlMap": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/objectMap"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "stringOrObjectMap": {
+      "type": "object",
+      "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": ["object", "null"]
+          }
+        ]
+      }
+    }
+  }
+}

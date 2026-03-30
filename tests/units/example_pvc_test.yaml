@@ -1,0 +1,32 @@
+suite: example pvc
+templates:
+  - templates/storage/pvc.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the PVC example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-shared-data
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+      - equal:
+          path: metadata.labels.component
+          value: storage
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.resources.requests.storage
+          value: 1Gi
+      - equal:
+          path: spec.volumeName
+          value: universal-blue-shared-data
+      - equal:
+          path: spec.storageClassName
+          value: standard

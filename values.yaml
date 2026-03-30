@@ -1,645 +1,250 @@
-# generic - values that uses by all nxs-universal-chart templates
-generic:
-  labels: {}
-  #  general-label: general-label-value
-  annotations: {}
-  #  general-annotation: general-annotation-value
-  hookAnnotations: {}
-    #helm.sh/hook: "pre-install,pre-upgrade"
-    # helm.sh/hook-weight: "-999"
-    # helm.sh/hook-delete-policy: before-hook-creation
-    # helm.sh/resource-policy: keep
-  # default annotation that will be added to configmaps and secrets
-  # docs: https://helm.sh/docs/topics/charts_hooks/
-  # necessary this default hooks if it used in other hooks, see a note
-  # https://github.com/helm/helm/issues/2622#issuecomment-526519546
-  # but the resources with hooks currently not tracked or managed as part of the release
-  # i.e. configmap with helm-hooks will not removed when release has removed
-  # https://helm.sh/docs/topics/charts_hooks/#hook-resources-are-not-managed-with-corresponding-releases
-  extraSelectorLabels: {}
-  #  label: special
-  podLabels: {}
-  #  pod-label: some
-  podAnnotations: {}
-  #  checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
-  #  checksum/secret-envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.secretEnvs $.Values.secretEnvsString) }}'
-  #  pod-annotation: true
-  extraVolumes: []
-  #- name: cache
-  #  emptyDir: {}
-  extraImagePullSecrets: []
-  #- name: regcred
-  usePredefinedAffinity: true
+# -- Override the generated application name used in labels and resource names.
+nameOverride: ""
 
-# Predefined Affinity block
-# Pod affinity preset
-# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-# Allowed values: soft, hard, nil
-podAffinityPreset: soft
-
-# Pod anti-affinity preset
-# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-# Allowed values: soft, hard, nil
-podAntiAffinityPreset: soft
-
-# Node affinity preset
-# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
-nodeAffinityPreset:
-  # Node affinity type
-  # Allowed values: soft, hard
-  type: ""
-  # Node label key to match
-  # E.g.
-  # key: "kubernetes.io/e2e-az-name"
-  key: ""
-  # Node label values to match
-  # E.g.
-  # values:
-  #   - e2e-az1
-  #   - e2e-az2
-  values: []
-
-# Release name used by default. To make it empty use "-"
+# -- Prefix prepended to rendered resource names. Set `"-"` to drop the release-name prefix entirely.
 releasePrefix: ""
 
-# --set "envs.FOO=bar,envs.TEST=true"
+# -- Optional Kubernetes version override used by capability helpers.
+kubeVersion: ""
+
+# -- Restrict rendered workload controllers: `auto`, `deployment`, `daemonset`, `pod`, `statefulset`, `batch`, `job`, `cronjob`, `hook`, or `none`.
+workloadMode: auto
+
+# -- Shared GitOps metadata and controller-specific annotations/labels.
+gitops:
+  # -- Labels applied to all rendered resources.
+  commonLabels: {}
+  # -- Annotations applied to all rendered resources.
+  commonAnnotations: {}
+  argo:
+    # -- Enable Argo CD annotations rendering.
+    enabled: false
+    # -- Optional Argo CD sync wave applied to resources.
+    syncWave: null
+    # -- Optional Argo CD sync options joined into `argocd.argoproj.io/sync-options`.
+    syncOptions: []
+    # -- Optional Argo CD compare options joined into `argocd.argoproj.io/compare-options`.
+    compareOptions: []
+  flux:
+    # -- Enable Flux-specific labels and annotations rendering.
+    enabled: false
+    # -- Optional Flux labels merged into resource metadata when enabled.
+    labels: {}
+    # -- Optional Flux annotations merged into resource metadata when enabled.
+    annotations: {}
+
+# -- Legacy GitOps-safe rendering options kept for backward compatibility. Deterministic naming is enabled by default through `generic.deterministicNames`.
+gitOps:
+  # -- Use deterministic fallback names for unnamed containers and initContainers.
+  safeMode: false
+
+# -- Shared defaults and reusable values for all rendered templates.
+generic:
+  # -- Labels merged into every resource.
+  labels: {}
+  # -- Annotations merged into every resource.
+  annotations: {}
+  # -- Deterministic base name override used by all rendered resources.
+  fullnameOverride: ""
+  # -- Optional suffix appended to the deterministic base name.
+  nameSuffix: ""
+  # -- Render deterministic fallback names for unnamed containers and initContainers.
+  deterministicNames: true
+  # -- Add checksum annotations for chart-managed ConfigMaps and Secrets to workload pod templates.
+  autoRolloutChecksums: true
+  # -- Extra selector labels merged into selectors and workload pod labels.
+  extraSelectorLabels: {}
+  # -- Extra labels merged into all workload pods.
+  podLabels: {}
+  # -- Extra annotations merged into all workload pods.
+  podAnnotations: {}
+  # -- Optional default URL override exposed through `.Values.generic.defaultURL`.
+  defaultURL: ""
+  # -- Optional Helm version override used by capability helpers.
+  helmVersion: ""
+  # -- Optional Kubernetes version override used by capability helpers.
+  kubeVersion: ""
+  # -- Optional API version overrides used by capability helpers.
+  apiVersions: {}
+  # -- Additional arbitrary keys under `generic` are available to `tpl` rendering as `.Values.generic.*`.
+  # -- Shared typed volumes appended to all workload specs.
+  volumes: []
+  # -- Shared raw volumes appended to all workload specs.
+  extraVolumes: []
+  # -- Shared volume mounts appended to all containers.
+  volumeMounts: []
+  # -- Deprecated alias for `volumeMounts`.
+  extraVolumeMounts: []
+  # -- Shared imagePullSecrets appended to all workload specs.
+  extraImagePullSecrets: []
+  # -- Shared pod tolerations.
+  tolerations: []
+  # -- Shared topologySpreadConstraints applied to all workload pod specs unless overridden per workload.
+  topologySpreadConstraints: []
+  # -- Shared hostAliases block.
+  hostAliases: []
+  # -- Shared priorityClassName.
+  priorityClassName: ""
+  # -- Shared DNS policy.
+  dnsPolicy: ""
+  # -- Shared serviceAccountName used when workload-level value is omitted.
+  serviceAccountName: ""
+  # -- Enable generated affinity presets when workload affinity is not specified.
+  usePredefinedAffinity: true
+
+# -- Optional dependency overrides and compatibility toggles preserved from previous umbrella-chart releases.
+nuc-common:
+  enabled: false
+nuc-traefik:
+  enabled: false
+nuc-certificates:
+  enabled: false
+nuc-istio:
+  enabled: false
+nuc-knative:
+  enabled: false
+nuc-kserve:
+  enabled: false
+nuc-kube-prometheus-stack:
+  enabled: false
+nuc-native-gateway:
+  enabled: false
+nuc-victoria-metrics:
+  enabled: false
+nuc-vault-secret-operator:
+  enabled: false
+nuc-argocd:
+  enabled: false
+nuc-fluxcd:
+  enabled: false
+nuc-keda:
+  enabled: false
+
+# -- Pod affinity preset used when generated affinities are enabled.
+podAffinityPreset: soft
+
+# -- Pod anti-affinity preset used when generated affinities are enabled.
+podAntiAffinityPreset: soft
+
+# -- Node affinity preset used when generated affinities are enabled.
+nodeAffinityPreset:
+  # -- Node affinity type: `soft` or `hard`.
+  type: ""
+  # -- Node label key used by generated node affinity.
+  key: ""
+  # -- Node label values used by generated node affinity.
+  values: []
+
+# -- Shared ConfigMap key-value pairs rendered into the generated `envs` ConfigMap.
 envs: {}
-#  BAR: foo
-#  TEST: true
 
-# --set "envsString=$ENVS_STRING"
+# -- Raw YAML string merged into the generated `envs` ConfigMap.
 envsString: ""
-#envsString: |
-#  BAR2: foo2
 
-# --set "secretEnvs.FOO=bar"
+# -- Shared Secret key-value pairs rendered into the generated `secret-envs` Secret.
 secretEnvs: {}
-#  FOO: bar
 
-# --set "secretEnvsString=$SECRET_ENVS_STRING"
+# -- Raw YAML string merged into the generated `secret-envs` Secret.
 secretEnvsString: ""
-#secretEnvsString: |
-#  FOO: BAR
 
+# -- Docker config JSON payloads rendered as imagePullSecrets.
 imagePullSecrets: {}
-#  registry.org: |
-#    {"auths":{"registry.org":{"auth":"cnd1c2VyOnNlY3VyZVBANXM="}}}
-#  registry.org-rw: b64:eyJhdXRocyI6eyJyZWdpc3RyeS5vcmciOnsiYXV0aCI6ImNuZDFjMlZ5T25ObFkzVnlaVkJBTlhNPSJ9fX0=
 
+# -- Optional diagnostic mode overriding container command and args in all workloads.
 diagnosticMode:
   enabled: false
-  command: ["sleep"]
-  args: ["infinity"]
+  enbled: false
+  command:
+    - sleep
+  args:
+    - infinity
 
+# -- Default container image used when a container omits `image`.
 defaultImage: nginx
+
+# -- Default container image tag used when a container omits `imageTag`.
 defaultImageTag: latest
-defaultImagePullPolicy: "IfNotPresent"
 
+# -- Default container image pull policy used when a container omits `imagePullPolicy`.
+defaultImagePullPolicy: IfNotPresent
+
+# -- Ingress resources keyed by host or logical name.
 ingresses: {}
-#  nixys.io:
-#    annotations:
-#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-#      nginx.ingress.kubernetes.io/proxy-body-size: "128m"
-#    certManager:
-#      issuerType: cluster-issuer
-#      issuerName: letsencrypt
-#    hosts:
-#    - paths:
-#      - serviceName: nginx
-#        servicePort: http
-#  nixys.org:
-#    annotations:
-#      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-#    hosts:
-#    - paths:
-#      - path: /api
-#        servicePort: api
-#    - hostname: nixys.com
-#      paths:
-#      - path: /api
-#        servicePort: api
-#    extraTls:
-#    - hosts:
-#      - nixys.com
-#      - nixys.org
-#      secretName: "nixys-tls"
 
-
+# -- Service resources keyed by service name.
 services: {}
-#  nginx:
-#    clusterIP: None
-#    ports:
-#    - name: http
-#      protocol: TCP
-#      port: 8080
-#    extraSelectorLabels:
-#      app: my-nginx
 
+# -- NetworkPolicies keyed by resource suffix.
+networkPolicies: {}
 
-
+# -- Shared defaults applied to Deployment workloads.
 deploymentsGeneral: {}
-deployments: {}
-#  nginx:
-#    labels: {}
-#    podLabels: {}
-#    podAnnotations:
-#      checksum/api-key: '{{ include "helpers.workload.checksum" $.Values.secrets.webadmin }}'
-#    replicas: 2
-#    extraSelectorLabels:
-#      app: my-nginx
-#    serviceAccountName: deployer
-#    #affinity:
-#    #  nodeAffinity:
-#    #    requiredDuringSchedulingIgnoredDuringExecution:
-#    #      nodeSelectorTerms:
-#    #      - matchExpressions:
-#    #        - key: node-role
-#    #          operator: In
-#    #          values:
-#    #          - prod
-#    containers:
-#    - name: nginx
-#      #image: nginx
-#      #imageTag: 1.19
-#      #imagePullPolicy: Always
-#      env:
-#      - name: MY_ENV
-#        value: "1234"
-#      - name: QTE
-#        value: safn8
-#      envsFromSecret:
-#        webadmin:
-#        - JAVA_OPTS: JVM_OPTS
-#        - QWE
-#      envSecrets:
-#      - secret-envs
-#      envsFromConfigmap:
-#        some-cm:
-#        - LEL: LOL
-#      envConfigmaps:
-#      - envs
-#      #ports:
-#      #- name: http
-#      #  containerPort: 8080
-#      volumeMounts:
-#      - name: secret-file
-#        mountPath: /var/lib/secret
-#      - name: app-pvc
-#        mountPath: /var/www/html/files
-#    volumes:
-#    - name: secret-file
-#      type: secret
-#    - name: app-data
-#      type: pvc
 
+# -- Deployment workloads keyed by resource suffix.
+deployments: {}
+
+# -- Shared defaults applied to DaemonSet workloads.
+daemonSetsGeneral: {}
+
+# -- DaemonSet workloads keyed by resource suffix.
+daemonSets: {}
+
+# -- Shared defaults applied to Pod workloads.
+podsGeneral: {}
+
+# -- Pod workloads keyed by resource suffix.
+pods: {}
+
+# -- Shared defaults applied to StatefulSet workloads.
 statefulSetsGeneral: {}
+
+# -- StatefulSet workloads keyed by resource suffix.
 statefulSets: {}
 
-serviceAccount: {}
-#  firstaccount:
-#    role:
-#      name: test-role
-#      rules:
-#      - apiGroups:
-#        - ""
-#        - apps
-#        - extensions
-#        resources:
-#        - replicasets
-#        - pods
-#        - deployments
-#        verbs:
-#        - list
-#        - watch
-#        - create
-#        - update
-#        - get
-#        - delete
-#    clusterRole:
-#      name: view
-#  secondaccount: {}
-#  thirdaccount:
-#    clusterRole:
-#      name: thirdaccountclusterrole
-#      rules:
-#      - apiGroups: ["stable.example.com"]
-#        resources: ["crontabs"]
-#        verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-
-secrets: {}
-  # --set "secrets.secret-file.data.api\.key=$SOME_ENV"
-  #secret-file:
-  #  data:
-  #    api.key: |-
-  #      JFczZwReBkJFczZwReBkJFczZwReBkJFczZwReBk
-  ## --set "secrets.test1.labels.blah=blah,secrets.test1.data.BAR=foo"
-  #test1:
-  #  labels:
-  #    blah: blah
-  #  data:
-  #    BAR: foo
-  ## --set-file "secrets.domain-tls.type=kubernetes.io\/tls,secrets.domain-tls.data.tls\.crt=path/to/tls.crt,secrets.domain-tls.data.tls\.key=path/to/tls.key"
-  #nixys-tls:
-  #  type: kubernetes.io/tls
-  #  data:
-  #    tls.crt: |-
-  #      -----BEGIN CERTIFICATE-----
-  #      MIIC2DCCAcCgAwIBAgIBATANBgkqh
-  #      -----END CERTIFICATE-----
-  #    tls.key: |-
-  #      -----BEGIN RSA PRIVATE KEY-----
-  #      MIIEowIBAAKCAQEA1//LmU7tdWt/fgbqh1Feh+JFczZwReBkkyW
-  #      -----END RSA PRIVATE KEY-----
-  ## --set "secrets.json-file.data.file\.json=$(printf %q $(cat file.json))"
-  ## --set-file "secrets.json-file.data.file\.json=path/to/file.json"
-  #json-file:
-  #  data:
-  #    file.json: {
-  #      "arg": "value"
-  #    }
-
-sealedSecrets: {}
-  # test:
-  #   encryptedData:
-  #     foo: Yy3LvlaCgEWV50VrNY4Aow/X
-  #     bar: |-
-  #       fjVmoxIulUKX5IAserbCpw/Y
-
-configMaps: {}
-  #some-cm:
-  #  labels:
-  #    kek: lol
-  #  data:
-  #    LOL: kek
-  #json-file:
-  # data:
-  #   file.json: {
-  #     "arg": "value"
-#   }
-
-# All PVSs will be added to `volumes` block in each workload excluding hooks
-pvcs: {}
-#  app-data:
-#    accessModes:
-#    - ReadWriteOnce
-#    - ReadWriteMany
-#    size: 8Gi
-
-hooksGeneral: {}
-hooks: {}
-#  migration-up:
-#    containers:
-#    - image: registry.app.ru/app-migration
-#      args:
-#      - up
-#      envFrom:
-#      - secretRef:
-#          name: server-env
-
-cronJobsGeneral: {}
-cronJobs: {}
-#  generate-data:
-#    schedule: "*/5 * * * *"
-#    command: "php yii crontab/generate-data"
-#    singleOnly: true
-#    commandDurationAlert: 600
-#    commandMaxDuration: 800
-#    volumeMounts:
-#    - name: secret-file
-#      mountPath: /etc/app
-#      readOnly: true
-#    volumes:
-#    - name: secret-file
-#      type: secret
-#      items:
-#      - key: app.conf
-#        mode: 0600
-#        path: app.conf
-#  auto-sender:
-#    schedule: "*/5 * * * *"
-#    command: "php yii crontab/auto-sender"
-
-jobsGeneral: {}
-jobs: {}
-#  refresh-cache:
-#    command: "php yii crontab/refresh-cache"
-#    commandDurationAlert: 30
-#    commandMaxDuration: 60
-
+# -- Shared defaults applied to generated ServiceAccounts.
 serviceAccountGeneral: {}
-#  annotations:
-#    test: test2
 
-serviceMonitors: {}
-#  app-sm:
-#    endpoints:
-#    - interval: 30s
-#      port: exporter
-#      path: /metrics
-#    extraSelectorLabels:
-#      app: nginx
-#    labels:
-#      foo: foo
+# -- ServiceAccount resources keyed by service-account suffix.
+serviceAccount: {}
 
-vmServiceScrapes: {}
-#  app-vms:
-#    endpoints:
-#    - interval: 30s
-#      port: exporter
-#      path: /metrics
-#    extraSelectorLabels:
-#      app: nginx
-#    labels:
-#      foo: foo
-#    sampleLimit: 1000
-#    streamParse: true
+# -- Secret resources keyed by secret suffix.
+secrets: {}
 
+# -- SealedSecret resources keyed by secret suffix.
+sealedSecrets: {}
+
+# -- ConfigMap resources keyed by configmap suffix.
+configMaps: {}
+
+# -- PersistentVolume resources keyed by volume suffix.
+pvs: {}
+
+# -- PersistentVolumeClaim resources keyed by claim suffix.
+pvcs: {}
+
+# -- Shared defaults applied to hook Jobs.
+hooksGeneral: {}
+
+# -- Helm hook Jobs keyed by resource suffix.
+hooks: {}
+
+# -- Shared defaults applied to CronJobs.
+cronJobsGeneral: {}
+
+# -- CronJobs keyed by resource suffix.
+cronJobs: {}
+
+# -- Shared defaults applied to one-shot Jobs.
+jobsGeneral: {}
+
+# -- Jobs keyed by resource suffix.
+jobs: {}
+
+# -- PodDisruptionBudget resources keyed by resource suffix.
+pdbs: {}
+
+# -- HorizontalPodAutoscaler resources keyed by resource suffix.
+hpas: {}
+
+# -- Additional raw manifests rendered through `tpl`, keyed by logical name.
 extraDeploy: {}
-#  net-pol: |-
-#    apiVersion: networking.k8s.io/v1
-#    kind: NetworkPolicy
-#    metadata:
-#      name: {{ include "helpers.app.fullname" (dict "name" "nw-policy" "context" $) }}
-#      namespace: {{ .Release.Namespace | quote }}
-#    spec:
-#      podSelector:
-#        matchLabels:
-#          role: db
-#      policyTypes:
-#      - Ingress
-#      - Egress
-#      ingress:
-#      - from:
-#        - ipBlock:
-#            cidr: 172.17.0.0/16
-#            except:
-#            - 172.17.1.0/24
-#        - namespaceSelector:
-#            matchLabels:
-#              project: myproject
-#        - podSelector:
-#            matchLabels:
-#              role: frontend
-#        ports:
-#        - protocol: TCP
-#          port: 6379
-#      egress:
-#      - to:
-#        - ipBlock:
-#            cidr: 10.0.0.0/24
-#        ports:
-#        - protocol: TCP
-#          port: 5978
-
-
-
-ingressroutes: {}
-  # test: 
-  #   entryPoints: 
-  #     - test
-  #   routes:
-  #     Host(`prod-vault.ru`):
-  #       priority: 10
-  #       services:
-  #         vault-active:
-  #           port: 8200
-  #           serversTransport: vault
-  #           responseForwardingflushInterval: 10ms
-  #           stickyCookie: 
-  #             httpOnly: true
-  #             name: cookie
-  #             secure: true
-  #             sameSite: none
-  #             maxAge: 42
-  #         vault-active-2:
-  #           port: 8201
-  #           serversTransport: vault
-  #           responseForwardingflushInterval: 10ms
-  #           stickyCookie: 
-  #             httpOnly: false
-  #             name: cookie-2
-  #             secure: false
-  #             sameSite: none
-  #             maxAge: 42
-  #           weight: 12
-  #           passHostHeader: true
-  #       middlewares:
-  #       - name: middleware1
-  #         namespace: default
-  #       - name: test
-  #   tls:
-  #     secretName: supersecret 
-  #     store:
-  #       name: storetets
-  #       namespace: default
-  #     options:
-  #       name: opt
-  #       namespace: default
-  #     certResolver: foo 
-  #     domains:
-  #     - main: example.net
-  #       sans:
-  #       - a.example.net
-  #       - b.example.net
-
-middlewares: {}
-  # testmdw:
-  #   ipWhiteList:
-  #     sourceRange:
-  #     - 192.144.48.8
-  #     - 192.144.48.9
-  #     - 10.220.250.247
-  # test-2:
-  #   redirectScheme:
-  #     permanent: true
-  #     scheme: https
-
-ingressroutesUDP: {}
-  # test: 
-  #   entryPoints: 
-  #     - test
-  #   routes:
-  #     vault-active:
-  #       port: 8200
-  #     vault-passive:
-  #       port: 8201
-  #       weight: 12
-
-traefikservices: {}
-  # test:
-  #   mirroring:
-  #     name: svc1
-  #     port: 80
-  #     mirrors:
-  #       - name: svc2
-  #         port: 80
-  #         percent: 20
-  #       - name: svc3 
-  #         kind: TraefikService
-  #         percent: 15
-  # test2:
-  #   weighted:
-  #     services:
-  #       - name: whoami1
-  #         kind: Service
-  #         port: 80
-  #         weight: 1
-  #         sticky:
-  #           cookie:
-  #             name: lvl2
-  #       - name: whoami2
-  #         kind: Service
-  #         weight: 1
-  #         port: 80
-  #         sticky:
-  #           cookie:
-  #             name: lvl2
-  #     sticky:
-  #       cookie:
-  #         name: lvl1
-
-TLSOptions: {}
-  # testopt:
-  #   minVersion: VersionTLS12
-  #   maxVersion: VersionTLS13
-  #   curvePreferences:
-  #   - CurveP521
-  #   - CurveP384
-  #   cipherSuites:
-  #   - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-  #   - TLS_RSA_WITH_AES_256_GCM_SHA384
-  #   clientAuth:
-  #     secretNames:
-  #     - secret-ca1
-  #     - secret-ca2
-  #     clientAuthType: VerifyClientCertIfGiven
-  #   sniStrict: true
-  #   alpnProtocols:
-  #   - foobar
- 
-TLSStores: {}
-  # teststore:
-  #   certificates:
-  #     - foo                      
-  #     - bar
-  #   defaultCertificate: secret
-  #   defaultGeneratedCert:
-  #     resolver: myresolver
-  #     domain:
-  #       main: example.org
-  #       sans:
-  #       - foo.example.org
-  #       - bar.example.org
-
-
-ServersTransport: {}
-  # test: 
-  #   serverName: foobar
-  #   insecureSkipVerify: true 
-  #   rootCAsSecrets:
-  #     - foobar
-  #     - foobar
-  #   certificatesSecrets:
-  #     - foobar
-  #     - foobar
-  #   maxIdleConnsPerHost: 1
-  #   forwardingTimeouts:
-  #     dialTimeout: 42s
-  #     responseHeaderTimeout: 42s
-  #     idleConnTimeout: 42s
-  #   peerCertURI: foobar
-  #   disableHTTP2: true
-  #   spiffe:
-  #     ids:
-  #     - spiffe://trust-domain/id1
-  #     - spiffe://trust-domain/id2
-  #     trustDomain: "spiffe://trust-domain"
-
-ServersTransportTCP: {}
-  # testtc:
-  #   dialTimeout: 42s
-  #   dialKeepAlive: 42s
-  #   terminationDelay: 42s
-  #   tls:
-  #     serverName: foobar
-  #     insecureSkipVerify: true
-  #     peerCertURI: foobar
-  #     rootCAsSecrets:
-  #       - foobar
-  #       - foobar
-  #     certificatesSecrets:
-  #       - foobar
-  #       - foobar
-  #   spiffe:
-  #     ids:
-  #     - spiffe://trust-domain/id1
-  #     - spiffe://trust-domain/id2
-  #     trustDomain: "spiffe://trust-domain"
-
-istiogateways: {}
-  # nginx:
-  #   name: nginx-gateway
-  #   selector:
-  #     istio: ingress
-  #   servers:
-  #     - port:
-  #         number: 80
-  #         name: http
-  #         protocol: HTTP
-  #       hosts:
-  #         - "nginx.example.com"
-
-istiovirtualservices: {}
-  # nginx:
-  #   name: nginx-virtualservice
-  #   gateways:
-  #     - nginx-gateway
-  #   hosts:
-  #     - "nginx.example.com"
-  #   http:
-  #     - match:
-  #         - uri:
-  #             prefix: "/"
-  #       route:
-  #         - destination:
-  #             host: nginx-service.default.svc.cluster.local
-  #             port:
-  #               number: 80
-
-istiodestinationrules: {}
-  # nginx:
-  #   name: nginx-destinationrule
-  #   host: "nginx-service.default.svc.cluster.local"
-  #   trafficPolicy:
-  #     loadBalancer:
-  #       simple: ROUND_ROBIN
-  #     connectionPool:
-  #       http:
-  #         http1MaxPendingRequests: 500
-  #         maxRequestsPerConnection: 50
-  #     outlierDetection:
-  #       consecutiveGatewayErrors: 3
-  #       interval: 5s
-  #       baseEjectionTime: 15s
-  #   subsets:
-  #     - name: v1
-  #       labels:
-  #         app: nginx
-  #       trafficPolicy:
-  #         loadBalancer:
-  #           simple: LEAST_CONN
-  #         connectionPool:
-  #           tcp:
-  #             maxConnections: 200
-  #     - name: v2
-  #       labels:
-  #         version: v2
-  #       trafficPolicy:
-  #         loadBalancer:
-  #           simple: RANDOM
-  #         connectionPool:
-  #           http:
-  #             http2MaxRequests: 2000
-  #   exportTo:
-  #     - "."
-  #     - "another-namespace"

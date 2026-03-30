@@ -1,0 +1,47 @@
+{{- if or (not (empty .Values.envs)) (not (empty .Values.envsString)) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" "envs" "context" $) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $) | nindent 4 }}
+  annotations:
+    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $) | nindent 4 }}
+data:
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" (include "helpers.tplvalues.render" (dict "value" .Values.envs "context" $)) "context" $) | nindent 2 }}
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" (include "helpers.tplvalues.render" (dict "value" .Values.envsString "context" $)) "context" $) | nindent 2 }}
+{{ end }}
+
+{{- range $name := keys (.Values.configMaps | default dict) | sortAlpha }}
+{{- $configMap := get $.Values.configMaps $name -}}
+{{- if and (eq "true" (include "helpers.resources.isEnabled" (dict "value" $configMap)) ) (ne $name "envs") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $configMap) | nindent 4 }}
+    {{- with $configMap.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.hooksAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $configMap) | nindent 4 }}
+    {{- with $configMap.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+{{- if and $configMap.data $configMap.binaryData }}{{- fail "Cannot set both data and binaryData in single ConfigMap" }}{{- end }}
+{{- if $configMap.data }}
+data:
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" (include "helpers.tplvalues.render" (dict "value" $configMap.data "context" $)) "context" $) | nindent 2 }}
+{{- else if $configMap.binaryData }}
+binaryData:
+  {{- include "helpers.configmaps.renderConfigMap" (dict "value" (include "helpers.tplvalues.render" (dict "value" $configMap.binaryData "context" $)) "context" $) | nindent 2 }}
+{{ end }}
+{{ end }}
+{{- end }}

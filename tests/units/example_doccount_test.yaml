@@ -1,0 +1,83 @@
+suite: example document counts
+templates:
+  - templates/batch/cronjob.yml
+  - templates/batch/job.yml
+  - templates/misc/configmap.yml
+  - templates/misc/extra.yml
+  - templates/misc/helm-hooks.yml
+  - templates/networking/ingress.yml
+  - templates/networking/networkpolicy.yml
+  - templates/networking/svc.yml
+  - templates/observability/hpa.yaml
+  - templates/observability/pdb.yaml
+  - templates/rbac/serviceaccount.yml
+  - templates/security/secret.yml
+  - templates/storage/pv.yml
+  - templates/storage/pvc.yml
+  - templates/workloads/daemonset.yml
+  - templates/workloads/deployment.yml
+  - templates/workloads/pod.yml
+  - templates/workloads/statefulset.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the expected document count per template
+    values:
+      - ../../values.yaml.example
+    asserts:
+      - hasDocuments:
+          count: 1
+        template: templates/batch/cronjob.yml
+      - hasDocuments:
+          count: 1
+        template: templates/batch/job.yml
+      - hasDocuments:
+          count: 3
+        template: templates/misc/configmap.yml
+      - hasDocuments:
+          count: 0
+        template: templates/misc/extra.yml
+      - hasDocuments:
+          count: 1
+        template: templates/misc/helm-hooks.yml
+      - hasDocuments:
+          count: 1
+        template: templates/networking/ingress.yml
+      - hasDocuments:
+          count: 1
+        template: templates/networking/networkpolicy.yml
+      - hasDocuments:
+          count: 2
+        template: templates/networking/svc.yml
+      - hasDocuments:
+          count: 1
+        template: templates/observability/hpa.yaml
+      - hasDocuments:
+          count: 1
+        template: templates/observability/pdb.yaml
+      - hasDocuments:
+          count: 4
+        template: templates/rbac/serviceaccount.yml
+      - hasDocuments:
+          count: 4
+        template: templates/security/secret.yml
+      - hasDocuments:
+          count: 1
+        template: templates/storage/pv.yml
+      - hasDocuments:
+          count: 1
+        template: templates/storage/pvc.yml
+      - hasDocuments:
+          count: 1
+        template: templates/workloads/daemonset.yml
+      - hasDocuments:
+          count: 1
+        template: templates/workloads/deployment.yml
+      - hasDocuments:
+          count: 1
+        template: templates/workloads/pod.yml
+      - hasDocuments:
+          count: 1
+        template: templates/workloads/statefulset.yml

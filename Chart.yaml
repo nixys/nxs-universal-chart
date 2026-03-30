@@ -1,21 +1,92 @@
+---
 apiVersion: v2
-description: Nixys universal Helm chart for deploy your apps to Kubernetes
-name: universal-chart
-version: 2.8.1
+name: nxs-universal-chart
+description: Helm chart for rendering reusable Kubernetes application resources
+type: application
+version: 3.0.3
+appVersion: "v1"
+icon: https://registry.nixys.ru/logo.png
+home: https://github.com/nixys/nxs-universal-chart
 maintainers:
-- name: Roman Andreev
-  email: r.andreev@nixys.io
-- name: Anton Zhideev
-  email: a.zhideev@nixys.io
-- name: Evgenii Tereshkov
-  email: evg.krsk@gmail.com
-- name: Sergey Lavrinenko
-  email: s@lavr.me
-- name: Viktor Sokhan
-  email: v.sokhan@nixys.io
-- name: Ruslan Gainanov
-  email: gromrx1@gmail.com
-- name: Artem Danielyan
-  email: a.danielyan@nixys.io
-- name: Roman Emelyanov
-  email: r.emelyanov@nixys.io
+  - name: Nixys Team
+    email: hello@nixys.io
+  - name: Peter Rukin
+    email: p.rukin@nixys.ru
+  - name: Vyacheslav Vorobev
+    email: v.vorobyov@nixys.ru
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/license: Apache License 2.0
+  artifacthub.io/links:  |
+    - name: Home
+      url: https://nixys.io
+    - name: Source
+      url: https://github.com/nixys/nxs-universal-chart
+  artifacthub.io/changes: |
+    - project migrated to the new `nuc-*` dependency model with OCI-hosted subcharts
+    - several previously embedded integration templates were removed from the root chart and are now expected to come from dedicated dependency subcharts
+    - values are now formally validated by `values.schema.json`
+    - the old list-based top-level values contract is no longer considered valid; object-based resource maps are now the supported format
+
+  artifacthub.io/recommendations: |
+    - url: https://nixys.io
+    - url: https://github.com/nixys/nxs-universal-chart
+  artifacthub.io/signKey: |
+    fingerprint: 332FCD67C8B83C68B5AE67884856BB650E18E5427465417E1BC62ED1C417F3BE
+    url: https://registry.nixys.io/signkey/cosign.pub
+
+dependencies:
+  - name: nuc-common
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+
+  - name: nuc-traefik
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-traefik.enabled
+
+  - name: nuc-certificates
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-certificates.enabled
+
+  - name: nuc-istio
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-istio.enabled
+
+  - name: nuc-knative
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-knative.enabled
+
+  - name: nuc-kserve
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-kserve.enabled
+
+  - name: nuc-kube-prometheus-stack
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-kube-prometheus-stack.enabled
+
+  - name: nuc-native-gateway
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-native-gateway.enabled
+
+  - name: nuc-victoria-metrics
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-victoria-metrics.enabled
+
+  - name: nuc-vault-secret-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-vault-secret-operator.enabled
+
+  - name: nuc-keda
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-keda.enabled

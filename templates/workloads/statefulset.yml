@@ -1,0 +1,57 @@
+{{- $general := $.Values.statefulSetsGeneral | default dict -}}
+{{- $modeEnabled := eq "true" (include "helpers.workloads.modeEnabled" (dict "kind" "statefulset" "context" $)) -}}
+{{- if $modeEnabled }}
+{{- range $name := keys (.Values.statefulSets | default dict) | sortAlpha }}
+{{- $statefulSet := get $.Values.statefulSets $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $statefulSet)) }}
+---
+apiVersion: {{ include "helpers.capabilities.statefulSet.apiVersion" $ }}
+kind: StatefulSet
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $statefulSet) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $statefulSet.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $statefulSet) | nindent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $statefulSet.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  replicas: {{ $statefulSet.replicas | default 1 }}
+  {{- with $statefulSet.strategy }}
+  strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  serviceName: {{ include "helpers.statefulsets.governingServiceName" (dict "name" $name "statefulSet" $statefulSet "context" $) }}
+  {{- with $statefulSet.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with $statefulSet.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "helpers.app.selectorLabels" $ | nindent 8 }}
+        {{- with $statefulSet.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $statefulSet.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+      annotations:
+        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $statefulSet) | nindent 8 }}
+        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- with $statefulSet.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+    spec:
+      {{- include "helpers.pod" (dict "value" $statefulSet "general" $general "name" $name "extraLabels" $statefulSet.extraSelectorLabels "context" $) | nindent 6 }}
+  {{- with $statefulSet.volumeClaimTemplates }}
+  volumeClaimTemplates:
+    {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

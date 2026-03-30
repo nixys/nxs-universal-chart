@@ -1,0 +1,202 @@
+nameOverride: e2e
+
+generic:
+  labels:
+    test-suite: e2e
+  annotations:
+    test-suite: e2e
+  extraSelectorLabels:
+    test-suite: e2e
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          test-suite: e2e
+
+envs:
+  APP_MODE: e2e
+
+secretEnvs:
+  API_TOKEN: e2e-token
+
+configMaps:
+  shared-config:
+    data:
+      shared.conf: |
+        mode=e2e
+
+secrets:
+  app-secret:
+    data:
+      password: e2e-password
+
+services:
+  api:
+    ports:
+      - name: http
+        port: 8080
+        targetPort: 8080
+    extraSelectorLabels:
+      component: api
+  headless:
+    clusterIP: None
+    ports:
+      - name: tcp
+        port: 9000
+        targetPort: 9000
+    extraSelectorLabels:
+      component: worker
+
+networkPolicies:
+  allow-api:
+    spec:
+      podSelector:
+        matchLabels:
+          component: api
+          test-suite: e2e
+      policyTypes:
+        - Ingress
+
+deployments:
+  api:
+    replicas: 1
+    extraSelectorLabels:
+      component: api
+    serviceAccountName: deployer
+    containers:
+      - name: api
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+        ports:
+          - containerPort: 8080
+        startupProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - test -f /bin/sh
+
+daemonSets:
+  node-agent:
+    extraSelectorLabels:
+      component: node-agent
+    containers:
+      - name: agent
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+
+pods:
+  toolbox:
+    containers:
+      toolbox:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+
+statefulSets:
+  worker:
+    replicas: 1
+    serviceName: headless
+    extraSelectorLabels:
+      component: worker
+    containers:
+      - name: worker
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+        ports:
+          - containerPort: 9000
+
+serviceAccount:
+  deployer:
+    role:
+      name: deployer-role
+      rules:
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs:
+            - get
+            - list
+
+hooks:
+  predeploy:
+    containers:
+      - name: predeploy
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo predeploy
+
+jobs:
+  migration:
+    containers:
+      - name: migration
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo migrate
+
+cronJobs:
+  cleanup:
+    schedule: "*/30 * * * *"
+    timeZone: UTC
+    containers:
+      - name: cleanup
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo cleanup
+
+ingresses:
+  e2e.example.local:
+    ingressClassName: nginx
+    hosts:
+      - paths:
+          - path: /
+            serviceName: api
+            servicePort: http
+
+pdbs:
+  api:
+    minAvailable: 1
+    extraSelectorLabels:
+      component: api
+
+hpas:
+  api:
+    scaleTargetRef:
+      name: api
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPU: 80

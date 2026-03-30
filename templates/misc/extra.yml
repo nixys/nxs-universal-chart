@@ -1,0 +1,7 @@
+{{- range $name := keys (.Values.extraDeploy | default dict) | sortAlpha }}
+{{- $extraDeploy := get $.Values.extraDeploy $name -}}
+{{- if $extraDeploy }}
+---
+{{ include "helpers.tplvalues.render" (dict "value" $extraDeploy "context" $) }}
+{{- end }}
+{{ end }}

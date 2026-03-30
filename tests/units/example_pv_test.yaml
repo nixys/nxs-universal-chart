@@ -1,0 +1,44 @@
+suite: example pv
+templates:
+  - templates/storage/pv.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the PV example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-shared-data
+    asserts:
+      - isKind:
+          of: PersistentVolume
+      - equal:
+          path: metadata.labels.component
+          value: storage
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "5"
+      - equal:
+          path: spec.capacity.storage
+          value: 1Gi
+      - equal:
+          path: spec.accessModes[0]
+          value: ReadWriteOnce
+      - equal:
+          path: spec.volumeMode
+          value: Filesystem
+      - equal:
+          path: spec.persistentVolumeReclaimPolicy
+          value: Retain
+      - equal:
+          path: spec.storageClassName
+          value: standard
+      - equal:
+          path: spec.hostPath.path
+          value: /tmp/nxs-universal-chart/shared-data
+      - equal:
+          path: spec.hostPath.type
+          value: DirectoryOrCreate

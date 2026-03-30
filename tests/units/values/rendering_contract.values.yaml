@@ -1,0 +1,134 @@
+nameOverride: platform
+
+generic:
+  labels:
+    platform: shared
+  annotations:
+    team: platform
+  extraSelectorLabels:
+    tenant: core
+  podAnnotations:
+    environment: '{{ .Values.generic.environment }}'
+  environment: prod
+  sharedTag: "1.25.4"
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          component: api
+
+configMaps:
+  settings:
+    data:
+      ENVIRONMENT: '{{ .Values.generic.environment }}'
+
+services:
+  api:
+    labels:
+      component: api
+    ports:
+      - name: http
+        port: 80
+        targetPort: http
+    extraSelectorLabels:
+      component: api
+  disabled:
+    disabled: true
+    ports:
+      - name: tcp
+        port: 81
+        targetPort: 81
+
+deployments:
+  api:
+    labels:
+      component: api
+    annotations:
+      note: external
+    extraSelectorLabels:
+      component: api
+    containers:
+      - name: api
+        image: nginx
+        imageTag: '{{ .Values.generic.sharedTag }}'
+        env:
+          - name: ENVIRONMENT
+            value: '{{ .Values.generic.environment }}'
+        ports:
+          - name: http
+            containerPort: 8080
+
+statefulSets:
+  worker:
+    labels:
+      component: worker
+    extraSelectorLabels:
+      component: worker
+    containers:
+      - name: worker
+        image: busybox
+        imageTag: "1.36.1"
+        ports:
+          - name: tcp
+            containerPort: 9000
+
+secrets:
+  app:
+    data:
+      password: topsecret
+  disabled-secret:
+    disabled: true
+    data:
+      ignored: true
+
+pvcs:
+  shared-data:
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+
+pvs:
+  shared-data:
+    spec:
+      capacity:
+        storage: 2Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: standard
+      persistentVolumeReclaimPolicy: Retain
+      hostPath:
+        path: /tmp/platform-shared-data
+        type: DirectoryOrCreate
+
+pdbs:
+  api:
+    minAvailable: 1
+    extraSelectorLabels:
+      component: api
+
+hpas:
+  api:
+    scaleTargetRef:
+      name: api
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPU: 75
+  disabled:
+    disabled: true
+    scaleTargetRef:
+      name: api
+    targetCPU: 50
+
+serviceAccount:
+  deployer:
+    role:
+      name: deployer-role
+      rules:
+        - apiGroups:
+            - ""
+          resources:
+            - configmaps
+          verbs:
+            - get
