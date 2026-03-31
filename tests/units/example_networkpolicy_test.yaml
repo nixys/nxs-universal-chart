@@ -1,0 +1,32 @@
+suite: example network policy
+templates:
+  - templates/networking/networkpolicy.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the network policy example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-allow-api
+    asserts:
+      - isKind:
+          of: NetworkPolicy
+      - equal:
+          path: metadata.labels.component
+          value: api
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "5"
+      - equal:
+          path: spec.podSelector.matchLabels.component
+          value: api
+      - equal:
+          path: spec.podSelector.matchLabels.tenant
+          value: shared
+      - equal:
+          path: spec.policyTypes[0]
+          value: Ingress

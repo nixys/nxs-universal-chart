@@ -1,0 +1,53 @@
+{{- range $name := keys (.Values.pvs | default dict) | sortAlpha }}
+{{- $pv := get $.Values.pvs $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $pv)) }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $pv) | nindent 4 }}
+    {{- with $pv.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $pv) | nindent 4 }}
+    {{- with $pv.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- if $pv.spec }}
+  {{- include "helpers.tplvalues.render" (dict "value" $pv.spec "context" $) | nindent 2 }}
+  {{- else }}
+  capacity:
+    storage: {{ $pv.size | default "1Gi" }}
+  accessModes: {{- include "helpers.tplvalues.render" (dict "value" $pv.accessModes "context" $) | nindent 4 }}
+  {{- with $pv.volumeMode }}
+  volumeMode: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with $pv.storageClassName }}
+  storageClassName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  persistentVolumeReclaimPolicy: {{ $pv.persistentVolumeReclaimPolicy | default "Retain" }}
+  {{- with $pv.mountOptions }}
+  mountOptions: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with $pv.claimRef }}
+  claimRef: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with $pv.nodeAffinity }}
+  nodeAffinity: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if $pv.hostPath }}
+  hostPath: {{- include "helpers.tplvalues.render" (dict "value" $pv.hostPath "context" $) | nindent 4 }}
+  {{- else if $pv.local }}
+  local: {{- include "helpers.tplvalues.render" (dict "value" $pv.local "context" $) | nindent 4 }}
+  {{- else if $pv.nfs }}
+  nfs: {{- include "helpers.tplvalues.render" (dict "value" $pv.nfs "context" $) | nindent 4 }}
+  {{- else if $pv.csi }}
+  csi: {{- include "helpers.tplvalues.render" (dict "value" $pv.csi "context" $) | nindent 4 }}
+  {{- else }}
+  {{- fail (printf "PersistentVolume %q requires either spec or a supported backing volume (hostPath, local, nfs, csi)" $name) }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

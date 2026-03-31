@@ -1,0 +1,29 @@
+{{- range $name := keys (.Values.pdbs | default dict) | sortAlpha }}
+{{- $pdb := get $.Values.pdbs $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $pdb)) }}
+---
+apiVersion: {{ include "helpers.capabilities.pdb.apiVersion" $ }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $pdb) | nindent 4 }}
+    {{- with $pdb.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $pdb) | nindent 4 }}
+    {{- with $pdb.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- if not (empty $pdb.minAvailable) }}
+  minAvailable: {{ $pdb.minAvailable }}
+  {{- else if not (empty $pdb.maxUnavailable) }}
+  maxUnavailable: {{ $pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
+      {{- with $pdb.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+{{- end }}
+{{- end }}

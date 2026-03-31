@@ -1,0 +1,366 @@
+# Example values for the full nxs-universal-chart surface.
+# Render with:
+#   helm template nxs-universal-chart . -f values.yaml.example
+
+nameOverride: universal
+
+gitops:
+  commonLabels:
+    gitops-profile: platform
+  commonAnnotations:
+    app.example.com/managed-by: gitops
+  argo:
+    enabled: true
+    syncWave: "5"
+    syncOptions:
+      - Prune=false
+    compareOptions:
+      - IgnoreExtraneous
+
+generic:
+  labels:
+    platform: application
+  annotations:
+    owner: platform
+  nameSuffix: blue
+  deterministicNames: true
+  extraSelectorLabels:
+    tenant: shared
+  podLabels:
+    workload-tier: backend
+  podAnnotations:
+    rendered-from: values-example
+  environment: production
+  clusterDomain: cluster.local
+  sharedTag: "1.27.5"
+  storageClass: standard
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: '{{ include "helpers.app.name" $ }}'
+  volumeMounts:
+    - name: shared-config
+      mountPath: /opt/shared
+      readOnly: true
+  volumes:
+    - name: shared-config
+      type: configMap
+
+envs:
+  APP_MODE: '{{ .Values.generic.environment }}'
+  CLUSTER_DOMAIN: '{{ .Values.generic.clusterDomain }}'
+
+secretEnvs:
+  API_TOKEN: very-secret-token
+
+imagePullSecrets:
+  registry.example.com: '{"auths":{"registry.example.com":{"auth":"ZGVtbzpkZW1v"}}}'
+
+defaultImagePullPolicy: IfNotPresent
+
+configMaps:
+  shared-config:
+    data:
+      shared.conf: |
+        environment={{ .Values.generic.environment }}
+  app-settings:
+    labels:
+      component: api
+    data:
+      APP_FEATURE: enabled
+      APP_PUBLIC_HOST: 'api.{{ .Values.generic.clusterDomain }}'
+
+secrets:
+  app-secret:
+    labels:
+      component: api
+    data:
+      password: supersecret
+
+sealedSecrets:
+  sealed-app:
+    labels:
+      component: api
+    encryptedData:
+      password: AgBy7exampleencryptedpayload
+
+services:
+  api:
+    labels:
+      component: api
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+    extraSelectorLabels:
+      component: api
+  headless:
+    labels:
+      component: worker
+    clusterIP: None
+    ports:
+      - name: tcp
+        port: 9000
+        targetPort: 9000
+    extraSelectorLabels:
+      component: worker
+
+networkPolicies:
+  allow-api:
+    labels:
+      component: api
+    spec:
+      podSelector:
+        matchLabels:
+          component: api
+          tenant: shared
+      policyTypes:
+        - Ingress
+
+deploymentsGeneral:
+  podAnnotations:
+    checksum/envs: '{{ include "helpers.workload.checksum" (printf "%s%s" $.Values.envs $.Values.envsString) }}'
+
+deployments:
+  api:
+    labels:
+      component: api
+    annotations:
+      note: frontend-entrypoint
+    gitops:
+      argo:
+        syncWave: "10"
+        syncOptions:
+          - ServerSideApply=true
+    replicas: 2
+    extraSelectorLabels:
+      component: api
+    serviceAccountName: deployer
+    initContainers:
+      config-init:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo init
+    containers:
+      api:
+        image: nginx
+        imageTag: '{{ .Values.generic.sharedTag }}'
+        ports:
+          - name: http
+            containerPort: 8080
+        startupProbe:
+          httpGet:
+            path: /
+            port: http
+          periodSeconds: 10
+          failureThreshold: 3
+        envsFromConfigmap:
+          app-settings:
+            - APP_FEATURE
+        envsFromSecret:
+          app-secret:
+            - APP_PASSWORD: password
+        envConfigmaps:
+          - envs
+        envSecrets:
+          - secret-envs
+        env:
+          - name: RUNTIME_ENV
+            value: '{{ .Values.generic.environment }}'
+        volumeMounts:
+          - name: app-settings
+            mountPath: /etc/app
+            readOnly: true
+    volumes:
+      - name: app-settings
+        type: configMap
+
+daemonSets:
+  node-agent:
+    labels:
+      component: node-agent
+    annotations:
+      note: node-observer
+    extraSelectorLabels:
+      component: node-agent
+    containers:
+      - name: agent
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+        ports:
+          - name: metrics
+            containerPort: 9100
+
+pods:
+  toolbox:
+    labels:
+      component: toolbox
+    annotations:
+      note: interactive-toolbox
+    restartPolicy: Always
+    containers:
+      toolbox:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+
+statefulSets:
+  worker:
+    labels:
+      component: worker
+    annotations:
+      note: background-processor
+    replicas: 1
+    serviceName: headless
+    extraSelectorLabels:
+      component: worker
+    containers:
+      - name: worker
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+        ports:
+          - containerPort: 9000
+        volumeMounts:
+          - name: cache
+            mountPath: /cache
+    volumes:
+      - name: cache
+        type: emptyDir
+
+serviceAccount:
+  deployer:
+    role:
+      name: deployer-role
+      rules:
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+            - configmaps
+          verbs:
+            - get
+            - list
+            - watch
+    clusterRole:
+      name: view
+
+pvcs:
+  shared-data:
+    labels:
+      component: storage
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    volumeName: '{{ include "helpers.app.fullname" (dict "name" "shared-data" "context" $) }}'
+    storageClassName: '{{ .Values.generic.storageClass }}'
+
+pvs:
+  shared-data:
+    labels:
+      component: storage
+    spec:
+      capacity:
+        storage: 1Gi
+      accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem
+      persistentVolumeReclaimPolicy: Retain
+      storageClassName: '{{ .Values.generic.storageClass }}'
+      hostPath:
+        path: /tmp/nxs-universal-chart/shared-data
+        type: DirectoryOrCreate
+
+hooks:
+  predeploy:
+    annotations:
+      note: hook
+    containers:
+      - name: predeploy
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo preparing-release
+
+cronJobs:
+  cleanup:
+    labels:
+      component: housekeeping
+    schedule: "*/30 * * * *"
+    timeZone: UTC
+    containers:
+      - name: cleanup
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo cleanup
+
+jobs:
+  migration:
+    labels:
+      component: migration
+    containers:
+      - name: migration
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo migrate
+
+ingresses:
+  app.example.com:
+    labels:
+      component: api
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - paths:
+          - path: /
+            pathType: Prefix
+            serviceName: api
+            servicePort: http
+
+pdbs:
+  api:
+    minAvailable: 1
+    labels:
+      component: api
+    extraSelectorLabels:
+      component: api
+
+hpas:
+  api:
+    scaleTargetRef:
+      name: api
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPU: 70

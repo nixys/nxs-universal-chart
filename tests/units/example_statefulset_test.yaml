@@ -1,0 +1,64 @@
+suite: example statefulset
+templates:
+  - templates/workloads/statefulset.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the StatefulSet example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-worker
+    asserts:
+      - isKind:
+          of: StatefulSet
+      - equal:
+          path: metadata.labels.component
+          value: worker
+      - equal:
+          path: metadata.annotations.note
+          value: background-processor
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.serviceName
+          value: universal-blue-headless
+      - equal:
+          path: spec.selector.matchLabels.component
+          value: worker
+      - equal:
+          path: spec.template.metadata.labels["workload-tier"]
+          value: backend
+      - exists:
+          path: spec.template.metadata.annotations["checksum/configmap-shared-config"]
+      - equal:
+          path: spec.template.spec.imagePullSecrets[0].name
+          value: registry.example.com
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: busybox:1.36.1
+      - equal:
+          path: spec.template.spec.containers[0].command[0]
+          value: sh
+      - equal:
+          path: spec.template.spec.containers[0].args[0]
+          value: sleep 3600
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 9000
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].name
+          value: cache
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[1].name
+          value: shared-config
+      - equal:
+          path: spec.template.spec.volumes[0].name
+          value: cache
+      - equal:
+          path: spec.template.spec.volumes[1].configMap.name
+          value: universal-blue-shared-config

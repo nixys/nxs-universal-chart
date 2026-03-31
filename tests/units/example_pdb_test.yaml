@@ -1,0 +1,29 @@
+suite: example pdb
+templates:
+  - templates/observability/pdb.yaml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the PDB example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-api
+    asserts:
+      - isKind:
+          of: PodDisruptionBudget
+      - equal:
+          path: metadata.labels.component
+          value: api
+      - equal:
+          path: spec.minAvailable
+          value: 1
+      - equal:
+          path: spec.selector.matchLabels.component
+          value: api
+      - equal:
+          path: spec.selector.matchLabels.tenant
+          value: shared

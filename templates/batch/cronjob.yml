@@ -1,0 +1,104 @@
+{{- $general := $.Values.cronJobsGeneral | default dict -}}
+{{- $cronJobs := dict -}}
+{{- $modeEnabled := eq "true" (include "helpers.workloads.modeEnabled" (dict "kind" "cronjob" "context" $)) -}}
+{{- if kindIs "string" .Values.cronJobs -}}
+{{- $cronJobs = fromYaml .Values.cronJobs | default dict -}}
+{{- else if kindIs "map" .Values.cronJobs -}}
+{{- $cronJobs = .Values.cronJobs -}}
+{{- end -}}
+{{- if $modeEnabled }}
+{{- range $name := keys $cronJobs | sortAlpha }}
+{{- $job := get $cronJobs $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $job)) }}
+{{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+---
+apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
+kind: CronJob
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $job.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
+    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- with $job.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  suspend: {{ default false $job.suspend }}
+  schedule: {{ include "helpers.tplvalues.render" (dict "value" $job.schedule "context" $) | quote }}
+  {{- with (coalesce $job.timeZone $general.timeZone) }}
+  timeZone: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) | quote }}
+  {{- end }}
+  {{- if $job.singleOnly }}
+  concurrencyPolicy: Forbid
+  {{- end }}
+  {{- with (coalesce $job.startingDeadlineSeconds $general.startingDeadlineSeconds) }}
+  startingDeadlineSeconds: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.successfulJobsHistoryLimit $general.successfulJobsHistoryLimit) }}
+  successfulJobsHistoryLimit: {{ . }}
+  {{- end }}
+  {{- with (coalesce $job.failedJobsHistoryLimit $general.failedJobsHistoryLimit) }}
+  failedJobsHistoryLimit: {{ . }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      {{- with (coalesce $job.parallelism $general.parallelism) }}
+      parallelism: {{ . }}
+      {{- end }}
+      {{- with (coalesce $job.completions $general.completions) }}
+      completions: {{ . }}
+      {{- end }}
+      {{- with (coalesce $job.activeDeadlineSeconds $general.activeDeadlineSeconds) }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      {{- with (coalesce $job.backoffLimit $general.backoffLimit) }}
+      backoffLimit: {{ . }}
+      {{- end }}
+      {{- with (coalesce $job.ttlSecondsAfterFinished $general.ttlSecondsAfterFinished) }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with $job.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+          annotations:
+            {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 12 }}
+            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- with $job.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+        spec:
+          {{- include "helpers.pod" (dict "value" $job "general" $general "name" $name "context" $) | nindent 10 }}
+          restartPolicy: {{ $job.restartPolicy | default "Never" }}
+{{- if $job.commandDurationAlert }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cronjob-{{ $fullName }}
+  namespace: {{ $job.commandDurationAlertNamespace | default $.Release.Namespace }}
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: cronJobs_rules
+      interval: 1m
+      rules:
+        - alert: cronjob-{{ $fullName }}-too-long-execution
+          expr: '((time() - kube_job_status_start_time{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $fullName }}-.*"}) and kube_job_status_active{namespace="{{ $.Release.Namespace }}", job_name=~"{{ $fullName }}-.*"} == 1) > {{ $job.commandDurationAlert }}'
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            message: "CronJob {{ $.Release.Namespace }}/{{ $fullName }} is taking more than {{ $job.commandDurationAlert }} to complete"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

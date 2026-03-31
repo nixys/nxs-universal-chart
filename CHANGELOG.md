@@ -1,7 +1,124 @@
 # Changelog
 
-## 2.8.4 - Unreleased
-* feature: Added support for VMServiceScrape (VictoriaMetrics ServiceMonitor equivalent)
+## [3.0.2] - March 30, 2026
+
+### Breaking Changes
+* project migrated to the new `nuc-*` dependency model with OCI-hosted subcharts
+* several previously embedded integration templates were removed from the root chart and are now expected to come from dedicated dependency subcharts
+* values are now formally validated by `values.schema.json`
+* the old list-based top-level values contract is no longer considered valid; object-based resource maps are now the supported format
+
+### Added
+* added a formal `values.schema.json` describing the chart values contract
+* added `values.yaml.example` covering all main template families
+* added a `Makefile` for local dependency management, linting, docs generation, smoke checks, and e2e execution
+* added helper scripts:
+  * `scripts/helm-deps.sh`
+  * `scripts/helm-docs.sh`
+* added project documentation:
+  * `docs/AGENTS.md`
+  * `docs/CONTRIBUTING.md`
+  * `docs/DEPENDENCY.md`
+  * `docs/TESTS.MD`
+  * `docs/README.md.gotmpl`
+  * `docs/CODE_OF_CONDUCT.md`
+  * `docs/SECURITY.md`
+* added a compatibility layer in `templates/_compat.tpl` to override helper behavior until the published `nuc-common` dependency catches up
+* added first-class templates for:
+  * `Pod`
+  * `DaemonSet`
+  * `NetworkPolicy`
+  * `PersistentVolume`
+* added unit, smoke, and end-to-end test suites
+
+### Changed
+* templates reorganized from a flat layout into domain-based directories:
+  * `templates/workloads/`
+  * `templates/batch/`
+  * `templates/networking/`
+  * `templates/security/`
+  * `templates/storage/`
+  * `templates/observability/`
+  * `templates/rbac/`
+  * `templates/misc/`
+* root README fully rewritten and now generated via `helm-docs`
+* `values.yaml` reworked into a documented, family-based values contract
+* added `workloadMode` to limit rendering to selected workload families:
+  * `auto`
+  * `deployment`
+  * `daemonset`
+  * `pod`
+  * `statefulset`
+  * `batch`
+  * `job`
+  * `cronjob`
+  * `hook`
+  * `none`
+* introduced a centralized GitOps metadata layer:
+  * `gitops.commonLabels`
+  * `gitops.commonAnnotations`
+  * `gitops.argo.*`
+  * `gitops.flux.*`
+  * resource-level `gitops` overrides
+* values/schema model unified around reusable definitions:
+  * `baseWorkload`
+  * `baseWorkloadGeneral`
+  * specialized reusable definitions for workload, batch, and hook families
+* top-level values schema moved away from generic `freeFormObject` / `objectMap` / `objectOrYamlMap` references to named resource-family definitions
+
+### Improved
+* rendering is now deterministic and GitOps-friendly:
+  * `generic.fullnameOverride`
+  * `generic.nameSuffix`
+  * `generic.deterministicNames`
+* improved Argo CD and Flux support with centralized labels and annotations
+* containers and initContainers now support both `list` and `map` forms
+* improved shared pod-spec helper behavior for:
+  * `topologySpreadConstraints`
+  * `restartPolicy`
+  * `startupProbe`
+  * `serviceAccountName`
+  * `hostAliases`
+  * `tolerations`
+  * `affinity`
+  * `priorityClassName`
+  * `dnsPolicy`
+  * `imagePullSecrets`
+  * typed volumes and volume mounts
+* improved batch resource support with:
+  * `CronJob.spec.timeZone`
+  * reusable batch/general schema definitions
+* improved `StatefulSet` service behavior with automatic governing headless Service generation when no explicit Service is provided
+
+### Fixed
+* removed non-deterministic rendering behavior that caused noisy GitOps diffs
+* fixed fallback naming for unnamed containers and initContainers
+* fixed helper compatibility gaps before the published `nuc-common` update
+* added `restartPolicy` support to the shared pod helper
+* improved backward compatibility coverage against previous release tags
+
+### Testing
+* added unit coverage for:
+  * workloads
+  * batch resources
+  * services and ingress
+  * network policy
+  * configmaps and secrets
+  * PV/PVC
+  * HPA/PDB
+  * RBAC
+* added smoke scenarios for:
+  * empty render
+  * schema validation
+  * rendering contract
+  * example render
+  * kubeconform validation
+* added kind-based e2e installation tests covering readiness of the main rendered resources
+
+### Removed
+* removed the old flat template layout from the chart root
+* removed legacy sample manifests under `docs/samples/`
+* removed several embedded integration templates in favor of dependency-backed `nuc-*` modules
 
 ## 2.8.3 - December 26, 2024
 * feature: Made `progressDeadlineSeconds` configurable in deployments

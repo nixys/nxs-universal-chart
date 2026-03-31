@@ -1,0 +1,64 @@
+{{- range $name := keys (.Values.hpas | default dict) | sortAlpha }}
+{{- $hpa := get $.Values.hpas $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $hpa)) }}
+{{- $apiVersion := $hpa.apiVersion | default "autoscaling/v2" -}}
+{{- if and (empty $hpa.targetCPU) (empty $hpa.targetMemory) (empty $hpa.metrics) -}}
+{{- fail (printf "HPA %q requires at least one metric via targetCPU, targetMemory, or metrics" $name) -}}
+{{- end }}
+---
+apiVersion: {{ $apiVersion }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $hpa) | nindent 4 }}
+    {{- with $hpa.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $hpa) | nindent 4 }}
+    {{- with $hpa.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- with $hpa.scaleTargetRef }}
+  scaleTargetRef:
+    apiVersion: {{ .apiVersion | default "apps/v1" }}
+    kind: {{ .kind | default "Deployment" }}
+    name: {{ include "helpers.app.fullname" (dict "name" .name "context" $) }}
+  {{- end }}
+  minReplicas: {{ $hpa.minReplicas | default 2 }}
+  maxReplicas: {{ $hpa.maxReplicas | default 3 }}
+  {{- $hasBuiltInMetrics := or (not (empty $hpa.targetCPU)) (not (empty $hpa.targetMemory)) -}}
+  {{- $hasCustomMetrics := not (empty $hpa.metrics) -}}
+  {{- if or $hasBuiltInMetrics $hasCustomMetrics }}
+  metrics:
+    {{- if not (empty $hpa.targetCPU) }}
+    - type: Resource
+      resource:
+        name: cpu
+        {{- if or (eq $apiVersion "autoscaling/v2") (eq $apiVersion "autoscaling/v2beta2") }}
+        target:
+          type: Utilization
+          averageUtilization: {{ $hpa.targetCPU }}
+        {{- else }}
+        targetAverageUtilization: {{ $hpa.targetCPU }}
+        {{- end }}
+    {{- end }}
+    {{- if not (empty $hpa.targetMemory) }}
+    - type: Resource
+      resource:
+        name: memory
+        {{- if or (eq $apiVersion "autoscaling/v2") (eq $apiVersion "autoscaling/v2beta2") }}
+        target:
+          type: Utilization
+          averageUtilization: {{ $hpa.targetMemory }}
+        {{- else }}
+        targetAverageUtilization: {{ $hpa.targetMemory }}
+        {{- end }}
+    {{- end }}
+    {{- with $hpa.metrics }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

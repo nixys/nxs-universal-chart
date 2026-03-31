@@ -1,4 +1,0 @@
-{{- range $key, $val := .Values.extraDeploy }}
----
-{{ include "helpers.tplvalues.render" (dict "value" $val "context" $) }}
-{{- end }}

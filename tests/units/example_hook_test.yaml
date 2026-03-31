@@ -1,0 +1,43 @@
+suite: example hook job
+templates:
+  - templates/misc/helm-hooks.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the hook job example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-predeploy
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "5"
+      - equal:
+          path: metadata.annotations.note
+          value: hook
+      - equal:
+          path: spec.template.metadata.name
+          value: universal-blue-predeploy
+      - equal:
+          path: spec.template.metadata.labels["workload-tier"]
+          value: backend
+      - exists:
+          path: spec.template.metadata.annotations["checksum/configmap-shared-config"]
+      - equal:
+          path: spec.template.spec.restartPolicy
+          value: Never
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: busybox:1.36.1
+      - equal:
+          path: spec.template.spec.containers[0].args[0]
+          value: echo preparing-release

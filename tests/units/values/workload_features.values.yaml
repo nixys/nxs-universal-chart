@@ -1,0 +1,46 @@
+nameOverride: platform
+workloadMode: batch
+
+generic:
+  fullnameOverride: stable
+  nameSuffix: east
+  deterministicNames: true
+
+services:
+  api:
+    ports:
+      - name: http
+        port: 80
+        targetPort: http
+    extraSelectorLabels:
+      component: api
+
+jobs:
+  migration:
+    containers:
+      - image: busybox
+        imageTag: "1.36.1"
+        command: echo migrate
+
+cronJobs:
+  cleanup:
+    schedule: "*/15 * * * *"
+    timeZone: UTC
+    containers:
+      task:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo cleanup
+
+networkPolicies:
+  api:
+    spec:
+      podSelector:
+        matchLabels:
+          component: api
+      policyTypes:
+        - Ingress

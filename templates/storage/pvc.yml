@@ -1,0 +1,36 @@
+{{- range $name := keys (.Values.pvcs | default dict) | sortAlpha }}
+{{- $pvc := get $.Values.pvcs $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $pvc)) }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $pvc) | nindent 4 }}
+    {{- with $pvc.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $pvc) | nindent 4 }}
+    {{- with $pvc.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  accessModes: {{- include "helpers.tplvalues.render" (dict "value" $pvc.accessModes "context" $) | nindent 4 }}
+  {{- with $pvc.volumeMode }}
+  volumeMode: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with $pvc.volumeName }}
+  volumeName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $pvc.size | default "1Gi" }}
+  {{- with $pvc.storageClassName }}
+  storageClassName: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end }}
+  {{- with $pvc.selector }}
+  selector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

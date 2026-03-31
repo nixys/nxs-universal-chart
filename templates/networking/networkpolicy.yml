@@ -1,0 +1,40 @@
+{{- $networkPolicies := dict -}}
+{{- if kindIs "string" .Values.networkPolicies -}}
+{{- $networkPolicies = fromYaml .Values.networkPolicies | default dict -}}
+{{- else if kindIs "map" .Values.networkPolicies -}}
+{{- $networkPolicies = .Values.networkPolicies -}}
+{{- end -}}
+{{- range $name := keys $networkPolicies | sortAlpha }}
+{{- $policy := get $networkPolicies $name -}}
+{{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $policy)) }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "helpers.app.fullname" (dict "name" $name "context" $) }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    {{- include "helpers.app.labels" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $policy) | nindent 4 }}
+    {{- with $policy.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+  annotations:
+    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
+    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $policy) | nindent 4 }}
+    {{- with $policy.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+spec:
+  {{- if $policy.spec }}
+  {{- include "helpers.tplvalues.render" (dict "value" $policy.spec "context" $) | nindent 2 }}
+  {{- else }}
+  podSelector: {{- include "helpers.tplvalues.render" (dict "value" ($policy.podSelector | default dict) "context" $) | nindent 4 }}
+  {{- with $policy.policyTypes }}
+  policyTypes: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+  {{- end }}
+  {{- with $policy.ingress }}
+  ingress: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+  {{- end }}
+  {{- with $policy.egress }}
+  egress: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,52 @@
+suite: example job
+templates:
+  - templates/batch/job.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the job example with pod defaults and rollout checksums
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-migration
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.labels.component
+          value: migration
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "5"
+      - equal:
+          path: spec.template.metadata.labels["workload-tier"]
+          value: backend
+      - exists:
+          path: spec.template.metadata.annotations["checksum/configmap-shared-config"]
+      - equal:
+          path: spec.template.spec.restartPolicy
+          value: Never
+      - equal:
+          path: spec.template.spec.imagePullSecrets[0].name
+          value: registry.example.com
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: migration
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: busybox:1.36.1
+      - equal:
+          path: spec.template.spec.containers[0].command[0]
+          value: sh
+      - equal:
+          path: spec.template.spec.containers[0].args[0]
+          value: echo migrate
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].name
+          value: shared-config
+      - equal:
+          path: spec.template.spec.volumes[0].configMap.name
+          value: universal-blue-shared-config

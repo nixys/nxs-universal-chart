@@ -1,0 +1,72 @@
+suite: example service
+templates:
+  - templates/networking/svc.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders the primary Service example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-api
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.labels.gitops-profile
+          value: platform
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "5"
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-options"]
+          value: Prune=false
+      - equal:
+          path: metadata.labels.component
+          value: api
+      - equal:
+          path: spec.ports[0].name
+          value: http
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+      - equal:
+          path: spec.selector.component
+          value: api
+      - equal:
+          path: spec.selector.tenant
+          value: shared
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+
+  - it: renders the headless Service example
+    values:
+      - ../../values.yaml.example
+    documentSelector:
+      path: metadata.name
+      value: universal-blue-headless
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.labels.component
+          value: worker
+      - equal:
+          path: spec.clusterIP
+          value: None
+      - equal:
+          path: spec.ports[0].name
+          value: tcp
+      - equal:
+          path: spec.ports[0].port
+          value: 9000
+      - equal:
+          path: spec.selector.component
+          value: worker

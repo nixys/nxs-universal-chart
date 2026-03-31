@@ -1,0 +1,68 @@
+nameOverride: platform
+
+generic:
+  labels:
+    platform: shared
+  annotations:
+    team: platform
+  extraSelectorLabels:
+    tenant: core
+  podAnnotations:
+    environment: '{{ .Values.generic.environment }}'
+  environment: prod
+  sharedTag: "1.25.4"
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          component: api
+
+configMaps:
+  settings:
+    data:
+      ENVIRONMENT: '{{ .Values.generic.environment }}'
+
+pvs:
+  shared-data:
+    spec:
+      capacity:
+        storage: 2Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: standard
+      persistentVolumeReclaimPolicy: Retain
+      hostPath:
+        path: /tmp/platform-shared-data
+        type: DirectoryOrCreate
+
+services:
+  api:
+    labels:
+      component: api
+    ports:
+      - name: http
+        port: 80
+        targetPort: http
+    extraSelectorLabels:
+      component: api
+
+deployments:
+  api:
+    labels:
+      component: api
+    annotations:
+      note: external
+    extraSelectorLabels:
+      component: api
+    containers:
+      - name: api
+        image: nginx
+        imageTag: '{{ .Values.generic.sharedTag }}'
+        env:
+          - name: ENVIRONMENT
+            value: '{{ .Values.generic.environment }}'
+        ports:
+          - name: http
+            containerPort: 8080
