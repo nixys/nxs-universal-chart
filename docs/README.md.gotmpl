@@ -23,6 +23,22 @@ The chart renders through the shared `nuc-common` library chart. `Chart.yaml` po
 * Development
 * DevOps engineers
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Quick Start](#quick-start)
+- [Supported Resources](#supported-resources)
+- [Dependency Subcharts](#dependency-subcharts)
+- [Values Model](#values-model)
+- [Helm Values](#helm-values)
+- [Included Values Files](#included-values-files)
+- [Testing](#testing)
+- [Repository Layout](#repository-layout)
+- [Notes](#notes)
+- [Roadmap](#roadmap)
+- [Feedback](#feedback)
+- [License](#license)
+
 ## Quick Start
 
 Login to the Nixys OCI registry:
@@ -111,9 +127,393 @@ The values contract is validated by [values.schema.json](values.schema.json).
 
 ## Helm Values
 
-This section is generated from [values.yaml](values.yaml) by `helm-docs`. Edit [values.yaml](values.yaml) comments or [docs/README.md.gotmpl](docs/README.md.gotmpl), then run `pre-commit run helm-docs --all-files` or `make docs` if you need to refresh it outside a commit.
+This section contains a resource-oriented values reference. It is grouped by resource families and shared contracts to make day-to-day editing easier.
 
-{{ template "chart.valuesTable" . }}
+Quick links to value tables:
+- [Global Controls](#global-controls)
+- [GitOps Metadata](#gitops-metadata)
+- [Shared Generic Contract](#shared-generic-contract)
+- [Runtime Defaults and Shared Generated Resources](#runtime-defaults-and-shared-generated-resources)
+- [Workload Families (Top-Level Maps)](#workload-families-top-level-maps)
+- [Common Workload Entry Fields](#common-workload-entry-fields)
+- [Container Entry Fields](#container-entry-fields)
+- [Workload-Specific Fields](#workload-specific-fields)
+- [Networking Resources](#networking-resources)
+- [Config and Secret Resources](#config-and-secret-resources)
+- [RBAC, Storage, and Observability](#rbac-storage-and-observability)
+- [Dependency Toggle Fields](#dependency-toggle-fields)
+- [Reusable Schema Contracts (Exact Definitions)](#reusable-schema-contracts-exact-definitions)
+
+Schema matching note:
+- Field names below follow `values.schema.json` 1:1, including legacy aliases (`diagnosticMode.enbled`) and `string|map` contracts.
+- Where schema has `additionalProperties: true`, extra keys are allowed and passed through to templates/helpers.
+- `Default` reflects chart runtime defaults from `values.yaml`/templates; `schema default` exists only where explicitly defined in `values.schema.json`.
+
+### Global Controls
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `nameOverride` | `nameOverride: "platform"` | `""` | Overrides generated application name used in labels and resource names. |
+| `releasePrefix` | `releasePrefix: "prod"` | `""` | Prefix for rendered names. Use `"-"` to disable release-name prefixing. |
+| `kubeVersion` | `kubeVersion: "1.31.0"` | `""` | Optional Kubernetes version override used by capability helpers. |
+| `workloadMode` | `workloadMode: "batch"` | `"auto"` | Limits which workload families are rendered (`auto`, `deployment`, `daemonset`, `pod`, `statefulset`, `batch`, `job`, `cronjob`, `hook`, `none`). |
+| `extraDeploy` | `extraDeploy.my-crd: "apiVersion: v1\nkind: ConfigMap\n..."` | `{}` | Additional raw manifests rendered via `tpl`. |
+
+### GitOps Metadata
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `gitops.commonLabels` | `gitops.commonLabels.team: "platform"` | `{}` | Labels merged into metadata for all resources. |
+| `gitops.commonAnnotations` | `gitops.commonAnnotations.owner: "platform"` | `{}` | Annotations merged into metadata for all resources. |
+| `gitops.argo.enabled` | `gitops.argo.enabled: true` | `false` | Enables Argo CD metadata annotations rendering. |
+| `gitops.argo.syncWave` | `gitops.argo.syncWave: "10"` | `null` | Global Argo sync wave (`argocd.argoproj.io/sync-wave`). |
+| `gitops.argo.syncOptions` | `["ServerSideApply=true"]` | `[]` | Global Argo sync options joined into a comma-separated annotation. |
+| `gitops.argo.compareOptions` | `["IgnoreExtraneous"]` | `[]` | Global Argo compare options annotation value. |
+| `gitops.flux.enabled` | `gitops.flux.enabled: true` | `false` | Enables Flux-specific metadata overlays. |
+| `gitops.flux.labels` | `gitops.flux.labels.kustomize.toolkit.fluxcd.io/name: "app"` | `{}` | Flux labels merged when Flux mode is enabled. |
+| `gitops.flux.annotations` | `gitops.flux.annotations.kustomize.toolkit.fluxcd.io/namespace: "flux-system"` | `{}` | Flux annotations merged when Flux mode is enabled. |
+| `gitOps.safeMode` | `gitOps.safeMode: true` | `false` | Legacy alias for deterministic naming behavior. |
+
+### Shared Generic Contract
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `generic.labels` | `generic.labels.environment: "prod"` | `{}` | Global labels merged into every rendered object. |
+| `generic.annotations` | `generic.annotations.contact: "platform@corp"` | `{}` | Global annotations merged into every rendered object. |
+| `generic.fullnameOverride` | `generic.fullnameOverride: "platform-core"` | `""` | Deterministic base name override for all resources. |
+| `generic.nameSuffix` | `generic.nameSuffix: "blue"` | `""` | Suffix appended to deterministic base name. |
+| `generic.deterministicNames` | `generic.deterministicNames: true` | `true` | Enables deterministic fallback names for unnamed containers/initContainers. |
+| `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for managed ConfigMaps/Secrets. |
+| `generic.extraSelectorLabels` | `generic.extraSelectorLabels.tenant: "shared"` | `{}` | Extra labels merged into selectors and pod labels. |
+| `generic.podLabels` | `generic.podLabels.tier: "backend"` | `{}` | Labels applied to all workload pod templates. |
+| `generic.podAnnotations` | `generic.podAnnotations.rendered-from: "values"` | `{}` | Annotations applied to all workload pod templates. |
+| `generic.defaultURL` | `generic.defaultURL: "https://app.example.com"` | `""` | Optional shared URL value for templates and `tpl` usage. |
+| `generic.helmVersion` | `generic.helmVersion: "v3.17.1"` | `""` | Optional Helm version override for capability checks. |
+| `generic.kubeVersion` | `generic.kubeVersion: "1.31.0"` | `""` | Optional Kubernetes version override for capability checks. |
+| `generic.apiVersions` | `generic.apiVersions.networking.k8s.io/v1/Ingress: true` | `{}` | Extra API-version availability overrides. |
+| `generic.volumes` | `generic.volumes: [{name: shared, type: configMap}]` | `[]` | Typed volumes appended to all workloads. |
+| `generic.extraVolumes` | `generic.extraVolumes: [{name: cache, emptyDir: {}}]` | `[]` | Raw volume specs appended to all workloads. |
+| `generic.volumeMounts` | `generic.volumeMounts: [{name: shared, mountPath: /etc/shared}]` | `[]` | Volume mounts appended to all containers. |
+| `generic.extraVolumeMounts` | `generic.extraVolumeMounts: [{name: old, mountPath: /old}]` | `[]` | Deprecated alias for `generic.volumeMounts`. |
+| `generic.extraImagePullSecrets` | `generic.extraImagePullSecrets: [{name: regcred}]` | `[]` | Extra pull secrets appended to workload pod specs. |
+| `generic.tolerations` | `generic.tolerations: [{key: dedicated, operator: Exists}]` | `[]` | Shared pod tolerations. |
+| `generic.topologySpreadConstraints` | `generic.topologySpreadConstraints: [{maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway}]` | `[]` | Shared topology spread constraints for workloads. |
+| `generic.hostAliases` | `generic.hostAliases: [{ip: 10.0.0.1, hostnames: [internal.local]}]` | `[]` | Shared host aliases block. |
+| `generic.priorityClassName` | `generic.priorityClassName: "high-priority"` | `""` | Shared priority class for workload pods. |
+| `generic.dnsPolicy` | `generic.dnsPolicy: "ClusterFirst"` | `""` | Shared DNS policy for workload pods. |
+| `generic.serviceAccountName` | `generic.serviceAccountName: "deployer"` | `""` | Default service account name when workload-level field is omitted. |
+| `generic.usePredefinedAffinity` | `generic.usePredefinedAffinity: true` | `true` | Enables generated affinity presets when explicit affinity is not set. |
+
+### Runtime Defaults and Shared Generated Resources
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `podAffinityPreset` | `podAffinityPreset: "soft"` | `"soft"` | Preset used by generated pod affinity helper. |
+| `podAntiAffinityPreset` | `podAntiAffinityPreset: "hard"` | `"soft"` | Preset used by generated pod anti-affinity helper. |
+| `nodeAffinityPreset.type` | `nodeAffinityPreset.type: "hard"` | `""` | Node affinity mode (`soft`/`hard`) for generated affinity. |
+| `nodeAffinityPreset.key` | `nodeAffinityPreset.key: "nodepool"` | `""` | Node label key for generated node affinity. |
+| `nodeAffinityPreset.values` | `nodeAffinityPreset.values: ["apps"]` | `[]` | Node label values for generated node affinity. |
+| `envs` | `envs.APP_MODE: "prod"` | `{}` | Shared key-values for generated `envs` ConfigMap. |
+| `envsString` | `envsString: "LOG_LEVEL: info"` | `""` | Raw YAML merged into generated `envs` ConfigMap. |
+| `secretEnvs` | `secretEnvs.API_TOKEN: "secret"` | `{}` | Shared key-values for generated `secret-envs` Secret. |
+| `secretEnvsString` | `secretEnvsString: "PASSWORD: strong"` | `""` | Raw YAML merged into generated `secret-envs` Secret. |
+| `imagePullSecrets` | `imagePullSecrets.registry.example.com: '{"auths":{...}}'` | `{}` | Generates `kubernetes.io/dockerconfigjson` Secrets by name. |
+| `diagnosticMode.enabled` | `diagnosticMode.enabled: true` | `false` | Enables diagnostic command/args override for all workload containers. |
+| `diagnosticMode.enbled` | `diagnosticMode.enbled: true` | `false` | Backward-compatible typo alias for `diagnosticMode.enabled`. |
+| `diagnosticMode.command` | `diagnosticMode.command: ["sleep"]` | `["sleep"]` | Command used in diagnostic mode. |
+| `diagnosticMode.args` | `diagnosticMode.args: ["infinity"]` | `["infinity"]` | Args used in diagnostic mode. |
+| `defaultImage` | `defaultImage: "nginx"` | `"nginx"` | Default image when a container omits `image`. |
+| `defaultImageTag` | `defaultImageTag: "latest"` | `"latest"` | Default tag when a container omits `imageTag`. |
+| `defaultImagePullPolicy` | `defaultImagePullPolicy: "IfNotPresent"` | `"IfNotPresent"` | Default pull policy when container-level field is omitted. |
+
+### Workload Families (Top-Level Maps)
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `deploymentsGeneral` | `deploymentsGeneral.podLabels.role: "api"` | `{}` | Shared defaults applied to all Deployment entries. |
+| `deployments` | `deployments.api.replicas: 2` | `{}` | Deployment resources keyed by suffix. |
+| `daemonSetsGeneral` | `daemonSetsGeneral.podLabels.role: "agent"` | `{}` | Shared defaults applied to all DaemonSet entries. |
+| `daemonSets` | `daemonSets.node-agent.containers.agent.image: busybox` | `{}` | DaemonSet resources keyed by suffix. |
+| `podsGeneral` | `podsGeneral.podLabels.role: "tooling"` | `{}` | Shared defaults applied to all Pod entries. |
+| `pods` | `pods.toolbox.containers.toolbox.image: busybox` | `{}` | Pod resources keyed by suffix. |
+| `statefulSetsGeneral` | `statefulSetsGeneral.podLabels.role: "worker"` | `{}` | Shared defaults applied to all StatefulSet entries. |
+| `statefulSets` | `statefulSets.worker.serviceName: headless` | `{}` | StatefulSet resources keyed by suffix. |
+| `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. |
+| `jobs` | `jobs.migrate.containers.migrate.image: busybox` | `{}` | One-shot batch jobs keyed by suffix, or one raw templated YAML string. |
+| `cronJobsGeneral` | `cronJobsGeneral.timeZone: UTC` | `{}` | Shared defaults applied to CronJobs. |
+| `cronJobs` | `cronJobs.cleanup.schedule: "*/30 * * * *"` | `{}` | CronJobs keyed by suffix, or one raw templated YAML string. |
+| `hooksGeneral` | `hooksGeneral.backoffLimit: 1` | `{}` | Shared defaults for Helm hook jobs. |
+| `hooks` | `hooks.predeploy.kind: pre-install` | `{}` | Helm hook jobs keyed by suffix, or one raw templated YAML string. |
+
+### Common Workload Entry Fields
+
+These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, and `hooks.<name>` (and their `*General` where relevant).
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `disabled` | `disabled: true` | `false` | Disables rendering of a specific entry. |
+| `labels` / `annotations` | `labels.component: api` | `n/a` | Extra metadata on top-level resource object. |
+| `podLabels` / `podAnnotations` | `podLabels.tier: backend` | `n/a` | Extra metadata for rendered pod template/pod. |
+| `extraSelectorLabels` | `extraSelectorLabels.component: api` | `n/a` | Additional labels for selectors and selected pods. |
+| `gitops` | `gitops.argo.syncWave: "20"` | `n/a` | Resource-level GitOps overrides (Argo/Flux/common labels/annotations). |
+| `serviceAccountName` | `serviceAccountName: deployer` | `""` (via generic fallback) | ServiceAccount used by workload pods. |
+| `hostAliases` | `hostAliases: [{ip: 10.0.0.1, hostnames: [db.local]}]` | `[]` (or generic fallback) | Pod host aliases. |
+| `affinity` | `affinity.nodeAffinity: {...}` | `generated` when enabled | Explicit affinity; overrides generated presets. |
+| `topologySpreadConstraints` | `topologySpreadConstraints: [{...}]` | `[]` (or generic fallback) | Per-workload topology spread constraints. |
+| `priorityClassName` | `priorityClassName: high-priority` | `""` (or generic fallback) | Priority class assigned to pods. |
+| `dnsPolicy` | `dnsPolicy: ClusterFirst` | `""` (or generic fallback) | DNS policy for pods. |
+| `restartPolicy` | `restartPolicy: Never` | `n/a` | Restart policy; typically set explicitly for Pod/Job-like workloads. |
+| `nodeSelector` | `nodeSelector.nodepool: apps` | `n/a` | Node selector labels for scheduling. |
+| `tolerations` | `tolerations: [{key: dedicated, operator: Exists}]` | `[]` (or generic fallback) | Pod tolerations list. |
+| `securityContext` | `securityContext.runAsNonRoot: true` | `n/a` | Pod-level security context. |
+| `imagePullSecrets` / `extraImagePullSecrets` | `extraImagePullSecrets: [{name: regcred}]` | `[]` | Additional pull secrets for workload pod specs. |
+| `terminationGracePeriodSeconds` | `terminationGracePeriodSeconds: 30` | `n/a` | Grace period before forced pod termination. |
+| `initContainers` | `initContainers.prepare.image: busybox` | `n/a` | Init containers, supports both map and array forms. |
+| `containers` | `containers.api.image: nginx` | `required per workload` | Main containers, supports both map and array forms. |
+| `volumes` / `extraVolumes` | `volumes: [{name: app, type: configMap}]` | `[]` | Typed and raw volumes for workload pods. |
+| `usePredefinedAffinity` | `usePredefinedAffinity: false` | `true` (via generic) | Enables/disables generated affinity presets for this workload. |
+
+### Container Entry Fields
+
+These fields apply to each entry in `containers` and `initContainers`.
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `name` | `name: api` | deterministic fallback | Explicit container name. |
+| `image` / `imageTag` | `image: nginx`, `imageTag: "1.27.5"` | `defaultImage` / `defaultImageTag` | Image and tag for container. |
+| `imagePullPolicy` | `imagePullPolicy: IfNotPresent` | `defaultImagePullPolicy` | Pull policy override for container. |
+| `command` / `args` | `command: ["sh","-c"]`, `args: ["sleep 3600"]` | `n/a` | Command and args (also overridden by diagnostic mode). |
+| `env`, `envFrom` | `env: [{name: APP_MODE, value: prod}]` | `n/a` | Native env/envFrom blocks. |
+| `envConfigmaps`, `envSecrets` | `envConfigmaps: [envs]` | `n/a` | Includes all keys from named ConfigMaps/Secrets. |
+| `envsFromConfigmap`, `envsFromSecret` | `envsFromConfigmap.app-settings: [APP_MODE]` | `n/a` | Includes selected keys from named ConfigMaps/Secrets. |
+| `ports` | `ports: [{name: http, containerPort: 8080}]` | `n/a` | Exposed container ports. |
+| `lifecycle` | `lifecycle.preStop.exec.command: ["sleep","5"]` | `n/a` | Lifecycle hook settings. |
+| `startupProbe`, `livenessProbe`, `readinessProbe` | `startupProbe.httpGet.path: /healthz` | `n/a` | Probe configuration blocks. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. |
+| `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. |
+| `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
+
+### Workload-Specific Fields
+
+These tables list only fields that are unique to a workload family. Shared knobs still belong to `Common Workload Entry Fields` and `Container Entry Fields`.
+
+#### Deployments
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `deployments.<name>.replicas` | `replicas: 3` | `1` | Number of desired deployment replicas. |
+| `deployments.<name>.strategy` | `strategy.rollingUpdate.maxUnavailable: 1` | `n/a` | Deployment strategy block. |
+| `deployments.<name>.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `600` | Rollout progress deadline in seconds. |
+
+#### DaemonSets
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `daemonSets.<name>.strategy` | `strategy.type: RollingUpdate` | `n/a` | DaemonSet update strategy. |
+| `daemonSets.<name>.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Minimum seconds for pod readiness before considered available. |
+
+#### Pods
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `pods.<name>` | `pods.toolbox.containers.toolbox.image: busybox` | `n/a` | Pod entries do not add resource-specific fields beyond `Common Workload Entry Fields` and `Container Entry Fields`. |
+
+#### StatefulSets
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `statefulSets.<name>.replicas` | `replicas: 2` | `1` | Number of desired StatefulSet replicas. |
+| `statefulSets.<name>.strategy` | `strategy.type: RollingUpdate` | `n/a` | StatefulSet update strategy. |
+| `statefulSets.<name>.serviceName` | `serviceName: headless` | `<resource key>` | Governing service name used by StatefulSet. |
+| `statefulSets.<name>.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Minimum ready time per pod. |
+| `statefulSets.<name>.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | PVC templates for StatefulSet pods. |
+
+#### Jobs
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `jobs.<name>.parallelism` | `parallelism: 1` | `n/a` | Maximum parallel pods for the job. |
+| `jobs.<name>.completions` | `completions: 1` | `n/a` | Number of successful completions required. |
+| `jobs.<name>.activeDeadlineSeconds` | `activeDeadlineSeconds: 600` | `n/a` | Job timeout in seconds. |
+| `jobs.<name>.backoffLimit` | `backoffLimit: 1` | `n/a` | Retry limit for failed pods. |
+| `jobs.<name>.ttlSecondsAfterFinished` | `ttlSecondsAfterFinished: 3600` | `n/a` | Cleanup TTL after job completion. |
+| `jobs.<name>.restartPolicy` | `restartPolicy: Never` | `"Never"` | Pod restart policy for job pods. |
+| `jobs.<name>.commandDurationAlert` | `commandDurationAlert: "900"` | `n/a` | Optional long-running command alert threshold. |
+| `jobs.<name>.commandDurationAlertNamespace` | `commandDurationAlertNamespace: monitoring` | release namespace | Optional namespace override for generated alert rule. |
+
+#### CronJobs
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `cronJobs.<name>.schedule` | `schedule: "*/15 * * * *"` | `required` | Cron schedule expression. |
+| `cronJobs.<name>.suspend` | `suspend: false` | `false` | Pauses or resumes cron execution. |
+| `cronJobs.<name>.timeZone` | `timeZone: UTC` | `n/a` | Optional cron timezone. |
+| `cronJobs.<name>.singleOnly` | `singleOnly: true` | `false` | If true, sets `concurrencyPolicy: Forbid`. |
+| `cronJobs.<name>.startingDeadlineSeconds` | `startingDeadlineSeconds: 120` | `n/a` | Late start deadline for missed runs. |
+| `cronJobs.<name>.successfulJobsHistoryLimit` | `successfulJobsHistoryLimit: 3` | `n/a` | Number of successful jobs to retain. |
+| `cronJobs.<name>.failedJobsHistoryLimit` | `failedJobsHistoryLimit: 1` | `n/a` | Number of failed jobs to retain. |
+
+#### Hooks
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `hooks.<name>.kind` | `kind: "pre-install,pre-upgrade"` | `"pre-install,pre-upgrade"` | Hook phase list for Helm execution. |
+| `hooks.<name>.weight` | `weight: "5"` | `"5"` | Hook ordering weight. |
+| `hooks.<name>.deletePolicy` | `deletePolicy: "before-hook-creation"` | `"before-hook-creation"` | Hook resource deletion policy. |
+
+### Networking Resources
+
+#### Services
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `services` | `services.api.ports: [{port: 8080, targetPort: http}]` | `{}` | Service objects keyed by name. |
+| `services.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service entry. |
+| `services.<name>.labels` / `annotations` | `labels.tier: backend` | `{}` | Extra metadata for the service resource. |
+| `services.<name>.gitops` | `gitops.argo.syncWave: "5"` | `{}` | Resource-level GitOps metadata overlay. |
+| `services.<name>.clusterIP` | `clusterIP: None` | `n/a` | ClusterIP value (including headless service). |
+| `services.<name>.type` | `type: LoadBalancer` | `n/a` | Service type. |
+| `services.<name>.loadBalancerIP` | `loadBalancerIP: 10.0.0.10` | `n/a` | Static LB IP for LoadBalancer services. |
+| `services.<name>.loadBalancerClass` | `loadBalancerClass: internal` | `n/a` | Optional LoadBalancer class. |
+| `services.<name>.allocateLoadBalancerNodePorts` | `allocateLoadBalancerNodePorts: false` | `n/a` | Enables/disables node port allocation for LB services. |
+| `services.<name>.externalTrafficPolicy` | `externalTrafficPolicy: Local` | `Cluster` for LB/NodePort | Traffic policy for external traffic. |
+| `services.<name>.loadBalancerSourceRanges` | `loadBalancerSourceRanges: ["10.0.0.0/8"]` | `n/a` | Allowed CIDRs for LoadBalancer traffic. |
+| `services.<name>.externalIPs` | `externalIPs: ["192.168.10.10"]` | `n/a` | External IPs for service exposure. |
+| `services.<name>.healthCheckNodePort` | `healthCheckNodePort: 31000` | `n/a` | Health check node port for NodePort service with local policy. |
+| `services.<name>.ports` | `ports: [{name: http, port: 8080, targetPort: http}]` | `required` | Service ports list. |
+| `services.<name>.extraSelectorLabels` | `extraSelectorLabels.component: api` | `{}` | Extra selector labels appended to default selector. |
+
+#### Ingresses
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `ingresses` | `ingresses.app.example.com.hosts: [...]` | `{}` | Ingress resources keyed by host/logical name. |
+| `ingresses.<name>.disabled` | `disabled: true` | `false` | Disables rendering of an ingress entry. |
+| `ingresses.<name>.name` | `name: public` | key/host | Optional explicit ingress resource name suffix. |
+| `ingresses.<name>.labels` / `annotations` | `annotations.nginx.ingress.kubernetes.io/rewrite-target: "/"` | `{}` | Extra metadata for ingress resource. |
+| `ingresses.<name>.gitops` | `gitops.argo.syncOptions: ["ServerSideApply=true"]` | `{}` | Resource-level GitOps metadata overlay. |
+| `ingresses.<name>.ingressClassName` | `ingressClassName: nginx` | `n/a` | Ingress class name. |
+| `ingresses.<name>.hosts` | `hosts: [{hostname: app.example.com, paths: [...]}]` | `required` | Hosts and path mappings. |
+| `ingresses.<name>.certManager` | `certManager.issuerName: letsencrypt` | `n/a` | Cert-manager integration block. |
+| `ingresses.<name>.tlsName` | `tlsName: app-tls` | auto `<name>-tls` | Optional TLS secret name override. |
+| `ingresses.<name>.extraTls` | `extraTls: [{hosts:[...], secretName: tls2}]` | `n/a` | Additional TLS entries. |
+
+#### NetworkPolicies
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `networkPolicies` | `networkPolicies.allow-api.spec: {...}` | `{}` | Network policy resources keyed by suffix. |
+| `networkPolicies.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a network policy entry. |
+| `networkPolicies.<name>.labels` / `annotations` | `labels.policy: baseline` | `{}` | Extra metadata for network policy resource. |
+| `networkPolicies.<name>.gitops` | `gitops.commonAnnotations.team: platform` | `{}` | Resource-level GitOps metadata overlay. |
+| `networkPolicies.<name>.spec` | `spec.podSelector.matchLabels.app: api` | `n/a` | Full spec override. |
+| `networkPolicies.<name>.podSelector` | `podSelector.matchLabels.component: api` | `{}` | Shortcut pod selector when `spec` is not provided. |
+| `networkPolicies.<name>.policyTypes` | `policyTypes: ["Ingress"]` | `n/a` | List of policy types. |
+| `networkPolicies.<name>.ingress` / `egress` | `ingress: [{from:[...]}]` | `n/a` | Ingress/egress rules when `spec` is not provided. |
+
+### Config and Secret Resources
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `configMaps` | `configMaps.app-settings.data.APP_MODE: prod` | `{}` | ConfigMap resources keyed by suffix. |
+| `configMaps.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a ConfigMap entry. |
+| `configMaps.<name>.labels` / `annotations` | `labels.config: app` | `{}` | Extra metadata for ConfigMap resource. |
+| `configMaps.<name>.gitops` | `gitops.flux.enabled: true` | `{}` | Resource-level GitOps metadata overlay. |
+| `configMaps.<name>.data` | `data.LOG_LEVEL: info` | `n/a` | Plain string data entries. |
+| `configMaps.<name>.binaryData` | `binaryData.cert.pem: LS0t...` | `n/a` | Binary/base64 data entries. |
+| `secrets` | `secrets.app-secret.data.password: supersecret` | `{}` | Secret resources keyed by suffix. |
+| `secrets.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a Secret entry. |
+| `secrets.<name>.labels` / `annotations` | `labels.secret: app` | `{}` | Extra metadata for Secret resource. |
+| `secrets.<name>.gitops` | `gitops.argo.enabled: true` | `{}` | Resource-level GitOps metadata overlay. |
+| `secrets.<name>.type` | `type: Opaque` | `"Opaque"` | Secret type. |
+| `secrets.<name>.data` | `data.apiToken: mytoken` | `n/a` | Secret data entries (rendered through helper). |
+| `sealedSecrets` | `sealedSecrets.app.encryptedData.password: Ag...` | `{}` | SealedSecret resources keyed by suffix. |
+| `sealedSecrets.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a SealedSecret entry. |
+| `sealedSecrets.<name>.labels` / `annotations` | `labels.secret: sealed` | `{}` | Extra metadata for SealedSecret resource. |
+| `sealedSecrets.<name>.gitops` | `gitops.commonLabels.team: secops` | `{}` | Resource-level GitOps metadata overlay. |
+| `sealedSecrets.<name>.encryptedData` | `encryptedData.password: Ag...` | `n/a` | Encrypted key-values for SealedSecret payload. |
+
+### RBAC, Storage, and Observability
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `serviceAccountGeneral` | `serviceAccountGeneral.labels.team: platform` | `{}` | Shared defaults for all service accounts and generated bindings. |
+| `serviceAccount` | `serviceAccount.deployer.role.name: deployer-role` | `{}` | Service accounts keyed by suffix, with optional Role/ClusterRole settings. |
+| `serviceAccount.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service account entry. |
+| `serviceAccount.<name>.labels` / `annotations` | `labels.app: worker` | `{}` | Extra metadata for ServiceAccount resource. |
+| `serviceAccount.<name>.gitops` | `gitops.argo.syncWave: "1"` | `{}` | Resource-level GitOps metadata overlay. |
+| `serviceAccount.<name>.role` | `role.rules: [{apiGroups:[""], resources:["pods"], verbs:["get"]}]` | `n/a` | Namespaced role configuration. |
+| `serviceAccount.<name>.clusterRole` | `clusterRole.name: view` | `n/a` | Cluster-level role configuration. |
+| `pvs` | `pvs.shared.spec.capacity.storage: 10Gi` | `{}` | PersistentVolume resources keyed by suffix. |
+| `pvs.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a PV entry. |
+| `pvs.<name>.labels` / `annotations` | `labels.storage: fast` | `{}` | Extra metadata for PV resource. |
+| `pvs.<name>.gitops` | `gitops.flux.enabled: true` | `{}` | Resource-level GitOps metadata overlay. |
+| `pvs.<name>.spec` | `spec.storageClassName: standard` | `n/a` | Full PV spec override. |
+| `pvs.<name>.size` | `size: 10Gi` | `"1Gi"` | Storage size when full `spec` is not provided. |
+| `pvs.<name>.accessModes` | `accessModes: ["ReadWriteOnce"]` | `n/a` | Access modes when full `spec` is not provided. |
+| `pvs.<name>.volumeMode` | `volumeMode: Filesystem` | `n/a` | Optional PV volume mode. |
+| `pvs.<name>.storageClassName` | `storageClassName: standard` | `n/a` | Storage class for PV. |
+| `pvs.<name>.persistentVolumeReclaimPolicy` | `persistentVolumeReclaimPolicy: Retain` | `n/a` | Reclaim policy for released volumes. |
+| `pvs.<name>.mountOptions` | `mountOptions: ["nfsvers=4.1"]` | `n/a` | Mount options list. |
+| `pvs.<name>.claimRef` | `claimRef.name: data-pvc` | `n/a` | Optional claim reference for pre-binding. |
+| `pvs.<name>.nodeAffinity` | `nodeAffinity.required.nodeSelectorTerms: [...]` | `n/a` | Node affinity constraints for local/static volumes. |
+| `pvs.<name>.hostPath` / `local` / `nfs` / `csi` | `nfs.server: 10.0.0.10` | `n/a` | Storage backend blocks used when `spec` is not passed as full object. |
+| `pvcs` | `pvcs.data.size: 20Gi` | `{}` | PVC resources keyed by suffix. |
+| `pvcs.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a PVC entry. |
+| `pvcs.<name>.labels` / `annotations` | `labels.storage: app` | `{}` | Extra metadata for PVC resource. |
+| `pvcs.<name>.gitops` | `gitops.commonLabels.team: platform` | `{}` | Resource-level GitOps metadata overlay. |
+| `pvcs.<name>.accessModes` | `accessModes: ["ReadWriteOnce"]` | `required` | PVC access modes list. |
+| `pvcs.<name>.volumeMode` | `volumeMode: Filesystem` | `n/a` | Optional PVC volume mode. |
+| `pvcs.<name>.size` | `size: 20Gi` | `"1Gi"` | Requested storage size. |
+| `pvcs.<name>.volumeName` | `volumeName: my-pv` | `n/a` | Optional pre-bound PV name. |
+| `pvcs.<name>.storageClassName` | `storageClassName: standard` | `n/a` | Optional storage class override. |
+| `pvcs.<name>.selector` | `selector.matchLabels.tier: fast` | `n/a` | Label selector for binding to matching PVs. |
+| `pdbs` | `pdbs.api.minAvailable: 1` | `{}` | PDB resources keyed by suffix. |
+| `pdbs.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a PDB entry. |
+| `pdbs.<name>.labels` / `annotations` | `labels.app: api` | `{}` | Extra metadata for PDB resource. |
+| `pdbs.<name>.gitops` | `gitops.argo.compareOptions: ["IgnoreExtraneous"]` | `{}` | Resource-level GitOps metadata overlay. |
+| `pdbs.<name>.minAvailable` / `maxUnavailable` | `minAvailable: 1` | `n/a` | Availability policy for disruptions. |
+| `pdbs.<name>.extraSelectorLabels` | `extraSelectorLabels.component: api` | `{}` | Additional selector labels for PDB target pods. |
+| `hpas` | `hpas.api.scaleTargetRef.name: api` | `{}` | HPA resources keyed by suffix. |
+| `hpas.<name>.disabled` | `disabled: true` | `false` | Disables rendering of an HPA entry. |
+| `hpas.<name>.apiVersion` | `apiVersion: autoscaling/v2` | `"autoscaling/v2"` | API version used for HPA resource. |
+| `hpas.<name>.labels` / `annotations` | `labels.autoscaling: enabled` | `{}` | Extra metadata for HPA resource. |
+| `hpas.<name>.gitops` | `gitops.flux.enabled: true` | `{}` | Resource-level GitOps metadata overlay. |
+| `hpas.<name>.scaleTargetRef` | `scaleTargetRef: {name: api, kind: Deployment}` | `required` | Target object for scaling. |
+| `hpas.<name>.minReplicas` / `maxReplicas` | `minReplicas: 2`, `maxReplicas: 6` | `2` / `3` | Replica bounds for autoscaling. |
+| `hpas.<name>.targetCPU` / `targetMemory` | `targetCPU: 70` | `n/a` | Convenience CPU/memory utilization targets. |
+| `hpas.<name>.metrics` | `metrics: [{type: Pods, ...}]` | `n/a` | Custom metrics list; can be used with or without shortcuts. |
+
+### Dependency Toggle Fields
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `nuc-common.enabled` | `nuc-common.enabled: false` | `false` | Compatibility toggle retained for legacy umbrella behavior. |
+| `nuc-traefik.enabled` | `nuc-traefik.enabled: true` | `false` | Enables `nuc-traefik` subchart resources. |
+| `nuc-certificates.enabled` | `nuc-certificates.enabled: true` | `false` | Enables `nuc-certificates` subchart resources. |
+| `nuc-istio.enabled` | `nuc-istio.enabled: true` | `false` | Enables `nuc-istio` subchart resources. |
+| `nuc-knative.enabled` | `nuc-knative.enabled: true` | `false` | Enables `nuc-knative` subchart resources. |
+| `nuc-kserve.enabled` | `nuc-kserve.enabled: true` | `false` | Enables `nuc-kserve` subchart resources. |
+| `nuc-kube-prometheus-stack.enabled` | `nuc-kube-prometheus-stack.enabled: true` | `false` | Enables monitoring subchart resources. |
+| `nuc-native-gateway.enabled` | `nuc-native-gateway.enabled: true` | `false` | Enables native Gateway API subchart resources. |
+| `nuc-victoria-metrics.enabled` | `nuc-victoria-metrics.enabled: true` | `false` | Enables Victoria Metrics subchart resources. |
+| `nuc-vault-secret-operator.enabled` | `nuc-vault-secret-operator.enabled: true` | `false` | Enables Vault secret operator subchart resources. |
+| `nuc-argocd.enabled` | `nuc-argocd.enabled: true` | `false` | Enables Argo CD subchart resources. |
+| `nuc-fluxcd.enabled` | `nuc-fluxcd.enabled: true` | `false` | Enables Flux CD subchart resources. |
+| `nuc-keda.enabled` | `nuc-keda.enabled: true` | `false` | Enables KEDA subchart resources. |
+
+### Reusable Schema Contracts (Exact Definitions)
+
+These reusable definitions are referenced across multiple value blocks and match `values.schema.json` field-for-field.
+
+| Definition | Used By | Fields |
+|---|---|---|
+| `resourceGitopsConfig` | `gitops` in most resources (`services`, `ingresses`, workload entries, storage, RBAC, observability) | `commonLabels`, `commonAnnotations`, `argo.enabled`, `argo.syncWave`, `argo.syncOptions`, `argo.compareOptions`, `flux.enabled`, `flux.labels`, `flux.annotations` |
+| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
+| `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. |
+| `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts` |
+| `workloadContainerListOrMap` | `containers`, `initContainers` | `array` of `workloadContainer` or `map` of `<containerKey> -> workloadContainer`. |
+| `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sizeLimit`, `medium`; list is `array` of these objects. |
 
 ## Included Values Files
 
@@ -174,15 +574,21 @@ Local dependency setup instructions are available in [docs/DEPENDENCY.md](docs/D
 
 Following features are already in backlog for our development team and will be done soon:
 
-* Test operability on newer versions of Kubernetes/OpenShift.
-* Add samples
+* Add a catalog of ready-to-use examples: `Deployment`, `StatefulSet`, `CronJob`, `Job`, `Ingress`, `PVC`, `HPA`, `PDB`, and `extraDeploy`.
+* Add examples for enabling dependency subcharts: `nuc-traefik`, `nuc-istio`, `nuc-native-gateway`, `nuc-keda`, and `nuc-kube-prometheus-stack`.
+* Introduce a compatibility matrix and CI validation for Kubernetes, OpenShift, and Helm across multiple supported versions.
+* Extend e2e and smoke scenarios with dedicated profiles for CRD-based resources and dependency subcharts.
+* Tighten `values.schema.json`: add more resource-specific validation, reduce implicit contracts, and define explicit deprecation paths.
+* Prepare a migration guide for legacy values and aliases: list-based contract, old umbrella toggles, and deprecated fields.
+* Add a set of production recommendations: naming, selectors, probes, `securityContext`, affinity, `PDB`, `HPA`, and rollout-safe defaults.
+* Improve the documentation for `generic.*` with practical scenarios for shared variables, `tpl`, labels/annotations, volumes, and capability overrides.
+* Add release automation: automatic validation of README, schema, lint, unit/smoke/e2e checks, and chart publishing to the registry.
 
 ## Feedback
 
 For support and feedback please contact me:
 
 * telegram: @Peter_Rukin
-* email: p.rukin@nixys.io
 
 For news and discussions subscribe the channels:
 - telegram community (news): [@nxs_universal_chart](https://t.me/nxs_universal_chart)
