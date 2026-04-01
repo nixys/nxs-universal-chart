@@ -24,8 +24,8 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - Fix: Change OCI URL in nxs-universal-chart and Subcharts
-
+    - kind: fixed
+      description: Fix: Change OCI URL in nxs-universal-chart and Subcharts
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -38,42 +38,42 @@ dependencies:
     version: 1.0.0
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-traefik.enabled
   - name: nuc-certificates
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-certificates.enabled
   - name: nuc-istio
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
   - name: nuc-knative
-    version: 1.0.3
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-knative.enabled
   - name: nuc-kserve
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kserve.enabled
   - name: nuc-kube-prometheus-stack
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kube-prometheus-stack.enabled
   - name: nuc-native-gateway
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-native-gateway.enabled
   - name: nuc-victoria-metrics
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-victoria-metrics.enabled
   - name: nuc-vault-secret-operator
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-vault-secret-operator.enabled
   - name: nuc-keda
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keda.enabled
