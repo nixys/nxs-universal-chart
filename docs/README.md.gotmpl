@@ -41,16 +41,10 @@ The chart renders through the shared `nuc-common` library chart. `Chart.yaml` po
 
 ## Quick Start
 
-Login to the Nixys OCI registry:
-
-```bash
-helm repo add nixys https://registry.nixys.io/nuc
-```
-
 Install the chart:
 
 ```bash
-helm install nxs-universal-chart nixys/nxs-universal-chart \
+helm install nxs-universal-chart oci://registry.nixys.ru/nuc/nxs-universal-chart \
   --namespace app-system \
   --create-namespace
 ```
