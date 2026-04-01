@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.6] - March 30, 2026
+
+### Added
+* added nuc-kube-prometheus-stack, nuc-traefik & nuc-native-gateway subcharts from pre-release
+
+### Fixed
+* fixed OCI URL to main nxs-universal-chart & subcharts
+
 ## [3.0.2] - March 30, 2026
 
 ### Breaking Changes
