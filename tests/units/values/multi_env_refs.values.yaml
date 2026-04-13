@@ -1,0 +1,31 @@
+nameOverride: multi-env
+
+configMaps:
+  app-settings:
+    data:
+      APP_FEATURE: enabled
+      APP_XXX: feature-x
+
+secrets:
+  app-secret:
+    data:
+      password: supersecret
+      token: secret-token
+
+deployments:
+  api:
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+        envsFromConfigmap:
+          app-settings:
+            - APP_FEATURE
+            - APP_XXX
+        envsFromSecret:
+          app-secret:
+            - APP_PASSWORD: password
+            - APP_TOKEN: token
+        env:
+          - name: RUNTIME_ENV
+            value: production
