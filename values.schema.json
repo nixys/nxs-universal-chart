@@ -489,6 +489,12 @@
         },
         "extraVolumeMounts": {
           "$ref": "#/definitions/freeFormArray"
+        },
+        "stdin": {
+          "type": "boolean"
+        },
+        "tty": {
+          "type": "boolean"
         }
       }
     },

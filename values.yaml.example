@@ -214,6 +214,8 @@ pods:
       toolbox:
         image: busybox
         imageTag: "1.36.1"
+        stdin: true
+        tty: true
         command:
           - sh
           - -c

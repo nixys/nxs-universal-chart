@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.7] - Unreleased
+
+### Added
+* added `stdin` and `tty` support for containers and initContainers
+
 ## [3.0.2] - March 30, 2026
 
 ### Breaking Changes
