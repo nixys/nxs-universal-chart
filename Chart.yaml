@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.4
+version: 3.0.8
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -24,11 +24,10 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - project migrated to the new `nuc-*` dependency model with OCI-hosted subcharts
-    - several previously embedded integration templates were removed from the root chart and are now expected to come from dedicated dependency subcharts
-    - values are now formally validated by `values.schema.json`
-    - the old list-based top-level values contract is no longer considered valid; object-based resource maps are now the supported format
-
+    - kind: fixed
+      description: "Multi env error. Add new unit tests for this case."
+    - kind: added
+      description: "Add new templates for nuc-istio & nuc-vault-secret-operator."
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -38,55 +37,45 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
-
   - name: nuc-traefik
-    version: 1.0.0
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-traefik.enabled
-
   - name: nuc-certificates
-    version: 1.0.0
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-certificates.enabled
-
   - name: nuc-istio
-    version: 1.0.0
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
-
   - name: nuc-knative
-    version: 1.0.0
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-knative.enabled
-
   - name: nuc-kserve
-    version: 1.0.0
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kserve.enabled
-
   - name: nuc-kube-prometheus-stack
-    version: 1.0.0
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kube-prometheus-stack.enabled
-
   - name: nuc-native-gateway
-    version: 1.0.0
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-native-gateway.enabled
-
   - name: nuc-victoria-metrics
-    version: 1.0.0
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-victoria-metrics.enabled
-
   - name: nuc-vault-secret-operator
-    version: 1.0.0
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-vault-secret-operator.enabled
-
   - name: nuc-keda
-    version: 1.0.0
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keda.enabled

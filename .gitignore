@@ -10,5 +10,5 @@ build/
 .cache/
 .helm/
 .rendered/
+.codex
 charts/
-Chart.lock

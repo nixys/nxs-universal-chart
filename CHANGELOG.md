@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.8] - April 13, 2026
+### Added
+* added `stdin` and `tty` support for containers and initContainers
+
+## [3.0.7] - April 13, 2026
+### Added
+* Add new templates for nuc-istio: AuthorizationPolicy, DestinationRule, EnvoyFilter, Gateway, PeerAuthentication, ProxyConfig, RequestAuthentication, ServiceEntry, Sidecar, Telemetry, VirtualService, WasmPlugin, WorkloadEntry, WorkloadGroup.
+* Add new templates for nuc-vault-secret-operator: HCPAuth, HCPVaultSecretsApp, SecretTransformation, VaultAuthGlobal, VaultConnection, VaultDynamicSecret, VaultPKISecret.
+
+### Fixed
+* Fix error with multi env.
+* Add new unit tests for this case.
+
 ## [3.0.2] - March 30, 2026
 
 ### Breaking Changes

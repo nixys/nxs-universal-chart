@@ -377,6 +377,12 @@ initContainers:
   {{- with (get $container "imageTag") }}{{- $imageTag = include "helpers.tplvalues.render" (dict "value" . "context" $) -}}{{- end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ get $container "imagePullPolicy" | default $.Values.defaultImagePullPolicy }}
+  {{- if get $container "stdin" }}
+  stdin: {{ get $container "stdin" }}
+  {{- end }}
+  {{- if get $container "tty" }}
+  tty: {{ get $container "tty" }}
+  {{- end }}
   {{- with (get $container "securityContext") }}
   securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
@@ -433,6 +439,12 @@ containers:
   {{- with (get $container "imageTag") }}{{- $imageTag = include "helpers.tplvalues.render" (dict "value" . "context" $) -}}{{- end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ get $container "imagePullPolicy" | default $.Values.defaultImagePullPolicy }}
+  {{- if get $container "stdin" }}
+  stdin: {{ get $container "stdin" }}
+  {{- end }}
+  {{- if get $container "tty" }}
+  tty: {{ get $container "tty" }}
+  {{- end }}
   {{- with (get $container "securityContext") }}
   securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
