@@ -1,0 +1,150 @@
+suite: stdin and tty container attributes
+release:
+  name: test
+  namespace: default
+
+tests:
+  # --- Deployment: both stdin and tty ---
+  - it: renders stdin and tty on Deployment containers
+    template: templates/workloads/deployment.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-interactive
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].tty
+          value: true
+
+  # --- Deployment: neither stdin nor tty ---
+  - it: omits stdin and tty when not set
+    template: templates/workloads/deployment.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-standard
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].stdin
+      - notExists:
+          path: spec.template.spec.containers[0].tty
+
+  # --- Deployment: stdin only ---
+  - it: renders stdin without tty
+    template: templates/workloads/deployment.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-stdin-only
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - notExists:
+          path: spec.template.spec.containers[0].tty
+
+  # --- Deployment: initContainers ---
+  - it: renders stdin and tty on initContainers
+    template: templates/workloads/deployment.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-with-init
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.initContainers[0].tty
+          value: true
+      - notExists:
+          path: spec.template.spec.containers[0].stdin
+      - notExists:
+          path: spec.template.spec.containers[0].tty
+
+  # --- Pod ---
+  - it: renders stdin and tty on Pod containers
+    template: templates/workloads/pod.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-toolbox
+    asserts:
+      - equal:
+          path: spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.containers[0].tty
+          value: true
+
+  # --- StatefulSet ---
+  - it: renders stdin and tty on StatefulSet containers
+    template: templates/workloads/statefulset.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-db-shell
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].tty
+          value: true
+
+  # --- DaemonSet ---
+  - it: renders stdin and tty on DaemonSet containers
+    template: templates/workloads/daemonset.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-debug-agent
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].tty
+          value: true
+
+  # --- Job ---
+  - it: renders stdin and tty on Job containers
+    template: templates/batch/job.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-interactive-job
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].tty
+          value: true
+
+  # --- CronJob ---
+  - it: renders stdin and tty on CronJob containers
+    template: templates/batch/cronjob.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-debug-cron
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].tty
+          value: true

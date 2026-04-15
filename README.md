@@ -286,6 +286,8 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. |
 | `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. |
 | `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
+| `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
+| `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
 
 ### Workload-Specific Fields
 
@@ -505,7 +507,7 @@ These reusable definitions are referenced across multiple value blocks and match
 | `resourceGitopsConfig` | `gitops` in most resources (`services`, `ingresses`, workload entries, storage, RBAC, observability) | `commonLabels`, `commonAnnotations`, `argo.enabled`, `argo.syncWave`, `argo.syncOptions`, `argo.compareOptions`, `flux.enabled`, `flux.labels`, `flux.annotations` |
 | `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
 | `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. |
-| `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts` |
+| `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts`, `stdin`, `tty` |
 | `workloadContainerListOrMap` | `containers`, `initContainers` | `array` of `workloadContainer` or `map` of `<containerKey> -> workloadContainer`. |
 | `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sizeLimit`, `medium`; list is `array` of these objects. |
 

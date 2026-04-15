@@ -1,0 +1,106 @@
+nameOverride: app
+
+deployments:
+  interactive:
+    containers:
+      shell:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+
+  standard:
+    containers:
+      worker:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - sleep 3600
+
+  stdin-only:
+    containers:
+      pipe:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        command:
+          - cat
+
+  with-init:
+    initContainers:
+      setup:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+    containers:
+      main:
+        image: nginx
+        imageTag: "1.27.5"
+
+pods:
+  toolbox:
+    restartPolicy: Always
+    containers:
+      toolbox:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+
+statefulSets:
+  db-shell:
+    serviceName: db-shell
+    containers:
+      - name: shell
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+        ports:
+          - containerPort: 8080
+
+daemonSets:
+  debug-agent:
+    containers:
+      - name: agent
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+
+jobs:
+  interactive-job:
+    containers:
+      runner:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh
+
+cronJobs:
+  debug-cron:
+    schedule: "0 * * * *"
+    containers:
+      task:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh

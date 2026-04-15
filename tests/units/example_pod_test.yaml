@@ -42,5 +42,11 @@ tests:
           path: spec.containers[0].image
           value: busybox:1.36.1
       - equal:
+          path: spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.containers[0].tty
+          value: true
+      - equal:
           path: spec.containers[0].args[0]
           value: sleep 3600
