@@ -491,12 +491,35 @@
           "$ref": "#/definitions/freeFormArray"
         },
         "stdin": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
         },
         "tty": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "tty": {
+                "const": true
+              }
+            },
+            "required": ["tty"]
+          },
+          "then": {
+            "properties": {
+              "stdin": {
+                "const": true
+              }
+            },
+            "required": ["stdin"]
+          }
+        }
+      ]
     },
     "workloadContainerMap": {
       "type": "object",

@@ -104,3 +104,14 @@ cronJobs:
         tty: true
         command:
           - sh
+
+hooks:
+  predebug:
+    containers:
+      task:
+        image: busybox
+        imageTag: "1.36.1"
+        stdin: true
+        tty: true
+        command:
+          - sh

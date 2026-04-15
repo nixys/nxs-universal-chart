@@ -171,6 +171,8 @@ def check_example_render(context: SmokeContext) -> None:
 
     pod = render.select_document(documents, kind="Pod", name="universal-blue-toolbox")
     render.assert_path(pod, "spec.containers[0].name", "toolbox")
+    render.assert_path(pod, "spec.containers[0].stdin", True)
+    render.assert_path(pod, "spec.containers[0].tty", True)
 
     ingress = render.select_document(documents, kind="Ingress", name="universal-blue-app.example.com")
     render.assert_path(ingress, "spec.ingressClassName", "nginx")

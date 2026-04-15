@@ -148,3 +148,19 @@ tests:
       - equal:
           path: spec.jobTemplate.spec.template.spec.containers[0].tty
           value: true
+
+  # --- Hook Job ---
+  - it: renders stdin and tty on Helm hook containers
+    template: templates/misc/helm-hooks.yml
+    values:
+      - values/stdin_tty.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-predebug
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].stdin
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].tty
+          value: true

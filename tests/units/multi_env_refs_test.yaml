@@ -1,0 +1,67 @@
+suite: multiple env references
+templates:
+  - templates/workloads/deployment.yml
+release:
+  name: unit-test
+  namespace: default
+
+tests:
+  - it: renders multiple envsFromConfigmap entries in order
+    values:
+      - values/multi_env_refs.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: multi-env-api
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: APP_FEATURE
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.configMapKeyRef.name
+          value: multi-env-app-settings
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.configMapKeyRef.key
+          value: APP_FEATURE
+      - equal:
+          path: spec.template.spec.containers[0].env[1].name
+          value: APP_XXX
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.configMapKeyRef.name
+          value: multi-env-app-settings
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.configMapKeyRef.key
+          value: APP_XXX
+
+  - it: renders multiple envsFromSecret entries in order
+    values:
+      - values/multi_env_refs.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: multi-env-api
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[2].name
+          value: APP_PASSWORD
+      - equal:
+          path: spec.template.spec.containers[0].env[2].valueFrom.secretKeyRef.name
+          value: multi-env-app-secret
+      - equal:
+          path: spec.template.spec.containers[0].env[2].valueFrom.secretKeyRef.key
+          value: password
+      - equal:
+          path: spec.template.spec.containers[0].env[3].name
+          value: APP_TOKEN
+      - equal:
+          path: spec.template.spec.containers[0].env[3].valueFrom.secretKeyRef.name
+          value: multi-env-app-secret
+      - equal:
+          path: spec.template.spec.containers[0].env[3].valueFrom.secretKeyRef.key
+          value: token
+      - equal:
+          path: spec.template.spec.containers[0].env[4].name
+          value: RUNTIME_ENV
+      - equal:
+          path: spec.template.spec.containers[0].env[4].value
+          value: production

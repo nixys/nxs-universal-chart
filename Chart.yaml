@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.7
+version: 3.0.8
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -25,7 +25,9 @@ annotations:
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
     - kind: fixed
-      description: "Fix: Change OCI URL in nxs-universal-chart and Subcharts"
+      description: "Multi env error. Add new unit tests for this case."
+    - kind: added
+      description: "Add new templates for nuc-istio & nuc-vault-secret-operator."
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -35,10 +37,10 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-traefik.enabled
   - name: nuc-certificates
@@ -46,7 +48,7 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-certificates.enabled
   - name: nuc-istio
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
   - name: nuc-knative
@@ -58,7 +60,7 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kserve.enabled
   - name: nuc-kube-prometheus-stack
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kube-prometheus-stack.enabled
   - name: nuc-native-gateway
@@ -70,7 +72,7 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-victoria-metrics.enabled
   - name: nuc-vault-secret-operator
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-vault-secret-operator.enabled
   - name: nuc-keda
