@@ -177,7 +177,7 @@ Schema matching note:
 | `generic.fullnameOverride` | `generic.fullnameOverride: "platform-core"` | `""` | Deterministic base name override for all resources. |
 | `generic.nameSuffix` | `generic.nameSuffix: "blue"` | `""` | Suffix appended to deterministic base name. |
 | `generic.deterministicNames` | `generic.deterministicNames: true` | `true` | Enables deterministic fallback names for unnamed containers/initContainers. |
-| `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for managed ConfigMaps/Secrets. |
+| `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for ConfigMaps/Secrets referenced by each workload. |
 | `generic.extraSelectorLabels` | `generic.extraSelectorLabels.tenant: "shared"` | `{}` | Extra labels merged into selectors and pod labels. |
 | `generic.podLabels` | `generic.podLabels.tier: "backend"` | `{}` | Labels applied to all workload pod templates. |
 | `generic.podAnnotations` | `generic.podAnnotations.rendered-from: "values"` | `{}` | Annotations applied to all workload pod templates. |

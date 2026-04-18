@@ -28,6 +28,8 @@ tests:
           path: metadata.annotations["rendered-from"]
           value: values-example
       - exists:
+          path: metadata.annotations["checksum/configmap-shared-config"]
+      - notExists:
           path: metadata.annotations["checksum/secret-app-secret"]
       - equal:
           path: spec.restartPolicy

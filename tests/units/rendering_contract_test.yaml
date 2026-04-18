@@ -235,6 +235,8 @@ tests:
           value: platform-worker
       - exists:
           path: spec.template.metadata.annotations["checksum/configmap-settings"]
+      - notExists:
+          path: spec.template.metadata.annotations["checksum/secret-app"]
 
   - it: renders only enabled HPAs with at least one metric
     values:
