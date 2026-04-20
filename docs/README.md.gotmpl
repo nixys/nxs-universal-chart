@@ -95,6 +95,11 @@ The chart also declares reusable dependency subcharts. `nuc-common` is always lo
 | `nuc-vault-secret-operator` | `nuc-vault-secret-operator.enabled` | [nuc-vault-secret-operator](https://github.com/nixys/nuc-vault-secret-operator) | Vault Secret Operator resources: `VaultAuth` and `VaultStaticSecret`. |
 | `nuc-argocd` | `nuc-argocd.enabled` | [nuc-argocd](https://github.com/nixys/nuc-argocd) | Argo CD resources: `Application`, `ApplicationSet`, and `AppProject`. |
 | `nuc-keda` | `nuc-keda.enabled` | [nuc-keda](https://github.com/nixys/nuc-keda) | KEDA autoscaling resources: `ScaledObject`, `ScaledJob`, `TriggerAuthentication`, and `ClusterTriggerAuthentication`. |
+| `nuc-cloudnativepg` | `nuc-cloudnativepg.enabled` | [nuc-cloudnativepg](https://github.com/nixys/nuc-cloudnativepg) | CloudNativePG resources: `Backup`, `ClusterImageCatalog`, `Cluster`, `Database`, `FailoverQuorum`, `ImageCatalog`, `Pooler`, `Publication`, `ScheduledBackup`, and `Subscription`. |
+| `nuc-mysql-percona-operator` | `nuc-mysql-percona-operator.enabled` | [nuc-mysql-percona-operator](https://github.com/nixys/nuc-mysql-percona-operator) | Percona XtraDB Cluster Operator resources: `PerconaXtraDBCluster`, `PerconaXtraDBClusterBackup`, and `PerconaXtraDBClusterRestore`. |
+| `nuc-rabbitmq` | `nuc-rabbitmq.enabled` | [nuc-rabbitmq](https://github.com/nixys/nuc-rabbitmq) | RabbitMQ Cluster Operator and Messaging Topology Operator resources: `RabbitmqCluster`, `Queue`, `Policy`, `Exchange`, `Binding`, `User`, `Permission`, `Vhost`, `Federation`, and `Shovel`. |
+| `nuc-clickhouse` | `nuc-clickhouse.enabled` | [nuc-clickhouse](https://github.com/nixys/nuc-clickhouse) | Altinity ClickHouse Operator resources: `ClickHouseInstallation`, `ClickHouseInstallationTemplate`, `ClickHouseOperatorConfiguration`, and `ClickHouseKeeperInstallation`. |
+| `nuc-elk` | `nuc-elk.enabled` | [nuc-elk](https://github.com/nixys/nuc-elk) | Elastic Cloud on Kubernetes resources: `Elasticsearch`, `Kibana`, `ApmServer`, `Beat`, `Agent`, `EnterpriseSearch`, `ElasticMapsServer`, and `Logstash`. |
 
 ## Values Model
 
