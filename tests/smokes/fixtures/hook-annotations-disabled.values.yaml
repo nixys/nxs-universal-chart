@@ -1,0 +1,12 @@
+generic:
+  hookAnnotations: null
+
+configMaps:
+  disabled-hooks-config:
+    data:
+      enabled: "false"
+
+secrets:
+  disabled-hooks-secret:
+    data:
+      password: disabled

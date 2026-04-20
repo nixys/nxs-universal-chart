@@ -22,13 +22,7 @@ metadata:
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $hook.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    "helm.sh/hook": {{ $hook.kind | default "pre-install,pre-upgrade" | quote }}
-    "helm.sh/hook-weight": {{ $hook.weight | default "5" | quote }}
-    "helm.sh/hook-delete-policy": {{ $hook.deletePolicy | default "before-hook-creation" | quote }}
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $hook) | nindent 4 }}
-    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $hook.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $hook "fixedAnnotations" (dict "helm.sh/hook" ($hook.kind | default "pre-install,pre-upgrade") "helm.sh/hook-weight" (($hook.weight | default "5") | toString) "helm.sh/hook-delete-policy" ($hook.deletePolicy | default "before-hook-creation"))) | nindent 4 }}
 spec:
   {{- with (coalesce $hook.parallelism $general.parallelism) }}
   parallelism: {{ . }}
@@ -53,10 +47,7 @@ spec:
         {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with $hook.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
       annotations:
-        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $hook) | nindent 8 }}
-        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $hook.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- include "helpers.workloads.podAnnotations" (dict "context" $ "general" $general "value" $hook) | nindent 8 }}
     spec:
       {{- include "helpers.pod" (dict "value" $hook "general" $general "name" $name "context" $) | nindent 6 }}
       restartPolicy: {{ $hook.restartPolicy | default "Never" }}

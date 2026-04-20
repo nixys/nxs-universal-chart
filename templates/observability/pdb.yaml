@@ -12,9 +12,7 @@ metadata:
     {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $pdb) | nindent 4 }}
     {{- with $pdb.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $pdb) | nindent 4 }}
-    {{- with $pdb.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "value" $pdb) | nindent 4 }}
 spec:
   {{- if not (empty $pdb.minAvailable) }}
   minAvailable: {{ $pdb.minAvailable }}

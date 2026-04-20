@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.10
+version: 3.0.11
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -24,10 +24,8 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "Multi env error. Add new unit tests for this case."
     - kind: added
-      description: "Add new templates for nuc-istio & nuc-vault-secret-operator."
+      description: "autoRolloutChecksums now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets that are actually referenced by a given workload (via envConfigmaps, envSecrets, envsFromConfigmap, envsFromSecret, or typed volumes), instead of checksumming every resource in the release. Global envs/secretEnvs checksums remain on all workloads."
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -37,7 +35,7 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.1
+    version: 1.0.2
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
     version: 1.0.5

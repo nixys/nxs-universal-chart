@@ -21,6 +21,7 @@ SCENARIO_CHOICES = [
     "schema-invalid-list-contract",
     "schema-invalid-missing-name",
     "rendering-contract",
+    "hook-annotations",
     "example-render",
     "example-kubeconform",
 ]

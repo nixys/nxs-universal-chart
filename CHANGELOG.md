@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.11] - April 20, 2026
+### Fixed
+* fixed error: configmaps and Secrets annotated by default hooks cannot be uninstalled
+
 ## [3.0.10] - April 20, 2026
 ### Changed
 * `autoRolloutChecksums` now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets that are actually referenced by a given workload (via `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, or typed `volumes`), instead of checksumming every resource in the release. Global `envs`/`secretEnvs` checksums remain on all workloads.

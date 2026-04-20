@@ -23,10 +23,7 @@ metadata:
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $job.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
-    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $job.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
 spec:
   {{- with (coalesce $job.parallelism $general.parallelism) }}
   parallelism: {{ . }}
@@ -50,10 +47,7 @@ spec:
         {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with $job.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
       annotations:
-        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 8 }}
-        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $job.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- include "helpers.workloads.podAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 8 }}
     spec:
       {{- include "helpers.pod" (dict "value" $job "general" $general "name" $name "context" $) | nindent 6 }}
       restartPolicy: {{ $job.restartPolicy | default "Never" }}

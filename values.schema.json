@@ -80,6 +80,9 @@
         "annotations": {
           "$ref": "#/definitions/stringMap"
         },
+        "hookAnnotations": {
+          "$ref": "#/definitions/stringMapOrNull"
+        },
         "fullnameOverride": {
           "$ref": "#/definitions/stringValue"
         },
@@ -365,6 +368,15 @@
     "stringMap": {
       "type": "object",
       "default": {},
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "stringMapOrNull": {
+      "type": ["object", "null"],
       "propertyNames": {
         "$ref": "#/definitions/nonEmptyString"
       },
