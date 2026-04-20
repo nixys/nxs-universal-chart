@@ -179,6 +179,7 @@ Schema matching note:
 |---|---|---|---|
 | `generic.labels` | `generic.labels.environment: "prod"` | `{}` | Global labels merged into every rendered object. |
 | `generic.annotations` | `generic.annotations.contact: "platform@corp"` | `{}` | Global annotations merged into every rendered object. |
+| `generic.hookAnnotations` | `generic.hookAnnotations.helm.sh/hook: "pre-install,pre-upgrade"` | `{"helm.sh/hook":"pre-install,pre-upgrade","helm.sh/hook-weight":"-999","helm.sh/hook-delete-policy":"before-hook-creation"}` | Default hook annotations for generated ConfigMaps and Secrets. Set to `null` to disable them. |
 | `generic.fullnameOverride` | `generic.fullnameOverride: "platform-core"` | `""` | Deterministic base name override for all resources. |
 | `generic.nameSuffix` | `generic.nameSuffix: "blue"` | `""` | Suffix appended to deterministic base name. |
 | `generic.deterministicNames` | `generic.deterministicNames: true` | `true` | Enables deterministic fallback names for unnamed containers/initContainers. |
@@ -568,6 +569,7 @@ Local dependency setup instructions are available in [docs/DEPENDENCY.md](docs/D
 
 - `SealedSecret` is a CRD-backed resource. Smoke `kubeconform` skips it by default, and e2e uses a CRD-free fixture so the local cluster flow stays lightweight.
 - Shared helper behavior comes from the `nuc-common` library dependency; run `make deps` before direct `helm lint`, `helm template`, or `helm install` commands.
+- Generated `ConfigMap` and `Secret` resources keep Helm hook annotations by default for backward compatibility; set `generic.hookAnnotations: null` to disable them cleanly.
 - Previous umbrella-chart toggles such as `nuc-common.enabled` remain in the values contract for compatibility.
 - `diagnosticMode.enbled` is still accepted for backward compatibility, but `diagnosticMode.enabled` is the supported field.
 

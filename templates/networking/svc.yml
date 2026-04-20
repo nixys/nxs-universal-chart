@@ -12,9 +12,7 @@ metadata:
     {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $service) | nindent 4 }}
     {{- with $service.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $service) | nindent 4 }}
-    {{- with $service.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "value" $service) | nindent 4 }}
 spec:
   {{- if not (empty $service.clusterIP) }}
   clusterIP: {{ $service.clusterIP }}
@@ -81,9 +79,7 @@ metadata:
     {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $statefulSet) | nindent 4 }}
     {{- with $statefulSet.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $statefulSet) | nindent 4 }}
-    {{- with $statefulSet.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "value" $statefulSet) | nindent 4 }}
 spec:
   clusterIP: None
   publishNotReadyAddresses: true

@@ -16,10 +16,7 @@ metadata:
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $daemonSet.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $daemonSet) | nindent 4 }}
-    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $daemonSet.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $daemonSet) | nindent 4 }}
 spec:
   {{- with $daemonSet.strategy }}
   updateStrategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
@@ -40,10 +37,7 @@ spec:
         {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with $daemonSet.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
       annotations:
-        {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $daemonSet) | nindent 8 }}
-        {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
-        {{- with $daemonSet.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- include "helpers.workloads.podAnnotations" (dict "context" $ "general" $general "value" $daemonSet) | nindent 8 }}
     spec:
       {{- include "helpers.pod" (dict "value" $daemonSet "general" $general "name" $name "extraLabels" $daemonSet.extraSelectorLabels "context" $) | nindent 6 }}
 {{- end }}

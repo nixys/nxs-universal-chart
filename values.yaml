@@ -44,6 +44,13 @@ generic:
   labels: {}
   # -- Annotations merged into every resource.
   annotations: {}
+  # -- Optional override for default hook annotations added to generated ConfigMaps and Secrets.
+  # -- If omitted, the chart keeps the historical default hook annotations.
+  # -- Set to `null` to disable default hook annotations cleanly.
+  # hookAnnotations:
+  #   helm.sh/hook: "pre-install,pre-upgrade"
+  #   helm.sh/hook-weight: "-999"
+  #   helm.sh/hook-delete-policy: before-hook-creation
   # -- Deterministic base name override used by all rendered resources.
   fullnameOverride: ""
   # -- Optional suffix appended to the deterministic base name.

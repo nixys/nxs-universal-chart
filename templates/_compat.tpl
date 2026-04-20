@@ -68,6 +68,32 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end -}}
 {{- end -}}
 
+{{/*
+Default hook annotations for generated ConfigMaps and Secrets.
+
+Backward compatibility:
+- if generic.hookAnnotations is not defined, keep the historical defaults
+- if generic.hookAnnotations is defined as null, disable default hook annotations
+*/}}
+{{- define "helpers.app.defaultHookAnnotations" -}}
+{{- $defaultHookAnnotations := dict "helm.sh/hook" "pre-install,pre-upgrade" "helm.sh/hook-weight" "-999" "helm.sh/hook-delete-policy" "before-hook-creation" -}}
+{{- if and .Values.generic (hasKey .Values.generic "hookAnnotations") -}}
+  {{- with .Values.generic.hookAnnotations }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end -}}
+{{- else -}}
+{{ toYaml $defaultHookAnnotations }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Backward-compatible alias retained for older charts.
+*/}}
+{{- define "helpers.app.hooksAnnotations" -}}
+{{- $ctx := .context | default . -}}
+{{- include "helpers.app.defaultHookAnnotations" $ctx -}}
+{{- end -}}
+
 {{- define "helpers.app.gitopsLabels" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -146,6 +172,96 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- with (get $globalFlux "annotations") }}{{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}{{- end -}}
 {{- with (get $generalFlux "annotations") }}{{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}{{- end -}}
 {{- with (get $valueFlux "annotations") }}{{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}{{- end -}}
+{{- end -}}
+{{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
+{{- end -}}
+
+{{/*
+Merge resource metadata annotations without duplicate keys.
+
+Order of precedence (later wins):
+- default hook annotations when includeHooks=true
+- fixedAnnotations
+- generic annotations
+- gitops annotations
+- general.annotations
+- value.annotations
+- extraAnnotations
+*/}}
+{{- define "helpers.app.annotations" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $annotations := dict -}}
+{{- if .includeHooks -}}
+  {{- with (include "helpers.app.defaultHookAnnotations" $ctx | fromYaml) -}}
+    {{- $annotations = mergeOverwrite $annotations . -}}
+  {{- end -}}
+{{- end -}}
+{{- with .fixedAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- with (include "helpers.app.genericAnnotations" $ctx | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- with (include "helpers.app.gitopsAnnotations" (dict "context" $ctx "general" $general "value" $value) | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- with (get $general "annotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with (get $value "annotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with .extraAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
+{{- end -}}
+
+{{/*
+Merge pod-level annotations without duplicate keys.
+
+Order of precedence (later wins):
+- automatic checksum annotations
+- generic pod annotations
+- general.podAnnotations
+- value.podAnnotations
+- extraAnnotations
+*/}}
+{{- define "helpers.workloads.podAnnotations" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $annotations := dict -}}
+{{- with (include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ctx "general" $general "value" $value) | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- if and $ctx.Values.generic (hasKey $ctx.Values.generic "podAnnotations") -}}
+  {{- with $ctx.Values.generic.podAnnotations -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- with (get $general "podAnnotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with (get $value "podAnnotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with .extraAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
 {{- end -}}
 {{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
 {{- end -}}

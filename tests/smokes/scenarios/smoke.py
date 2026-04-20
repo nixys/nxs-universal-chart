@@ -32,6 +32,23 @@ class SmokeContext:
     def invalid_list_contract_values(self) -> Path:
         return self.repo_root / "tests" / "smokes" / "fixtures" / "invalid-list-contract.values.yaml"
 
+    @property
+    def hook_annotations_values(self) -> Path:
+        return self.repo_root / "tests" / "smokes" / "fixtures" / "hook-annotations.values.yaml"
+
+    @property
+    def hook_annotations_disabled_values(self) -> Path:
+        return self.repo_root / "tests" / "smokes" / "fixtures" / "hook-annotations-disabled.values.yaml"
+
+
+def rendered_document_text(manifest_path: Path, *, kind: str, name: str) -> str:
+    content = manifest_path.read_text(encoding="utf-8")
+    for chunk in content.split("\n---\n"):
+        normalized = chunk.lstrip("-\n")
+        if f"kind: {kind}" in normalized and f"name: {name}" in normalized:
+            return normalized
+    raise system.TestFailure(f"failed to find rendered raw document {kind}/{name}")
+
 
 def check_default_empty(context: SmokeContext) -> None:
     helm.lint(context.chart_dir, workdir=context.workdir)
@@ -209,10 +226,94 @@ def check_example_kubeconform(context: SmokeContext) -> None:
     )
 
 
+def check_hook_annotations(context: SmokeContext) -> None:
+    helm.lint(
+        context.chart_dir,
+        values_file=context.hook_annotations_values,
+        workdir=context.workdir,
+    )
+    output_path = context.render_dir / "hook-annotations.yaml"
+    helm.template(
+        context.chart_dir,
+        release_name=context.release_name,
+        namespace=context.namespace,
+        values_file=context.hook_annotations_values,
+        output_path=output_path,
+        workdir=context.workdir,
+    )
+
+    documents = render.load_documents(output_path)
+    render.assert_doc_count(documents, 2)
+
+    config_map = render.select_document(documents, kind="ConfigMap", name="smoke-merged-config")
+    render.assert_path(config_map, "metadata.annotations[helm.sh/hook]", "post-install")
+    render.assert_path(config_map, "metadata.annotations[helm.sh/hook-weight]", "-999")
+    render.assert_path(config_map, "metadata.annotations[conflict]", "resource")
+    render.assert_path(config_map, "metadata.annotations[custom]", "from-configmap")
+    config_map_text = rendered_document_text(output_path, kind="ConfigMap", name="smoke-merged-config")
+    if config_map_text.count("helm.sh/hook:") != 1:
+        raise system.TestFailure("expected a single helm.sh/hook entry in merged ConfigMap annotations")
+    if config_map_text.count("conflict:") != 1:
+        raise system.TestFailure("expected a single conflict entry in merged ConfigMap annotations")
+
+    secret = render.select_document(documents, kind="Secret", name="smoke-merged-secret")
+    render.assert_path(secret, "metadata.annotations[helm.sh/hook]", "post-install")
+    render.assert_path(secret, "metadata.annotations[helm.sh/hook-weight]", "-999")
+    render.assert_path(secret, "metadata.annotations[conflict]", "resource")
+    render.assert_path(secret, "metadata.annotations[custom]", "from-secret")
+    secret_text = rendered_document_text(output_path, kind="Secret", name="smoke-merged-secret")
+    if secret_text.count("helm.sh/hook:") != 1:
+        raise system.TestFailure("expected a single helm.sh/hook entry in merged Secret annotations")
+    if secret_text.count("conflict:") != 1:
+        raise system.TestFailure("expected a single conflict entry in merged Secret annotations")
+
+    disabled_output_path = context.render_dir / "hook-annotations-disabled.yaml"
+    helm.template(
+        context.chart_dir,
+        release_name=context.release_name,
+        namespace=context.namespace,
+        values_file=context.hook_annotations_disabled_values,
+        output_path=disabled_output_path,
+        workdir=context.workdir,
+    )
+
+    disabled_documents = render.load_documents(disabled_output_path)
+    render.assert_doc_count(disabled_documents, 2)
+
+    disabled_config_map = render.select_document(
+        disabled_documents,
+        kind="ConfigMap",
+        name="smoke-disabled-hooks-config",
+    )
+    render.assert_path_missing(disabled_config_map, "metadata.annotations[helm.sh/hook]")
+    disabled_config_map_text = rendered_document_text(
+        disabled_output_path,
+        kind="ConfigMap",
+        name="smoke-disabled-hooks-config",
+    )
+    if "helm.sh/hook:" in disabled_config_map_text:
+        raise system.TestFailure("hook annotation unexpectedly rendered for disabled ConfigMap")
+
+    disabled_secret = render.select_document(
+        disabled_documents,
+        kind="Secret",
+        name="smoke-disabled-hooks-secret",
+    )
+    render.assert_path_missing(disabled_secret, "metadata.annotations[helm.sh/hook]")
+    disabled_secret_text = rendered_document_text(
+        disabled_output_path,
+        kind="Secret",
+        name="smoke-disabled-hooks-secret",
+    )
+    if "helm.sh/hook:" in disabled_secret_text:
+        raise system.TestFailure("hook annotation unexpectedly rendered for disabled Secret")
+
+
 SCENARIOS: list[tuple[str, Callable[[SmokeContext], None]]] = [
     ("default-empty", check_default_empty),
     ("schema-invalid-list-contract", check_schema_invalid_list_contract),
     ("rendering-contract", check_rendering_contract),
+    ("hook-annotations", check_hook_annotations),
     ("example-render", check_example_render),
     ("example-kubeconform", check_example_kubeconform),
 ]

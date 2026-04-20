@@ -19,14 +19,7 @@ metadata:
     {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $pod.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $pod) | nindent 4 }}
-    {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $pod) | nindent 4 }}
-    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $pod.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $pod.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $pod "extraAnnotations" (include "helpers.workloads.podAnnotations" (dict "context" $ "general" $general "value" $pod))) | nindent 4 }}
 spec:
   {{- include "helpers.pod" (dict "value" $pod "general" $general "name" $name "extraLabels" $pod.extraSelectorLabels "context" $) | nindent 2 }}
 {{- end }}
