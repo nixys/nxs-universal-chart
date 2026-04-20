@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.1.0] - ???
+### Changed
+* `autoRolloutChecksums` now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets that are actually referenced by a given workload (via `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, or typed `volumes`), instead of checksumming every resource in the release. Global `envs`/`secretEnvs` checksums remain on all workloads.
+
 ## [3.0.8] - April 13, 2026
 ### Added
 * added `stdin` and `tty` support for containers and initContainers

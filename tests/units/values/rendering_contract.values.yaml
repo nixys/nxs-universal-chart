@@ -53,6 +53,10 @@ deployments:
       - name: api
         image: nginx
         imageTag: '{{ .Values.generic.sharedTag }}'
+        envConfigmaps:
+          - settings
+        envSecrets:
+          - app
         env:
           - name: ENVIRONMENT
             value: '{{ .Values.generic.environment }}'
@@ -70,6 +74,8 @@ statefulSets:
       - name: worker
         image: busybox
         imageTag: "1.36.1"
+        envConfigmaps:
+          - settings
         ports:
           - name: tcp
             containerPort: 9000

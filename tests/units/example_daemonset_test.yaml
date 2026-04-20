@@ -34,6 +34,8 @@ tests:
           path: spec.template.metadata.labels["workload-tier"]
           value: backend
       - exists:
+          path: spec.template.metadata.annotations["checksum/configmap-shared-config"]
+      - notExists:
           path: spec.template.metadata.annotations["checksum/configmap-app-settings"]
       - equal:
           path: spec.template.spec.topologySpreadConstraints[0].topologyKey
