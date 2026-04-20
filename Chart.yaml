@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.8
+version: 3.0.10
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -79,3 +79,23 @@ dependencies:
     version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keda.enabled
+  - name: nuc-cloudnativepg
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-cloudnativepg.enabled
+  - name: nuc-mysql-percona-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-mysql-percona-operator.enabled
+  - name: nuc-rabbitmq
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-rabbitmq.enabled
+  - name: nuc-clickhouse
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-clickhouse.enabled
+  - name: nuc-elk
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-elk.enabled

@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.10] - April 20, 2026
+### Changed
+* `autoRolloutChecksums` now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets that are actually referenced by a given workload (via `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, or typed `volumes`), instead of checksumming every resource in the release. Global `envs`/`secretEnvs` checksums remain on all workloads.
+
+### Added
+* added new pre-release subchart `NUC CloudNativePG` to dependency list
+* added new pre-release subchart `NUC MySQL Percona Operator` to dependency list
+* added new pre-release subchart `NUC ELK` to dependency list
+* added new pre-release subchart `NUC RabbitMQ` to dependency list
+* added new pre-release subchart `NUC Clickhouse` to dependency list
+
 ## [3.0.8] - April 13, 2026
 ### Added
 * added `stdin` and `tty` support for containers and initContainers

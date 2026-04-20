@@ -50,7 +50,7 @@ generic:
   nameSuffix: ""
   # -- Render deterministic fallback names for unnamed containers and initContainers.
   deterministicNames: true
-  # -- Add checksum annotations for chart-managed ConfigMaps and Secrets to workload pod templates.
+  # -- Add checksum annotations for ConfigMaps and Secrets referenced by each workload to its pod template.
   autoRolloutChecksums: true
   # -- Extra selector labels merged into selectors and workload pod labels.
   extraSelectorLabels: {}

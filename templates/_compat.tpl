@@ -28,6 +28,46 @@ Remove these once the dependency includes the same fixes.
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.app.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "helpers.app.genericSelectorLabels" -}}
+{{- if and $.Values.generic (hasKey $.Values.generic "extraSelectorLabels") -}}
+{{- with $.Values.generic.extraSelectorLabels -}}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "helpers.app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{ include "helpers.app.genericSelectorLabels" $ }}
+{{- end -}}
+
+{{- define "helpers.app.labels" -}}
+{{ include "helpers.app.selectorLabels" . }}
+helm.sh/chart: {{ include "helpers.app.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+{{- if and .Values.generic (hasKey .Values.generic "labels") -}}
+{{- with .Values.generic.labels }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.app.genericAnnotations" -}}
+{{- if and .Values.generic (hasKey .Values.generic "annotations") -}}
+{{- with .Values.generic.annotations }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.app.gitopsLabels" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -202,6 +242,50 @@ false
 {{ toYaml $ports }}
 {{- end -}}
 
+{{- define "helpers.workloads.referencedResources" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $referencedConfigMaps := dict -}}
+{{- $referencedSecrets := dict -}}
+{{- /* Collect referenced names from all containers and initContainers */ -}}
+{{- $containers := list -}}
+{{- $containers = concat $containers (fromYamlArray (include "helpers.workloads.containerEntries" (dict "value" $value.containers)) | default list) -}}
+{{- $containers = concat $containers (fromYamlArray (include "helpers.workloads.containerEntries" (dict "value" $value.initContainers)) | default list) -}}
+{{- range $container := $containers -}}
+  {{- /* envConfigmaps: list of configmap names */ -}}
+  {{- range (get $container "envConfigmaps" | default list) -}}
+    {{- $_ := set $referencedConfigMaps . true -}}
+  {{- end -}}
+  {{- /* envSecrets: list of secret names */ -}}
+  {{- range (get $container "envSecrets" | default list) -}}
+    {{- $_ := set $referencedSecrets . true -}}
+  {{- end -}}
+  {{- /* envsFromConfigmap: map keyed by configmap name */ -}}
+  {{- range $configMapName := keys (get $container "envsFromConfigmap" | default dict) -}}
+    {{- $_ := set $referencedConfigMaps $configMapName true -}}
+  {{- end -}}
+  {{- /* envsFromSecret: map keyed by secret name */ -}}
+  {{- range $secretName := keys (get $container "envsFromSecret" | default dict) -}}
+    {{- $_ := set $referencedSecrets $secretName true -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Collect referenced names from workload, general and generic volumes */ -}}
+{{- $volumes := concat ($value.volumes | default list) ($general.volumes | default list) ($ctx.Values.generic.volumes | default list) -}}
+{{- range $vol := $volumes -}}
+  {{- $volType := get $vol "type" | default "" -}}
+  {{- $volName := get $vol "name" | default "" -}}
+  {{- if and (eq $volType "configMap") $volName -}}
+    {{- $_ := set $referencedConfigMaps $volName true -}}
+  {{- end -}}
+  {{- if and (eq $volType "secret") $volName -}}
+    {{- $_ := set $referencedSecrets $volName true -}}
+  {{- end -}}
+{{- end -}}
+configMaps: {{ toJson $referencedConfigMaps }}
+secrets: {{ toJson $referencedSecrets }}
+{{- end -}}
+
 {{- define "helpers.workloads.autoChecksumAnnotations" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -231,6 +315,8 @@ false
   {{- end -}}
 {{- end -}}
 {{- if $enabled -}}
+  {{- /* Resolve referenced resources for this workload */ -}}
+  {{- $referencedResources := fromYaml (include "helpers.workloads.referencedResources" (dict "context" $ctx "general" $general "value" $value)) | default dict -}}
   {{- if or (not (empty $ctx.Values.envs)) (not (empty $ctx.Values.envsString)) -}}
     {{- if not (hasKey $reserved "checksum/envs") -}}
       {{- $_ := set $annotations "checksum/envs" (sha256sum (printf "%s\n%s" ($ctx.Values.envs | toYaml) (include "helpers.tplvalues.render" (dict "value" $ctx.Values.envsString "context" $ctx)))) -}}
@@ -242,29 +328,35 @@ false
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.configMaps | default dict) | sortAlpha }}
-    {{- $configMap := get $ctx.Values.configMaps $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $configMap)) -}}
-      {{- $annotationName := printf "checksum/configmap-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($configMap | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "configMaps" | default dict) $name -}}
+      {{- $configMap := get $ctx.Values.configMaps $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $configMap)) -}}
+        {{- $annotationName := printf "checksum/configmap-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($configMap | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.secrets | default dict) | sortAlpha }}
-    {{- $secret := get $ctx.Values.secrets $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
-      {{- $annotationName := printf "checksum/secret-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "secrets" | default dict) $name -}}
+      {{- $secret := get $ctx.Values.secrets $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
+        {{- $annotationName := printf "checksum/secret-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.sealedSecrets | default dict) | sortAlpha }}
-    {{- $secret := get $ctx.Values.sealedSecrets $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
-      {{- $annotationName := printf "checksum/sealed-secret-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "secrets" | default dict) $name -}}
+      {{- $secret := get $ctx.Values.sealedSecrets $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
+        {{- $annotationName := printf "checksum/sealed-secret-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
