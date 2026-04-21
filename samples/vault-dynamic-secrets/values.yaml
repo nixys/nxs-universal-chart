@@ -1,0 +1,41 @@
+nameOverride: vault-dynamic
+
+deployments:
+  api:
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+        envSecrets:
+          - db-creds
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultPKISecrets: {}
+  vaultStaticSecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: vault-dynamic
+      serviceAccount: default
+  vaultDynamicSecrets:
+    db-creds:
+      spec:
+        vaultAuthRef: app
+        mount: database
+        path: creds/app
+        destination:
+          name: db-creds
+          create: true
+        renew: true

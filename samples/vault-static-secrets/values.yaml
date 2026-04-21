@@ -1,0 +1,42 @@
+nameOverride: vault-static
+
+deployments:
+  app:
+    containers:
+      app:
+        image: nginx
+        imageTag: "1.27.5"
+        envSecrets:
+          - app-config
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultDynamicSecrets: {}
+  vaultPKISecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: vault-static
+      serviceAccount: default
+  vaultStaticSecrets:
+    app-config:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: apps/static
+        refreshAfter: 1m
+        destination:
+          name: app-config
+          create: true

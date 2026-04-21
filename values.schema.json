@@ -104,6 +104,12 @@
         "podAnnotations": {
           "$ref": "#/definitions/stringMap"
         },
+        "podSecurityContext": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "containerSecurityContext": {
+          "$ref": "#/definitions/freeFormObject"
+        },
         "defaultURL": {
           "$ref": "#/definitions/stringValue"
         },
@@ -131,8 +137,14 @@
         "extraImagePullSecrets": {
           "$ref": "#/definitions/freeFormArray"
         },
+        "resources": {
+          "$ref": "#/definitions/freeFormObject"
+        },
         "tolerations": {
           "$ref": "#/definitions/freeFormArray"
+        },
+        "nodeSelector": {
+          "$ref": "#/definitions/freeFormObject"
         },
         "topologySpreadConstraints": {
           "$ref": "#/definitions/freeFormArray"
@@ -148,6 +160,9 @@
         },
         "serviceAccountName": {
           "$ref": "#/definitions/stringValue"
+        },
+        "automountServiceAccountToken": {
+          "type": "boolean"
         },
         "usePredefinedAffinity": {
           "type": "boolean"
@@ -239,6 +254,9 @@
         "type": "string"
       }
     },
+    "serviceAccountDefaultImagePullSecretName": {
+      "$ref": "#/definitions/stringValue"
+    },
     "diagnosticMode": {
       "type": "object",
       "additionalProperties": false,
@@ -268,6 +286,9 @@
     },
     "ingresses": {
       "$ref": "#/definitions/ingressResourceMap"
+    },
+    "servicesGeneral": {
+      "$ref": "#/definitions/resourceMetadataGeneralConfig"
     },
     "services": {
       "$ref": "#/definitions/serviceResourceMap"
@@ -576,6 +597,9 @@
         "items": {
           "$ref": "#/definitions/freeFormArray"
         },
+        "sources": {
+          "$ref": "#/definitions/freeFormArray"
+        },
         "sizeLimit": {
           "$ref": "#/definitions/stringValue"
         },
@@ -590,6 +614,66 @@
       "items": {
         "$ref": "#/definitions/typedVolume"
       }
+    },
+    "resourceMetadataGeneralConfig": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        }
+      }
+    },
+    "serviceAccountImagePullSecretEntry": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/stringValue"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "serviceAccountImagePullSecretEntryList": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/definitions/serviceAccountImagePullSecretEntry"
+      }
+    },
+    "serviceAccountImagePullSecretsConfig": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "includePlatformDefault": {
+          "type": "boolean"
+        },
+        "additional": {
+          "$ref": "#/definitions/serviceAccountImagePullSecretEntryList"
+        }
+      }
+    },
+    "serviceAccountImagePullSecretsConfigOrList": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/serviceAccountImagePullSecretsConfig"
+        },
+        {
+          "$ref": "#/definitions/serviceAccountImagePullSecretEntryList"
+        }
+      ]
     },
     "resourceGitopsConfig": {
       "type": "object",
@@ -635,19 +719,20 @@
       }
     },
     "serviceAccountGeneralConfig": {
-      "type": ["object", "null"],
-      "additionalProperties": true,
-      "properties": {
-        "labels": {
-          "$ref": "#/definitions/stringMap"
+      "allOf": [
+        {
+          "$ref": "#/definitions/resourceMetadataGeneralConfig"
         },
-        "annotations": {
-          "$ref": "#/definitions/stringMap"
-        },
-        "gitops": {
-          "$ref": "#/definitions/resourceGitopsConfig"
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "imagePullSecrets": {
+              "$ref": "#/definitions/serviceAccountImagePullSecretsConfig"
+            }
+          }
         }
-      }
+      ]
     },
     "serviceResource": {
       "type": ["object", "null"],
@@ -1037,6 +1122,9 @@
         "gitops": {
           "$ref": "#/definitions/resourceGitopsConfig"
         },
+        "imagePullSecrets": {
+          "$ref": "#/definitions/serviceAccountImagePullSecretsConfigOrList"
+        },
         "role": {
           "$ref": "#/definitions/freeFormObject"
         },
@@ -1173,6 +1261,9 @@
         },
         "serviceAccountName": {
           "$ref": "#/definitions/stringValue"
+        },
+        "automountServiceAccountToken": {
+          "type": "boolean"
         },
         "hostAliases": {
           "$ref": "#/definitions/freeFormArray"

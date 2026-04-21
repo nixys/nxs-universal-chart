@@ -482,6 +482,209 @@ secrets: {{ toJson $referencedSecrets }}
 {{- end -}}
 {{- end -}}
 
+{{/*
+Render pod/container securityContext with optional generic defaults.
+
+If mergeWithGeneric=true is set on the specific securityContext, generic keys are
+merged first and the specific keys override them. Otherwise the specific value
+replaces the generic default.
+*/}}
+{{- define "helpers.securityContext" -}}
+{{- $ctx := .context -}}
+{{- $specific := .securityContext -}}
+{{- $generic := .genericSecurityContext -}}
+{{- $final := dict -}}
+{{- if and $specific (kindIs "map" $specific) (get $specific "mergeWithGeneric") $generic -}}
+  {{- $final = mergeOverwrite $final ($generic | default dict) (omit $specific "mergeWithGeneric") -}}
+{{- else if $specific -}}
+  {{- if and (kindIs "map" $specific) (hasKey $specific "mergeWithGeneric") -}}
+    {{- $final = omit $specific "mergeWithGeneric" -}}
+  {{- else -}}
+    {{- $final = $specific -}}
+  {{- end -}}
+{{- else if $generic -}}
+  {{- $final = $generic -}}
+{{- end -}}
+{{- if $final }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" $final "context" $ctx) | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Render imagePullSecrets for generated ServiceAccounts.
+
+The general and local imagePullSecrets blocks support:
+- includePlatformDefault: bool
+- additional: [{name: regcred}] or ["regcred"]
+
+The local value can also be provided directly as a list for convenience.
+*/}}
+{{- define "helpers.serviceAccounts.imagePullSecrets" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $generalConfig := get $general "imagePullSecrets" | default dict -}}
+{{- $valueConfig := get $value "imagePullSecrets" -}}
+{{- $includeDefault := false -}}
+{{- if and (kindIs "map" $generalConfig) (hasKey $generalConfig "includePlatformDefault") -}}
+  {{- $includeDefault = $generalConfig.includePlatformDefault -}}
+{{- end -}}
+{{- if and (kindIs "map" $valueConfig) (hasKey $valueConfig "includePlatformDefault") -}}
+  {{- $includeDefault = $valueConfig.includePlatformDefault -}}
+{{- end -}}
+{{- $items := list -}}
+{{- if and (kindIs "map" $generalConfig) (kindIs "slice" ($generalConfig.additional | default list)) -}}
+  {{- $items = concat $items ($generalConfig.additional | default list) -}}
+{{- end -}}
+{{- if kindIs "slice" $valueConfig -}}
+  {{- $items = concat $items $valueConfig -}}
+{{- else if and (kindIs "map" $valueConfig) (kindIs "slice" ($valueConfig.additional | default list)) -}}
+  {{- $items = concat $items ($valueConfig.additional | default list) -}}
+{{- end -}}
+{{- $names := list -}}
+{{- if and $includeDefault $ctx.Values.serviceAccountDefaultImagePullSecretName -}}
+  {{- $names = append $names $ctx.Values.serviceAccountDefaultImagePullSecretName -}}
+{{- end -}}
+{{- range $item := $items -}}
+  {{- if kindIs "string" $item -}}
+    {{- $names = append $names $item -}}
+  {{- else if and (kindIs "map" $item) (hasKey $item "name") -}}
+    {{- $names = append $names ($item.name | toString) -}}
+  {{- end -}}
+{{- end -}}
+{{- $seen := dict -}}
+{{- $rendered := list -}}
+{{- range $name := $names -}}
+  {{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $name "context" $ctx) -}}
+  {{- if and $resolvedName (not (hasKey $seen $resolvedName)) -}}
+    {{- $_ := set $seen $resolvedName true -}}
+    {{- $rendered = append $rendered (dict "name" $resolvedName) -}}
+  {{- end -}}
+{{- end -}}
+{{- if $rendered }}
+imagePullSecrets:
+{{- range $entry := $rendered }}
+  - name: {{ $entry.name | quote }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.typed" -}}
+{{- $ctx := .context -}}
+{{- range .volumes -}}
+{{- if eq .type "configMap" }}
+- name: {{ .name }}
+  configMap:
+    {{- with .originalName }}
+    name: {{ . }}
+    {{- else }}
+    name: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
+    {{- with .items }}
+    items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 6 }}
+    {{- end }}
+{{- else if eq .type "secret" }}
+- name: {{ .name }}
+  secret:
+    {{- with .originalName }}
+    secretName: {{ . }}
+    {{- else }}
+    secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+    {{- with .items }}
+    items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 6 }}
+    {{- end }}
+{{- else if eq .type "pvc" }}
+- name: {{ .name }}
+  persistentVolumeClaim:
+    {{- with .originalName }}
+    claimName: {{ . }}
+    {{- else }}
+    claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+{{- else if eq .type "emptyDir" }}
+- name: {{ .name }}
+  {{- if or .sizeLimit .medium }}
+  emptyDir:
+    {{- if .sizeLimit }}
+    sizeLimit: {{ .sizeLimit }}
+    {{- end }}
+    {{- if .medium }}
+    medium: {{ .medium }}
+    {{- end }}
+  {{- else }}
+  emptyDir: {}
+  {{- end }}
+{{- else if eq .type "projected" }}
+- name: {{ .name }}
+  projected:
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
+    sources: {{- include "helpers.tplvalues.render" (dict "value" (.sources | default list) "context" $ctx) | nindent 6 }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.renderVolume" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $val := .value | default dict -}}
+{{- if or $val.volumes $general.volumes $ctx.Values.generic.volumes $val.extraVolumes $general.extraVolumes $ctx.Values.generic.extraVolumes -}}
+{{- with $val.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $general.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $val.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- else -}}
+[]
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.renderVolumeMounts" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $val := .value | default dict -}}
+{{- if or $val.volumeMounts $val.extraVolumeMounts $general.volumeMounts $general.extraVolumeMounts $ctx.Values.generic.volumeMounts $ctx.Values.generic.extraVolumeMounts -}}
+{{- with $val.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $val.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- else -}}
+[]
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.pod" -}}
 {{- $ := .context -}}
 {{- $general := .general | default dict -}}
@@ -506,6 +709,11 @@ serviceAccountName: {{ include "helpers.app.fullname" (dict "name" $serviceAccou
 {{- else }}
 serviceAccountName: {{ $serviceAccountName }}
 {{- end }}
+{{- end }}
+{{- if hasKey . "automountServiceAccountToken" }}
+automountServiceAccountToken: {{ .automountServiceAccountToken }}
+{{- else if and $.Values.generic (hasKey $.Values.generic "automountServiceAccountToken") }}
+automountServiceAccountToken: {{ $.Values.generic.automountServiceAccountToken }}
 {{- end }}
 {{- if .hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 2 }}
@@ -541,8 +749,10 @@ dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 {{- with .restartPolicy }}
 restartPolicy: {{ . }}
 {{- end }}
-{{- with .nodeSelector }}
-nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- if .nodeSelector }}
+nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" .nodeSelector "context" $) | nindent 2 }}
+{{- else if $.Values.generic.nodeSelector }}
+nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.nodeSelector "context" $) | nindent 2 }}
 {{- end }}
 {{- $combinedTolerations := list -}}
 {{- if .tolerations }}
@@ -554,9 +764,7 @@ nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $
 tolerations:
 {{ toYaml $combinedTolerations | nindent 2 }}
 {{- end }}
-{{- with .securityContext }}
-securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
-{{- end }}
+{{- include "helpers.securityContext" (dict "securityContext" .securityContext "genericSecurityContext" $.Values.generic.podSecurityContext "context" $) }}
 {{- if or $.Values.imagePullSecrets $.Values.generic.extraImagePullSecrets .imagePullSecrets .extraImagePullSecrets }}
 imagePullSecrets:
 {{- range $sName := keys $.Values.imagePullSecrets | sortAlpha }}
@@ -591,9 +799,7 @@ initContainers:
   {{- if get $container "tty" }}
   tty: {{ get $container "tty" }}
   {{- end }}
-  {{- with (get $container "securityContext") }}
-  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
-  {{- end }}
+  {{- include "helpers.securityContext" (dict "securityContext" (get $container "securityContext") "genericSecurityContext" $.Values.generic.containerSecurityContext "context" $) | nindent 2 }}
   {{- if $diagnosticEnabled }}
   args: {{- include "helpers.tplvalues.render" (dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if (get $container "args") }}
@@ -625,8 +831,11 @@ initContainers:
   {{- with (get $container "readinessProbe") }}
   readinessProbe: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-  {{- with (get $container "resources") }}
-  resources: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- $containerResources := get $container "resources" -}}
+  {{- if $containerResources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $.Values.generic.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" $container "general" $general "context" $) | nindent 4 }}
 {{- end }}
@@ -653,9 +862,7 @@ containers:
   {{- if get $container "tty" }}
   tty: {{ get $container "tty" }}
   {{- end }}
-  {{- with (get $container "securityContext") }}
-  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
-  {{- end }}
+  {{- include "helpers.securityContext" (dict "securityContext" (get $container "securityContext") "genericSecurityContext" $.Values.generic.containerSecurityContext "context" $) | nindent 2 }}
   {{- if $diagnosticEnabled }}
   args: {{- include "helpers.tplvalues.render" (dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if (get $container "args") }}
@@ -687,8 +894,11 @@ containers:
   {{- with (get $container "readinessProbe") }}
   readinessProbe: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-  {{- with (get $container "resources") }}
-  resources: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- $containerResources := get $container "resources" -}}
+  {{- if $containerResources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $.Values.generic.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" $container "general" $general "context" $) | nindent 4 }}
 {{- end }}

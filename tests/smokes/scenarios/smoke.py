@@ -40,6 +40,10 @@ class SmokeContext:
     def hook_annotations_disabled_values(self) -> Path:
         return self.repo_root / "tests" / "smokes" / "fixtures" / "hook-annotations-disabled.values.yaml"
 
+    @property
+    def samples_dir(self) -> Path:
+        return self.repo_root / "samples"
+
 
 def rendered_document_text(manifest_path: Path, *, kind: str, name: str) -> str:
     content = manifest_path.read_text(encoding="utf-8")
@@ -115,6 +119,8 @@ def check_rendering_contract(context: SmokeContext) -> None:
     render.assert_path(deployment, "spec.template.spec.containers[0].env[0].value", "prod")
 
     service = render.select_document(documents, kind="Service", name="platform-api")
+    render.assert_path(service, "metadata.labels[traffic-scope]", "shared")
+    render.assert_path(service, "metadata.annotations[service.example.com/managed-by]", "general")
     render.assert_path(service, "spec.selector.tenant", "core")
     render.assert_path(service, "spec.selector.component", "api")
 
@@ -142,7 +148,7 @@ def check_example_render(context: SmokeContext) -> None:
     )
 
     documents = render.load_documents(output_path)
-    render.assert_doc_count(documents, 26)
+    render.assert_doc_count(documents, 27)
     render.assert_kinds(
         documents,
         {
@@ -176,12 +182,25 @@ def check_example_render(context: SmokeContext) -> None:
     render.assert_path(deployment, "spec.template.spec.containers[0].image", "nginx:1.27.5")
     render.assert_path(deployment, "metadata.labels.gitops-profile", "platform")
     render.assert_path(deployment, "metadata.annotations[argocd.argoproj.io/sync-wave]", "10")
+    render.assert_path(deployment, "spec.template.spec.automountServiceAccountToken", True)
+    render.assert_path(deployment, "spec.template.spec.securityContext.runAsNonRoot", True)
+    render.assert_path(deployment, "spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem", True)
+    render.assert_path(deployment, "spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation", False)
     render.assert_path(deployment, "spec.template.spec.containers[0].startupProbe.httpGet.port", "http")
     render.assert_path(deployment, "spec.template.spec.topologySpreadConstraints[0].topologyKey", "topology.kubernetes.io/zone")
+    render.assert_path(deployment, "spec.template.spec.volumes[1].projected.sources[0].serviceAccountToken.path", "token")
     render.assert_path(deployment, "spec.template.spec.containers[0].env[2].value", "production")
 
     stateful_set = render.select_document(documents, kind="StatefulSet", name="universal-blue-worker")
     render.assert_path(stateful_set, "spec.serviceName", "universal-blue-headless")
+
+    service = render.select_document(documents, kind="Service", name="universal-blue-api")
+    render.assert_path(service, "metadata.labels[traffic-scope]", "shared")
+    render.assert_path(service, "metadata.annotations[service.example.com/managed-by]", "general")
+
+    service_account = render.select_document(documents, kind="ServiceAccount", name="universal-blue-deployer")
+    render.assert_path(service_account, "imagePullSecrets[0].name", "registry.example.com")
+    render.assert_path(service_account, "imagePullSecrets[1].name", "registry.example.com-rw")
 
     daemon_set = render.select_document(documents, kind="DaemonSet", name="universal-blue-node-agent")
     render.assert_path(daemon_set, "spec.template.spec.containers[0].ports[0].name", "metrics")
@@ -190,6 +209,7 @@ def check_example_render(context: SmokeContext) -> None:
     render.assert_path(pod, "spec.containers[0].name", "toolbox")
     render.assert_path(pod, "spec.containers[0].stdin", True)
     render.assert_path(pod, "spec.containers[0].tty", True)
+    render.assert_path(pod, "spec.automountServiceAccountToken", False)
 
     ingress = render.select_document(documents, kind="Ingress", name="universal-blue-app.example.com")
     render.assert_path(ingress, "spec.ingressClassName", "nginx")
@@ -309,11 +329,48 @@ def check_hook_annotations(context: SmokeContext) -> None:
         raise system.TestFailure("hook annotation unexpectedly rendered for disabled Secret")
 
 
+def check_samples_render(context: SmokeContext) -> None:
+    if not context.samples_dir.exists():
+        raise system.TestFailure("samples directory is missing")
+
+    sample_dirs = sorted(path for path in context.samples_dir.iterdir() if path.is_dir())
+    if not sample_dirs:
+        raise system.TestFailure("no sample directories found under samples/")
+
+    for sample_dir in sample_dirs:
+        values_file = sample_dir / "values.yaml"
+        readme_file = sample_dir / "README.md"
+        if not values_file.exists():
+            raise system.TestFailure(f"sample {sample_dir.name} is missing values.yaml")
+        if not readme_file.exists():
+            raise system.TestFailure(f"sample {sample_dir.name} is missing README.md")
+
+        helm.lint(
+            context.chart_dir,
+            values_file=values_file,
+            workdir=context.workdir,
+        )
+
+        output_path = context.render_dir / f"sample-{sample_dir.name}.yaml"
+        helm.template(
+            context.chart_dir,
+            release_name=context.release_name,
+            namespace=context.namespace,
+            values_file=values_file,
+            output_path=output_path,
+            workdir=context.workdir,
+        )
+        documents = render.load_documents(output_path)
+        if not documents:
+            raise system.TestFailure(f"sample {sample_dir.name} rendered zero documents")
+
+
 SCENARIOS: list[tuple[str, Callable[[SmokeContext], None]]] = [
     ("default-empty", check_default_empty),
     ("schema-invalid-list-contract", check_schema_invalid_list_contract),
     ("rendering-contract", check_rendering_contract),
     ("hook-annotations", check_hook_annotations),
+    ("samples-render", check_samples_render),
     ("example-render", check_example_render),
     ("example-kubeconform", check_example_kubeconform),
 ]

@@ -11,6 +11,12 @@ generic:
     environment: '{{ .Values.generic.environment }}'
   environment: prod
   sharedTag: "1.25.4"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector:
+    nodepool: common
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: kubernetes.io/hostname
@@ -23,6 +29,12 @@ configMaps:
   settings:
     data:
       ENVIRONMENT: '{{ .Values.generic.environment }}'
+
+servicesGeneral:
+  labels:
+    traffic-scope: shared
+  annotations:
+    service.example.com/managed-by: general
 
 services:
   api:
@@ -70,10 +82,15 @@ statefulSets:
       component: worker
     extraSelectorLabels:
       component: worker
+    nodeSelector:
+      nodepool: worker
     containers:
       - name: worker
         image: busybox
         imageTag: "1.36.1"
+        resources:
+          requests:
+            memory: 64Mi
         envConfigmaps:
           - settings
         ports:

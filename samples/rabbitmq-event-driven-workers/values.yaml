@@ -1,0 +1,70 @@
+nameOverride: event-workers
+
+deployments:
+  worker:
+    containers:
+      worker:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600
+
+nuc-rabbitmq:
+  enabled: true
+  federations: {}
+  shovels: {}
+  policies: {}
+  exchanges:
+    tasks:
+      spec:
+        name: tasks
+        type: direct
+        autoDelete: false
+        durable: true
+        rabbitmqClusterReference:
+          name: messaging
+  queues:
+    tasks:
+      spec:
+        name: tasks
+        durable: true
+        rabbitmqClusterReference:
+          name: messaging
+  bindings:
+    tasks:
+      spec:
+        source: tasks
+        destination: tasks
+        destinationType: queue
+        routingKey: tasks
+        rabbitmqClusterReference:
+          name: messaging
+  users: {}
+  permissions: {}
+  vhosts: {}
+  rabbitmqclusters:
+    messaging:
+      spec:
+        replicas: 1
+
+nuc-keda:
+  enabled: true
+  clusterTriggerAuthentications: {}
+  scaledJobs: {}
+  triggerAuthentications: {}
+  scaledObjects:
+    worker:
+      spec:
+        scaleTargetRef:
+          name: event-workers-worker
+        minReplicaCount: 1
+        maxReplicaCount: 8
+        triggers:
+          - type: rabbitmq
+            metadata:
+              host: amqp://guest:guest@messaging.default.svc.cluster.local:5672/
+              mode: QueueLength
+              queueName: tasks
+              value: "10"

@@ -37,6 +37,12 @@ pvs:
         path: /tmp/platform-shared-data
         type: DirectoryOrCreate
 
+servicesGeneral:
+  labels:
+    traffic-scope: shared
+  annotations:
+    service.example.com/managed-by: general
+
 services:
   api:
     labels:

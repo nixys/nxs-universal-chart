@@ -1,0 +1,43 @@
+nameOverride: keda-worker
+
+deployments:
+  worker:
+    containers:
+      worker:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600
+
+nuc-keda:
+  enabled: true
+  clusterTriggerAuthentications: {}
+  triggerAuthentications:
+    queue-auth:
+      spec:
+        secretTargetRef:
+          - parameter: connection
+            name: queue-credentials
+            key: connection
+  scaledJobs: {}
+  scaledObjects:
+    worker:
+      spec:
+        scaleTargetRef:
+          name: keda-worker-worker
+        minReplicaCount: 1
+        maxReplicaCount: 10
+        triggers:
+          - type: prometheus
+            metadata:
+              serverAddress: http://prometheus.monitoring.svc:9090
+              metricName: queue_depth
+              threshold: "5"
+              query: vector(10)
+
+secrets:
+  queue-credentials:
+    stringData:
+      connection: amqp://guest:guest@rabbitmq:5672/

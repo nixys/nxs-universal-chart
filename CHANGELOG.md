@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.0.12] - April 21, 2026
+### Added
+* added shared `generic.nodeSelector` defaults for workloads
+* added shared `generic.resources` defaults for workload containers
+* added `servicesGeneral` for common labels and annotations on rendered `Service` resources, including generated governing Services
+* added `generic.podSecurityContext` and `generic.containerSecurityContext` defaults with optional `mergeWithGeneric: true` override semantics
+* added `generic.automountServiceAccountToken` and workload-level `automountServiceAccountToken`
+* added typed `projected` volumes via `volumes[].type: projected`
+* added generated `ServiceAccount.imagePullSecrets` support via `serviceAccountDefaultImagePullSecretName`, `serviceAccountGeneral.imagePullSecrets`, and per-ServiceAccount overrides
+* added a curated `samples/` catalog with smoke coverage for the main deployment scenarios
+
+### Changed
+* updated the local compatibility helpers and `nuc-common` helper library to support the new pod/service account/security context behavior consistently
+* expanded `values.yaml`, `values.schema.json`, `values.yaml.example`, and README documentation for the new shared workload, Service, volume, and ServiceAccount options
+
+### Testing
+* extended unit and smoke coverage for:
+  * `servicesGeneral`
+  * generic pod/container `securityContext`
+  * `automountServiceAccountToken`
+  * projected typed volumes
+  * generated `ServiceAccount.imagePullSecrets`
+
 ## [3.0.11] - April 20, 2026
 ### Fixed
 * fixed error: configmaps and Secrets annotated by default hooks cannot be uninstalled

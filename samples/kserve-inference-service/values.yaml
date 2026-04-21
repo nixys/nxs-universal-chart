@@ -1,0 +1,18 @@
+nameOverride: kserve-predictor
+
+nuc-kserve:
+  enabled: true
+  clusterServingRuntimes: {}
+  clusterStorageContainers: {}
+  inferenceGraphs: {}
+  localModelCaches: {}
+  localModelNodeGroups: {}
+  localModelNodes: {}
+  servingRuntimes: {}
+  trainedModels: {}
+  inferenceServices:
+    sklearn-model:
+      spec:
+        predictor:
+          sklearn:
+            storageUri: s3://models/sklearn

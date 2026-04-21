@@ -1,0 +1,47 @@
+nameOverride: istio-routing
+
+nuc-istio:
+  enabled: true
+  authorizationpolicies: {}
+  envoyfilters: {}
+  peerauthentications: {}
+  proxyconfigs: {}
+  requestauthentications: {}
+  serviceentries: {}
+  sidecars: {}
+  telemetries: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  gateways:
+    public:
+      spec:
+        selector:
+          istio: ingressgateway
+        servers:
+          - port:
+              number: 80
+              name: http
+              protocol: HTTP
+            hosts:
+              - istio-routing.example.local
+  virtualservices:
+    app:
+      spec:
+        hosts:
+          - istio-routing.example.local
+        gateways:
+          - public
+        http:
+          - route:
+              - destination:
+                  host: app.default.svc.cluster.local
+                  port:
+                    number: 80
+  destinationrules:
+    app:
+      spec:
+        host: app.default.svc.cluster.local
+        trafficPolicy:
+          loadBalancer:
+            simple: ROUND_ROBIN

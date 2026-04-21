@@ -65,6 +65,11 @@ generic:
   podLabels: {}
   # -- Extra annotations merged into all workload pods.
   podAnnotations: {}
+  # -- Shared pod securityContext applied when workload-level `securityContext` is omitted.
+  podSecurityContext: {}
+  # -- Shared container securityContext applied when container-level `securityContext` is omitted.
+  # -- Set `securityContext.mergeWithGeneric: true` on a specific pod/container to merge instead of replace.
+  containerSecurityContext: {}
   # -- Optional default URL override exposed through `.Values.generic.defaultURL`.
   defaultURL: ""
   # -- Optional Helm version override used by capability helpers.
@@ -84,8 +89,12 @@ generic:
   extraVolumeMounts: []
   # -- Shared imagePullSecrets appended to all workload specs.
   extraImagePullSecrets: []
+  # -- Shared container resources applied when container-level `resources` are omitted.
+  resources: {}
   # -- Shared pod tolerations.
   tolerations: []
+  # -- Shared nodeSelector applied to all workload pod specs unless overridden per workload.
+  nodeSelector: {}
   # -- Shared topologySpreadConstraints applied to all workload pod specs unless overridden per workload.
   topologySpreadConstraints: []
   # -- Shared hostAliases block.
@@ -96,6 +105,8 @@ generic:
   dnsPolicy: ""
   # -- Shared serviceAccountName used when workload-level value is omitted.
   serviceAccountName: ""
+  # -- Shared automountServiceAccountToken used when workload-level value is omitted.
+  # automountServiceAccountToken: true
   # -- Enable generated affinity presets when workload affinity is not specified.
   usePredefinedAffinity: true
 
@@ -157,6 +168,9 @@ secretEnvsString: ""
 # -- Docker config JSON payloads rendered as imagePullSecrets.
 imagePullSecrets: {}
 
+# -- Optional default imagePullSecret name that can be attached to generated ServiceAccounts.
+serviceAccountDefaultImagePullSecretName: ""
+
 # -- Optional diagnostic mode overriding container command and args in all workloads.
 diagnosticMode:
   enabled: false
@@ -177,6 +191,9 @@ defaultImagePullPolicy: IfNotPresent
 
 # -- Ingress resources keyed by host or logical name.
 ingresses: {}
+
+# -- Shared defaults applied to rendered Service resources.
+servicesGeneral: {}
 
 # -- Service resources keyed by service name.
 services: {}
@@ -209,10 +226,20 @@ statefulSetsGeneral: {}
 statefulSets: {}
 
 # -- Shared defaults applied to generated ServiceAccounts.
-serviceAccountGeneral: {}
+serviceAccountGeneral:
+  # -- Optional imagePullSecrets defaults for generated ServiceAccounts.
+  imagePullSecrets:
+    includePlatformDefault: false
+    additional: []
 
 # -- ServiceAccount resources keyed by service-account suffix.
 serviceAccount: {}
+# -- Example:
+# serviceAccount:
+#   deployer:
+#     imagePullSecrets:
+#       additional:
+#         - regcred-extra
 
 # -- Secret resources keyed by secret suffix.
 secrets: {}

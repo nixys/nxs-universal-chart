@@ -1,0 +1,185 @@
+nameOverride: platform-baseline
+
+deployments:
+  api:
+    labels:
+      app: platform-baseline
+    replicas: 2
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+        envSecrets:
+          - app-secret
+        ports:
+          - name: http
+            containerPort: 8080
+
+services:
+  api:
+    enabled: true
+    labels:
+      app: platform-baseline
+    selector:
+      app: platform-baseline
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+
+nuc-istio:
+  enabled: true
+  authorizationpolicies: {}
+  envoyfilters: {}
+  peerauthentications: {}
+  proxyconfigs: {}
+  requestauthentications: {}
+  serviceentries: {}
+  sidecars: {}
+  telemetries: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  gateways:
+    public:
+      spec:
+        selector:
+          istio: ingressgateway
+        servers:
+          - port:
+              number: 443
+              name: https
+              protocol: HTTPS
+            tls:
+              mode: SIMPLE
+              credentialName: platform-baseline-gateway-tls
+            hosts:
+              - platform.example.local
+  virtualservices:
+    api:
+      spec:
+        hosts:
+          - platform.example.local
+        gateways:
+          - public
+        http:
+          - route:
+              - destination:
+                  host: platform-baseline-api.default.svc.cluster.local
+                  port:
+                    number: 8080
+  destinationrules:
+    api:
+      spec:
+        host: platform-baseline-api.default.svc.cluster.local
+        trafficPolicy:
+          loadBalancer:
+            simple: ROUND_ROBIN
+
+nuc-certificates:
+  enabled: true
+  certificateRequests: {}
+  challenges: {}
+  issuers: {}
+  orders: {}
+  clusterIssuers:
+    letsencrypt:
+      spec:
+        acme:
+          email: ops@example.local
+          server: https://acme-staging-v02.api.letsencrypt.org/directory
+          privateKeySecretRef:
+            name: platform-baseline-acme-account
+          solvers:
+            - http01:
+                ingress:
+                  ingressClassName: nginx
+  certificates:
+    gateway-tls:
+      namespace: default
+      spec:
+        secretName: platform-baseline-gateway-tls
+        dnsNames:
+          - platform.example.local
+        issuerRef:
+          name: letsencrypt
+          kind: ClusterIssuer
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultDynamicSecrets: {}
+  vaultPKISecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: platform-baseline
+      serviceAccount: default
+  vaultStaticSecrets:
+    app-secret:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: apps/platform-baseline
+        destination:
+          name: app-secret
+          create: true
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  scrapeConfigs: {}
+  podMonitors: {}
+  probes: {}
+  serviceMonitors:
+    api:
+      enabled: true
+      name: api
+      spec:
+        selector:
+          matchLabels:
+            app: platform-baseline
+        endpoints:
+          - port: http
+            interval: 30s
+  prometheusRules:
+    api:
+      enabled: true
+      name: api
+      spec:
+        groups:
+          - name: platform-baseline
+            rules:
+              - alert: PlatformBaselineAppDown
+                expr: vector(1)
+                for: 5m
+
+nuc-keda:
+  enabled: true
+  clusterTriggerAuthentications: {}
+  scaledJobs: {}
+  triggerAuthentications: {}
+  scaledObjects:
+    api:
+      spec:
+        scaleTargetRef:
+          name: platform-baseline-api
+        minReplicaCount: 2
+        maxReplicaCount: 6
+        triggers:
+          - type: prometheus
+            metadata:
+              serverAddress: http://prometheus.monitoring.svc:9090
+              metricName: http_requests_total
+              threshold: "100"
+              query: vector(150)

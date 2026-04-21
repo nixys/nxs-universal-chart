@@ -1,0 +1,48 @@
+nameOverride: istio-egress
+
+nuc-istio:
+  enabled: true
+  authorizationpolicies: {}
+  envoyfilters: {}
+  gateways: {}
+  peerauthentications: {}
+  proxyconfigs: {}
+  requestauthentications: {}
+  sidecars: {}
+  telemetries: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  serviceentries:
+    external-api:
+      spec:
+        hosts:
+          - api.external.example
+        location: MESH_EXTERNAL
+        resolution: DNS
+        ports:
+          - number: 443
+            name: https
+            protocol: HTTPS
+  destinationrules:
+    external-api:
+      spec:
+        host: api.external.example
+        trafficPolicy:
+          tls:
+            mode: SIMPLE
+  virtualservices:
+    external-api:
+      spec:
+        hosts:
+          - api.external.example
+        tls:
+          - match:
+              - port: 443
+                sniHosts:
+                  - api.external.example
+            route:
+              - destination:
+                  host: api.external.example
+                  port:
+                    number: 443

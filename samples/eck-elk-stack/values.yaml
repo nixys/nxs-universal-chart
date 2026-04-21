@@ -1,0 +1,30 @@
+nuc-elk:
+  enabled: true
+  agents: {}
+  apmservers: {}
+  elasticmapsservers: {}
+  enterprisesearches: {}
+  logstashes: {}
+  beats:
+    filebeat:
+      spec:
+        type: filebeat
+        version: 8.13.4
+        elasticsearchRef:
+          name: logging
+  elasticsearches:
+    logging:
+      spec:
+        version: 8.13.4
+        nodeSets:
+          - name: default
+            count: 1
+            config:
+              node.store.allow_mmap: false
+  kibanas:
+    logging:
+      spec:
+        version: 8.13.4
+        count: 1
+        elasticsearchRef:
+          name: logging

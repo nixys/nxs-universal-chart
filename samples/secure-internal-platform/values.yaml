@@ -1,0 +1,128 @@
+nameOverride: secure-platform
+
+deployments:
+  api:
+    labels:
+      app: secure-platform
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+        envSecrets:
+          - app-secret
+        ports:
+          - name: http
+            containerPort: 8080
+
+services:
+  api:
+    enabled: true
+    selector:
+      app: secure-platform
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+
+nuc-istio:
+  enabled: true
+  destinationrules:
+    api:
+      spec:
+        host: secure-platform-api.default.svc.cluster.local
+        trafficPolicy:
+          tls:
+            mode: ISTIO_MUTUAL
+  envoyfilters: {}
+  gateways: {}
+  peerauthentications:
+    default:
+      spec:
+        mtls:
+          mode: STRICT
+  proxyconfigs: {}
+  requestauthentications:
+    jwt:
+      spec:
+        selector:
+          matchLabels:
+            app: secure-platform
+        jwtRules:
+          - issuer: https://issuer.example.local
+            jwksUri: https://issuer.example.local/.well-known/jwks.json
+  serviceentries: {}
+  sidecars: {}
+  telemetries: {}
+  virtualservices: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  authorizationpolicies:
+    api:
+      spec:
+        selector:
+          matchLabels:
+            app: secure-platform
+        rules:
+          - from:
+              - source:
+                  requestPrincipals:
+                    - "*"
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultDynamicSecrets: {}
+  vaultPKISecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: secure-platform
+      serviceAccount: default
+  vaultStaticSecrets:
+    app-secret:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: secure/platform
+        destination:
+          name: app-secret
+          create: true
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  scrapeConfigs: {}
+  podMonitors: {}
+  probes: {}
+  serviceMonitors:
+    api:
+      enabled: true
+      name: api
+      spec:
+        selector:
+          matchLabels:
+            app: secure-platform
+        endpoints:
+          - port: http
+  prometheusRules:
+    api:
+      enabled: true
+      name: api
+      spec:
+        groups:
+          - name: secure-platform
+            rules:
+              - alert: SecurePlatformDown
+                expr: vector(1)
+                for: 5m

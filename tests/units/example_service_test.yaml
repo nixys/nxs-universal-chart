@@ -19,11 +19,17 @@ tests:
           path: metadata.labels.gitops-profile
           value: platform
       - equal:
+          path: metadata.labels["traffic-scope"]
+          value: shared
+      - equal:
           path: metadata.annotations["argocd.argoproj.io/sync-wave"]
           value: "5"
       - equal:
           path: metadata.annotations["argocd.argoproj.io/sync-options"]
           value: Prune=false
+      - equal:
+          path: metadata.annotations["service.example.com/managed-by"]
+          value: general
       - equal:
           path: metadata.labels.component
           value: api
@@ -58,6 +64,12 @@ tests:
       - equal:
           path: metadata.labels.component
           value: worker
+      - equal:
+          path: metadata.labels["traffic-scope"]
+          value: shared
+      - equal:
+          path: metadata.annotations["service.example.com/managed-by"]
+          value: general
       - equal:
           path: spec.clusterIP
           value: None

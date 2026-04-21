@@ -1,0 +1,30 @@
+nameOverride: custom-runtime
+
+nuc-kserve:
+  enabled: true
+  clusterServingRuntimes: {}
+  clusterStorageContainers: {}
+  inferenceGraphs: {}
+  localModelCaches: {}
+  localModelNodeGroups: {}
+  localModelNodes: {}
+  trainedModels: {}
+  servingRuntimes:
+    triton-runtime:
+      spec:
+        supportedModelFormats:
+          - name: onnx
+            version: "1"
+            autoSelect: true
+        containers:
+          - name: kserve-container
+            image: nvcr.io/nvidia/tritonserver:24.01-py3
+  inferenceServices:
+    recommender:
+      spec:
+        predictor:
+          model:
+            runtime: triton-runtime
+            modelFormat:
+              name: onnx
+            storageUri: s3://models/recommender

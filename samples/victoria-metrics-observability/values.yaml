@@ -1,0 +1,66 @@
+nameOverride: vm-observe
+
+deployments:
+  app:
+    labels:
+      app: vm-observe
+    containers:
+      app:
+        image: nginx
+        imageTag: "1.27.5"
+        ports:
+          - name: metrics
+            containerPort: 9090
+
+services:
+  app:
+    enabled: true
+    labels:
+      app: vm-observe
+    selector:
+      app: vm-observe
+    ports:
+      - name: metrics
+        port: 9090
+        targetPort: metrics
+
+nuc-victoria-metrics:
+  enabled: true
+  vmScrapeConfigs: {}
+  vmStaticScrapes: {}
+  vmServiceScrapes:
+    app:
+      name: app
+      spec:
+        selector:
+          matchLabels:
+            app: vm-observe
+        endpoints:
+          - port: metrics
+  vmProbes:
+    app:
+      name: app
+      spec:
+        vmProberSpec:
+          url: vm-prober.monitoring.svc:8429
+        targets:
+          staticConfig:
+            targets:
+              - http://vm-observe-app.default.svc.cluster.local:9090/healthz
+  vmRules:
+    app:
+      name: app
+      spec:
+        groups:
+          - name: vm-app
+            rules:
+              - alert: VMAppDown
+                expr: vector(1)
+                for: 5m
+  vmAlerts:
+    app:
+      name: app
+      spec:
+        expr: vector(1)
+        annotations:
+          summary: App requires attention

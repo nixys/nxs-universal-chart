@@ -1,3 +1,4 @@
+{{- $general := $.Values.servicesGeneral | default dict -}}
 {{- range $name := keys (.Values.services | default dict) | sortAlpha }}
 {{- $service := get $.Values.services $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $service)) }}
@@ -9,10 +10,11 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $service) | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $service) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $service.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.annotations" (dict "context" $ "value" $service) | nindent 4 }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $service) | nindent 4 }}
 spec:
   {{- if not (empty $service.clusterIP) }}
   clusterIP: {{ $service.clusterIP }}
@@ -76,10 +78,11 @@ metadata:
   namespace: {{ $.Release.Namespace | quote }}
   labels:
     {{- include "helpers.app.labels" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $statefulSet) | nindent 4 }}
+    {{- include "helpers.app.gitopsLabels" (dict "context" $ "general" $general "value" $statefulSet) | nindent 4 }}
+    {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $statefulSet.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.annotations" (dict "context" $ "value" $statefulSet) | nindent 4 }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $statefulSet) | nindent 4 }}
 spec:
   clusterIP: None
   publishNotReadyAddresses: true
