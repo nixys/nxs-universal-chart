@@ -1,0 +1,35 @@
+nuc-cloudnativepg:
+  enabled: true
+  backups: {}
+  clusterImageCatalogs: {}
+  failoverQuorums: {}
+  imageCatalogs: {}
+  publications: {}
+  subscriptions: {}
+  clusters:
+    app-db:
+      spec:
+        instances: 1
+        storage:
+          size: 10Gi
+  poolers:
+    app-db:
+      spec:
+        cluster:
+          name: app-db
+        instances: 1
+        pgbouncer: {}
+        type: rw
+  databases:
+    app:
+      spec:
+        cluster:
+          name: app-db
+        name: app
+        owner: app
+  scheduledBackups:
+    daily:
+      spec:
+        schedule: "0 2 * * *"
+        cluster:
+          name: app-db

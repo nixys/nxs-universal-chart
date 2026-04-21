@@ -94,6 +94,15 @@ tests:
           path: spec.template.spec.containers[0].image
           value: nginx:1.25.4
       - equal:
+          path: spec.template.spec.nodeSelector.nodepool
+          value: common
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 100m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 128Mi
+      - equal:
           path: spec.template.spec.topologySpreadConstraints[0].topologyKey
           value: kubernetes.io/hostname
       - equal:
@@ -110,6 +119,12 @@ tests:
     asserts:
       - isKind:
           of: Service
+      - equal:
+          path: metadata.labels["traffic-scope"]
+          value: shared
+      - equal:
+          path: metadata.annotations["service.example.com/managed-by"]
+          value: general
       - equal:
           path: spec.selector.tenant
           value: core
@@ -135,6 +150,12 @@ tests:
     asserts:
       - isKind:
           of: Service
+      - equal:
+          path: metadata.labels["traffic-scope"]
+          value: shared
+      - equal:
+          path: metadata.annotations["service.example.com/managed-by"]
+          value: general
       - equal:
           path: spec.clusterIP
           value: None
@@ -233,6 +254,14 @@ tests:
       - equal:
           path: spec.serviceName
           value: platform-worker
+      - equal:
+          path: spec.template.spec.nodeSelector.nodepool
+          value: worker
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 64Mi
+      - notExists:
+          path: spec.template.spec.containers[0].resources.requests.cpu
       - exists:
           path: spec.template.metadata.annotations["checksum/configmap-settings"]
       - notExists:

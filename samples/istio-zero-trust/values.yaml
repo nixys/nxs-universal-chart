@@ -1,0 +1,66 @@
+nameOverride: istio-zero-trust
+
+nuc-istio:
+  enabled: true
+  destinationrules: {}
+  envoyfilters: {}
+  proxyconfigs: {}
+  serviceentries: {}
+  sidecars: {}
+  telemetries: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  gateways:
+    edge:
+      spec:
+        selector:
+          istio: ingressgateway
+        servers:
+          - port:
+              number: 443
+              name: https
+              protocol: HTTPS
+            hosts:
+              - secure.example.local
+            tls:
+              mode: SIMPLE
+              credentialName: secure-example-tls
+  virtualservices:
+    secure-api:
+      spec:
+        hosts:
+          - secure.example.local
+        gateways:
+          - edge
+        http:
+          - route:
+              - destination:
+                  host: secure-api.default.svc.cluster.local
+                  port:
+                    number: 8443
+  requestauthentications:
+    jwt:
+      spec:
+        selector:
+          matchLabels:
+            app: secure-api
+        jwtRules:
+          - issuer: https://issuer.example.local
+            jwksUri: https://issuer.example.local/.well-known/jwks.json
+  authorizationpolicies:
+    allow-jwt:
+      spec:
+        selector:
+          matchLabels:
+            app: secure-api
+        rules:
+          - from:
+              - source:
+                  requestPrincipals:
+                    - "*"
+  peerauthentications:
+    strict-mtls:
+      spec:
+        mtls:
+          mode: STRICT

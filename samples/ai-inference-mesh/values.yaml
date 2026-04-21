@@ -1,0 +1,161 @@
+nameOverride: ai-mesh
+
+nuc-istio:
+  enabled: true
+  envoyfilters: {}
+  peerauthentications: {}
+  proxyconfigs: {}
+  requestauthentications: {}
+  serviceentries: {}
+  sidecars: {}
+  telemetries: {}
+  wasmplugins: {}
+  workloadentries: {}
+  workloadgroups: {}
+  gateways:
+    inference:
+      spec:
+        selector:
+          istio: ingressgateway
+        servers:
+          - port:
+              number: 80
+              name: http
+              protocol: HTTP
+            hosts:
+              - ai-mesh.example.local
+  virtualservices:
+    inference:
+      spec:
+        hosts:
+          - ai-mesh.example.local
+        gateways:
+          - inference
+        http:
+          - route:
+              - destination:
+                  host: predictor.default.svc.cluster.local
+                  port:
+                    number: 80
+  destinationrules:
+    predictor:
+      spec:
+        host: predictor.default.svc.cluster.local
+  authorizationpolicies:
+    inference:
+      spec:
+        selector:
+          matchLabels:
+            app: predictor
+        rules:
+          - to:
+              - operation:
+                  paths:
+                    - /v1/models/*
+
+nuc-kserve:
+  enabled: true
+  clusterServingRuntimes: {}
+  clusterStorageContainers: {}
+  inferenceGraphs: {}
+  localModelCaches: {}
+  localModelNodeGroups: {}
+  localModelNodes: {}
+  servingRuntimes: {}
+  trainedModels: {}
+  inferenceServices:
+    predictor:
+      spec:
+        predictor:
+          model:
+            modelFormat:
+              name: sklearn
+            storageUri: s3://models/predictor
+
+nuc-knative:
+  enabled: true
+  certificates: {}
+  clusterDomainClaims: {}
+  configurations: {}
+  domainMappings: {}
+  images: {}
+  ingresses: {}
+  metrics: {}
+  podAutoscalers: {}
+  revisions: {}
+  routes: {}
+  serverlessServices: {}
+  services:
+    runtime:
+      spec:
+        template:
+          spec:
+            containers:
+              - image: ghcr.io/nixys/inference-runtime:latest
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultDynamicSecrets: {}
+  vaultPKISecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: ai-mesh
+      serviceAccount: default
+  vaultStaticSecrets:
+    model-credentials:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: ai/predictor
+        destination:
+          name: predictor-secret
+          create: true
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  scrapeConfigs: {}
+  serviceMonitors:
+    predictor:
+      enabled: true
+      name: predictor
+      spec:
+        selector:
+          matchLabels:
+            app: predictor
+        endpoints:
+          - port: http
+  podMonitors:
+    predictor:
+      enabled: true
+      name: predictor
+      spec:
+        selector:
+          matchLabels:
+            app: predictor
+        podMetricsEndpoints:
+          - port: http
+  probes: {}
+  prometheusRules:
+    predictor:
+      enabled: true
+      name: predictor
+      spec:
+        groups:
+          - name: inference
+            rules:
+              - alert: InferenceHighLatency
+                expr: vector(1)
+                for: 5m

@@ -1,0 +1,34 @@
+nameOverride: native-gateway
+
+nuc-native-gateway:
+  enabled: true
+  backendTLSPolicies: {}
+  gatewayClasses: {}
+  grpcRoutes: {}
+  listenerSets: {}
+  referenceGrants: {}
+  tlsRoutes: {}
+  gateways:
+    edge:
+      spec:
+        gatewayClassName: nginx
+        listeners:
+          - name: http
+            port: 80
+            protocol: HTTP
+            hostname: gateway-api.example.local
+  httpRoutes:
+    app:
+      spec:
+        parentRefs:
+          - name: edge
+        hostnames:
+          - gateway-api.example.local
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: 80

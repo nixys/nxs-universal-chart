@@ -1,0 +1,56 @@
+nameOverride: basic-web
+
+envs:
+  APP_MODE: production
+
+secrets:
+  app-secret:
+    data:
+      apiKey: secret-token
+
+configMaps:
+  web-config:
+    data:
+      nginx.conf: |
+        worker_processes auto;
+
+services:
+  app:
+    extraSelectorLabels:
+      component: web
+    ports:
+      - name: http
+        port: 80
+        targetPort: http
+
+deployments:
+  app:
+    replicas: 2
+    extraSelectorLabels:
+      component: web
+    containers:
+      - name: app
+        image: nginx
+        imageTag: "1.27.5"
+        ports:
+          - name: http
+            containerPort: 8080
+        envConfigmaps:
+          - envs
+        envsFromSecret:
+          app-secret:
+            - API_KEY: apiKey
+    volumes:
+      - name: web-config
+        type: configMap
+
+ingresses:
+  basic-web.example.local:
+    ingressClassName: nginx
+    hosts:
+      - paths:
+          - path: /
+            pathType: Prefix
+            serviceName: app
+            servicePort: http
+

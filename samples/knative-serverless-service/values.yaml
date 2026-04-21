@@ -1,0 +1,27 @@
+nameOverride: knative-svc
+
+nuc-knative:
+  enabled: true
+  certificates: {}
+  clusterDomainClaims: {}
+  configurations: {}
+  domainMappings: {}
+  images: {}
+  ingresses: {}
+  metrics: {}
+  podAutoscalers: {}
+  revisions: {}
+  routes: {}
+  serverlessServices: {}
+  services:
+    app:
+      spec:
+        template:
+          metadata:
+            annotations:
+              autoscaling.knative.dev/minScale: "1"
+          spec:
+            containers:
+              - image: ghcr.io/nixys/demo-api:latest
+                ports:
+                  - containerPort: 8080

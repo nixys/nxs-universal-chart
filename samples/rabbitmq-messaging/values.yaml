@@ -1,0 +1,64 @@
+nuc-rabbitmq:
+  enabled: true
+  federations: {}
+  shovels: {}
+  policies:
+    ha:
+      spec:
+        name: ha-all
+        pattern: .*
+        applyTo: queues
+        definition:
+          ha-mode: all
+        rabbitmqClusterReference:
+          name: messaging
+  exchanges:
+    orders:
+      spec:
+        name: orders
+        type: topic
+        durable: true
+        rabbitmqClusterReference:
+          name: messaging
+  queues:
+    orders:
+      spec:
+        name: orders
+        durable: true
+        rabbitmqClusterReference:
+          name: messaging
+  bindings:
+    orders:
+      spec:
+        source: orders
+        destination: orders
+        destinationType: queue
+        routingKey: orders.created
+        rabbitmqClusterReference:
+          name: messaging
+  users:
+    app:
+      spec:
+        rabbitmqClusterReference:
+          name: messaging
+  permissions:
+    app:
+      spec:
+        vhost: app
+        user: app
+        permissions:
+          configure: .*
+          write: .*
+          read: .*
+        rabbitmqClusterReference:
+          name: messaging
+  vhosts:
+    app:
+      spec:
+        name: app
+        rabbitmqClusterReference:
+          name: messaging
+  rabbitmqclusters:
+    messaging:
+      spec:
+        replicas: 1

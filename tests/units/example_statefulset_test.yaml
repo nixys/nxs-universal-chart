@@ -36,11 +36,23 @@ tests:
       - exists:
           path: spec.template.metadata.annotations["checksum/configmap-shared-config"]
       - equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: false
+      - equal:
           path: spec.template.spec.imagePullSecrets[0].name
           value: registry.example.com
       - equal:
+          path: spec.template.spec.imagePullSecrets[1].name
+          value: registry.example.com-rw
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
           path: spec.template.spec.containers[0].image
           value: busybox:1.36.1
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
       - equal:
           path: spec.template.spec.containers[0].command[0]
           value: sh

@@ -1,0 +1,21 @@
+nuc-mysql-percona-operator:
+  enabled: true
+  perconaXtraDBClusterBackups:
+    app-backup:
+      spec:
+        pxcCluster: app-mysql
+        storageName: s3-us-east
+  perconaXtraDBClusterRestores: {}
+  perconaXtraDBClusters:
+    app-mysql:
+      spec:
+        crVersion: 1.16.0
+        secretsName: app-mysql-secrets
+        pxc:
+          size: 3
+          image: percona/percona-xtradb-cluster:8.0.36
+          volumeSpec:
+            persistentVolumeClaim:
+              resources:
+                requests:
+                  storage: 10Gi

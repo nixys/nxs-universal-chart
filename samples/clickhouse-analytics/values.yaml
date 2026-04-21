@@ -1,0 +1,29 @@
+nuc-clickhouse:
+  enabled: true
+  clickhouseoperatorconfigurations: {}
+  clickhouseinstallationtemplates:
+    default-layout:
+      spec:
+        templates:
+          podTemplates:
+            - name: ch-pod
+              spec:
+                containers:
+                  - name: clickhouse
+                    image: clickhouse/clickhouse-server:24.3
+  clickhousekeeperinstallations:
+    keeper:
+      spec:
+        replicas: 1
+  clickhouseinstallations:
+    analytics:
+      spec:
+        defaults:
+          templates:
+            podTemplate: ch-pod
+        configuration:
+          clusters:
+            - name: main
+              layout:
+                shardsCount: 1
+                replicasCount: 1

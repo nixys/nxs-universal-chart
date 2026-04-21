@@ -54,11 +54,23 @@ tests:
           path: spec.template.spec.serviceAccountName
           value: universal-blue-deployer
       - equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+      - equal:
           path: spec.template.spec.topologySpreadConstraints[0].topologyKey
           value: topology.kubernetes.io/zone
       - equal:
           path: spec.template.spec.imagePullSecrets[0].name
           value: registry.example.com
+      - equal:
+          path: spec.template.spec.imagePullSecrets[1].name
+          value: registry.example.com-rw
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: config-init
@@ -71,6 +83,12 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: nginx:1.27.5
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
       - equal:
           path: spec.template.spec.containers[0].env[0].name
           value: APP_FEATURE
@@ -97,12 +115,21 @@ tests:
           value: app-settings
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[1].name
+          value: projected-auth
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[2].name
           value: shared-config
       - equal:
           path: spec.template.spec.volumes[0].configMap.name
           value: universal-blue-app-settings
       - equal:
-          path: spec.template.spec.volumes[1].configMap.name
+          path: spec.template.spec.volumes[1].projected.sources[0].serviceAccountToken.path
+          value: token
+      - equal:
+          path: spec.template.spec.volumes[1].projected.sources[1].secret.items[0].path
+          value: api-token
+      - equal:
+          path: spec.template.spec.volumes[2].configMap.name
           value: universal-blue-shared-config
       - equal:
           path: spec.template.spec.containers[0].env[2].value

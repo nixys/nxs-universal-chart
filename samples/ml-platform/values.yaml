@@ -1,0 +1,137 @@
+nameOverride: ml-platform
+
+deployments:
+  gateway:
+    containers:
+      gateway:
+        image: nginx
+        imageTag: "1.27.5"
+        ports:
+          - name: http
+            containerPort: 8080
+
+services:
+  gateway:
+    enabled: true
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+
+nuc-kserve:
+  enabled: true
+  clusterServingRuntimes: {}
+  clusterStorageContainers: {}
+  inferenceGraphs: {}
+  localModelCaches: {}
+  localModelNodeGroups: {}
+  localModelNodes: {}
+  servingRuntimes: {}
+  trainedModels: {}
+  inferenceServices:
+    predictor:
+      spec:
+        predictor:
+          model:
+            modelFormat:
+              name: sklearn
+            storageUri: s3://models/platform/predictor
+
+nuc-knative:
+  enabled: true
+  certificates: {}
+  clusterDomainClaims: {}
+  configurations: {}
+  domainMappings: {}
+  images: {}
+  ingresses: {}
+  metrics: {}
+  podAutoscalers: {}
+  revisions: {}
+  routes: {}
+  serverlessServices: {}
+  services:
+    runtime:
+      spec:
+        template:
+          spec:
+            containers:
+              - image: ghcr.io/nixys/inference-runtime:latest
+
+nuc-vault-secret-operator:
+  enabled: true
+  hcpAuths: {}
+  hcpVaultSecretsApps: {}
+  secretTransformations: {}
+  vaultAuth: {}
+  vaultAuthGlobals: {}
+  vaultDynamicSecrets: {}
+  vaultPKISecrets: {}
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    platform:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: ml-platform
+      serviceAccount: default
+  vaultStaticSecrets:
+    model-secrets:
+      spec:
+        vaultAuthRef: platform
+        mount: kvv2
+        type: kv-v2
+        path: ml-platform/model
+        destination:
+          name: model-secrets
+          create: true
+
+nuc-keda:
+  enabled: true
+  clusterTriggerAuthentications: {}
+  scaledJobs: {}
+  triggerAuthentications: {}
+  scaledObjects:
+    gateway:
+      spec:
+        scaleTargetRef:
+          name: ml-platform-gateway
+        minReplicaCount: 1
+        maxReplicaCount: 5
+        triggers:
+          - type: prometheus
+            metadata:
+              serverAddress: http://prometheus.monitoring.svc:9090
+              metricName: inference_requests
+              threshold: "50"
+              query: vector(100)
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  scrapeConfigs: {}
+  podMonitors: {}
+  probes: {}
+  serviceMonitors:
+    gateway:
+      enabled: true
+      name: gateway
+      spec:
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: ml-platform
+        endpoints:
+          - port: http
+  prometheusRules:
+    inference:
+      enabled: true
+      name: inference
+      spec:
+        groups:
+          - name: inference
+            rules:
+              - alert: ModelServingUnavailable
+                expr: vector(1)
+                for: 5m

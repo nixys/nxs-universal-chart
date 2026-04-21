@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.11
+version: 3.0.12
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -35,7 +35,7 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.2
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
     version: 1.0.5

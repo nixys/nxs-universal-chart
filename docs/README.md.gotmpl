@@ -187,6 +187,8 @@ Schema matching note:
 | `generic.extraSelectorLabels` | `generic.extraSelectorLabels.tenant: "shared"` | `{}` | Extra labels merged into selectors and pod labels. |
 | `generic.podLabels` | `generic.podLabels.tier: "backend"` | `{}` | Labels applied to all workload pod templates. |
 | `generic.podAnnotations` | `generic.podAnnotations.rendered-from: "values"` | `{}` | Annotations applied to all workload pod templates. |
+| `generic.podSecurityContext` | `generic.podSecurityContext.runAsNonRoot: true` | `{}` | Default pod security context applied when workload-level `securityContext` is omitted. |
+| `generic.containerSecurityContext` | `generic.containerSecurityContext.readOnlyRootFilesystem: true` | `{}` | Default container security context applied when container-level `securityContext` is omitted. |
 | `generic.defaultURL` | `generic.defaultURL: "https://app.example.com"` | `""` | Optional shared URL value for templates and `tpl` usage. |
 | `generic.helmVersion` | `generic.helmVersion: "v3.17.1"` | `""` | Optional Helm version override for capability checks. |
 | `generic.kubeVersion` | `generic.kubeVersion: "1.31.0"` | `""` | Optional Kubernetes version override for capability checks. |
@@ -196,12 +198,15 @@ Schema matching note:
 | `generic.volumeMounts` | `generic.volumeMounts: [{name: shared, mountPath: /etc/shared}]` | `[]` | Volume mounts appended to all containers. |
 | `generic.extraVolumeMounts` | `generic.extraVolumeMounts: [{name: old, mountPath: /old}]` | `[]` | Deprecated alias for `generic.volumeMounts`. |
 | `generic.extraImagePullSecrets` | `generic.extraImagePullSecrets: [{name: regcred}]` | `[]` | Extra pull secrets appended to workload pod specs. |
+| `generic.resources` | `generic.resources.requests.cpu: 100m` | `{}` | Shared container resources used when a container omits `resources`. |
 | `generic.tolerations` | `generic.tolerations: [{key: dedicated, operator: Exists}]` | `[]` | Shared pod tolerations. |
+| `generic.nodeSelector` | `generic.nodeSelector.nodepool: apps` | `{}` | Shared node selector applied to workloads when omitted per workload. |
 | `generic.topologySpreadConstraints` | `generic.topologySpreadConstraints: [{maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway}]` | `[]` | Shared topology spread constraints for workloads. |
 | `generic.hostAliases` | `generic.hostAliases: [{ip: 10.0.0.1, hostnames: [internal.local]}]` | `[]` | Shared host aliases block. |
 | `generic.priorityClassName` | `generic.priorityClassName: "high-priority"` | `""` | Shared priority class for workload pods. |
 | `generic.dnsPolicy` | `generic.dnsPolicy: "ClusterFirst"` | `""` | Shared DNS policy for workload pods. |
 | `generic.serviceAccountName` | `generic.serviceAccountName: "deployer"` | `""` | Default service account name when workload-level field is omitted. |
+| `generic.automountServiceAccountToken` | `generic.automountServiceAccountToken: false` | `n/a` | Default `automountServiceAccountToken` for workload pods when omitted per workload. |
 | `generic.usePredefinedAffinity` | `generic.usePredefinedAffinity: true` | `true` | Enables generated affinity presets when explicit affinity is not set. |
 
 ### Runtime Defaults and Shared Generated Resources
@@ -218,6 +223,7 @@ Schema matching note:
 | `secretEnvs` | `secretEnvs.API_TOKEN: "secret"` | `{}` | Shared key-values for generated `secret-envs` Secret. |
 | `secretEnvsString` | `secretEnvsString: "PASSWORD: strong"` | `""` | Raw YAML merged into generated `secret-envs` Secret. |
 | `imagePullSecrets` | `imagePullSecrets.registry.example.com: '{"auths":{...}}'` | `{}` | Generates `kubernetes.io/dockerconfigjson` Secrets by name. |
+| `serviceAccountDefaultImagePullSecretName` | `serviceAccountDefaultImagePullSecretName: "registry.example.com"` | `""` | Optional default imagePullSecret name that generated ServiceAccounts can reference. |
 | `diagnosticMode.enabled` | `diagnosticMode.enabled: true` | `false` | Enables diagnostic command/args override for all workload containers. |
 | `diagnosticMode.enbled` | `diagnosticMode.enbled: true` | `false` | Backward-compatible typo alias for `diagnosticMode.enabled`. |
 | `diagnosticMode.command` | `diagnosticMode.command: ["sleep"]` | `["sleep"]` | Command used in diagnostic mode. |
@@ -257,15 +263,16 @@ These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<nam
 | `extraSelectorLabels` | `extraSelectorLabels.component: api` | `n/a` | Additional labels for selectors and selected pods. |
 | `gitops` | `gitops.argo.syncWave: "20"` | `n/a` | Resource-level GitOps overrides (Argo/Flux/common labels/annotations). |
 | `serviceAccountName` | `serviceAccountName: deployer` | `""` (via generic fallback) | ServiceAccount used by workload pods. |
+| `automountServiceAccountToken` | `automountServiceAccountToken: false` | `n/a` (or generic fallback) | Controls mounting of the pod service-account token. |
 | `hostAliases` | `hostAliases: [{ip: 10.0.0.1, hostnames: [db.local]}]` | `[]` (or generic fallback) | Pod host aliases. |
 | `affinity` | `affinity.nodeAffinity: {...}` | `generated` when enabled | Explicit affinity; overrides generated presets. |
 | `topologySpreadConstraints` | `topologySpreadConstraints: [{...}]` | `[]` (or generic fallback) | Per-workload topology spread constraints. |
 | `priorityClassName` | `priorityClassName: high-priority` | `""` (or generic fallback) | Priority class assigned to pods. |
 | `dnsPolicy` | `dnsPolicy: ClusterFirst` | `""` (or generic fallback) | DNS policy for pods. |
 | `restartPolicy` | `restartPolicy: Never` | `n/a` | Restart policy; typically set explicitly for Pod/Job-like workloads. |
-| `nodeSelector` | `nodeSelector.nodepool: apps` | `n/a` | Node selector labels for scheduling. |
+| `nodeSelector` | `nodeSelector.nodepool: apps` | `n/a` (or generic fallback) | Node selector labels for scheduling. |
 | `tolerations` | `tolerations: [{key: dedicated, operator: Exists}]` | `[]` (or generic fallback) | Pod tolerations list. |
-| `securityContext` | `securityContext.runAsNonRoot: true` | `n/a` | Pod-level security context. |
+| `securityContext` | `securityContext.runAsNonRoot: true` | `n/a` | Pod-level security context. Add `mergeWithGeneric: true` to merge with `generic.podSecurityContext`. |
 | `imagePullSecrets` / `extraImagePullSecrets` | `extraImagePullSecrets: [{name: regcred}]` | `[]` | Additional pull secrets for workload pod specs. |
 | `terminationGracePeriodSeconds` | `terminationGracePeriodSeconds: 30` | `n/a` | Grace period before forced pod termination. |
 | `initContainers` | `initContainers.prepare.image: busybox` | `n/a` | Init containers, supports both map and array forms. |
@@ -289,8 +296,8 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `ports` | `ports: [{name: http, containerPort: 8080}]` | `n/a` | Exposed container ports. |
 | `lifecycle` | `lifecycle.preStop.exec.command: ["sleep","5"]` | `n/a` | Lifecycle hook settings. |
 | `startupProbe`, `livenessProbe`, `readinessProbe` | `startupProbe.httpGet.path: /healthz` | `n/a` | Probe configuration blocks. |
-| `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. |
-| `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` (or generic fallback) | CPU/memory requests and limits. |
+| `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. Add `mergeWithGeneric: true` to merge with `generic.containerSecurityContext`. |
 | `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
 | `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
 | `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
@@ -369,6 +376,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 
 | Field | Example | Default | Description |
 |---|---|---|---|
+| `servicesGeneral` | `servicesGeneral.labels.traffic-scope: "shared"` | `{}` | Shared metadata defaults applied to rendered Service resources, including generated governing Services. |
 | `services` | `services.api.ports: [{port: 8080, targetPort: http}]` | `{}` | Service objects keyed by name. |
 | `services.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service entry. |
 | `services.<name>.labels` / `annotations` | `labels.tier: backend` | `{}` | Extra metadata for the service resource. |
@@ -440,10 +448,12 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | Field | Example | Default | Description |
 |---|---|---|---|
 | `serviceAccountGeneral` | `serviceAccountGeneral.labels.team: platform` | `{}` | Shared defaults for all service accounts and generated bindings. |
+| `serviceAccountGeneral.imagePullSecrets` | `includePlatformDefault: true` | `{includePlatformDefault: false, additional: []}` | Shared imagePullSecrets defaults for generated ServiceAccounts. |
 | `serviceAccount` | `serviceAccount.deployer.role.name: deployer-role` | `{}` | Service accounts keyed by suffix, with optional Role/ClusterRole settings. |
 | `serviceAccount.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service account entry. |
 | `serviceAccount.<name>.labels` / `annotations` | `labels.app: worker` | `{}` | Extra metadata for ServiceAccount resource. |
 | `serviceAccount.<name>.gitops` | `gitops.argo.syncWave: "1"` | `{}` | Resource-level GitOps metadata overlay. |
+| `serviceAccount.<name>.imagePullSecrets` | `additional: [{name: regcred}]` | `n/a` | Per-ServiceAccount imagePullSecrets override; supports config object or direct list shorthand. |
 | `serviceAccount.<name>.role` | `role.rules: [{apiGroups:[""], resources:["pods"], verbs:["get"]}]` | `n/a` | Namespaced role configuration. |
 | `serviceAccount.<name>.clusterRole` | `clusterRole.name: view` | `n/a` | Cluster-level role configuration. |
 | `pvs` | `pvs.shared.spec.capacity.storage: 10Gi` | `{}` | PersistentVolume resources keyed by suffix. |
@@ -511,11 +521,11 @@ These reusable definitions are referenced across multiple value blocks and match
 | Definition | Used By | Fields |
 |---|---|---|
 | `resourceGitopsConfig` | `gitops` in most resources (`services`, `ingresses`, workload entries, storage, RBAC, observability) | `commonLabels`, `commonAnnotations`, `argo.enabled`, `argo.syncWave`, `argo.syncOptions`, `argo.compareOptions`, `flux.enabled`, `flux.labels`, `flux.annotations` |
-| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
+| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `automountServiceAccountToken`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
 | `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. |
 | `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts`, `stdin`, `tty` |
 | `workloadContainerListOrMap` | `containers`, `initContainers` | `array` of `workloadContainer` or `map` of `<containerKey> -> workloadContainer`. |
-| `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sizeLimit`, `medium`; list is `array` of these objects. |
+| `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sources`, `sizeLimit`, `medium`; list is `array` of these objects. |
 
 ## Included Values Files
 

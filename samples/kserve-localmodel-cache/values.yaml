@@ -1,0 +1,43 @@
+nameOverride: localmodel-cache
+
+deployments:
+  downloader:
+    containers:
+      downloader:
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600
+
+nuc-kserve:
+  enabled: true
+  clusterServingRuntimes: {}
+  clusterStorageContainers: {}
+  inferenceGraphs: {}
+  servingRuntimes: {}
+  localModelNodes: {}
+  trainedModels:
+    embedding-model:
+      spec:
+        description: Shared embedding model metadata
+  localModelNodeGroups:
+    gpu-workers:
+      spec:
+        nodeSelector:
+          accelerator: nvidia
+  localModelCaches:
+    embeddings:
+      spec:
+        modelUri: s3://models/embeddings
+        nodeGroups:
+          - gpu-workers
+  inferenceServices:
+    embeddings:
+      spec:
+        predictor:
+          model:
+            modelFormat:
+              name: sklearn
+            storageUri: s3://models/embeddings

@@ -30,9 +30,16 @@ generic:
     workload-tier: backend
   podAnnotations:
     rendered-from: values-example
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
   environment: production
   clusterDomain: cluster.local
   sharedTag: "1.27.5"
+  automountServiceAccountToken: false
   storageClass: standard
   topologySpreadConstraints:
     - maxSkew: 1
@@ -58,6 +65,9 @@ secretEnvs:
 
 imagePullSecrets:
   registry.example.com: '{"auths":{"registry.example.com":{"auth":"ZGVtbzpkZW1v"}}}'
+  registry.example.com-rw: '{"auths":{"registry.example.com":{"auth":"ZGVtbzpkZW1vLXJ3"}}}'
+
+serviceAccountDefaultImagePullSecretName: registry.example.com
 
 defaultImagePullPolicy: IfNotPresent
 
@@ -86,6 +96,12 @@ sealedSecrets:
       component: api
     encryptedData:
       password: AgBy7exampleencryptedpayload
+
+servicesGeneral:
+  labels:
+    traffic-scope: shared
+  annotations:
+    service.example.com/managed-by: general
 
 services:
   api:
@@ -139,6 +155,10 @@ deployments:
     extraSelectorLabels:
       component: api
     serviceAccountName: deployer
+    automountServiceAccountToken: true
+    securityContext:
+      mergeWithGeneric: true
+      fsGroup: 2000
     initContainers:
       config-init:
         image: busybox
@@ -152,6 +172,9 @@ deployments:
       api:
         image: nginx
         imageTag: '{{ .Values.generic.sharedTag }}'
+        securityContext:
+          mergeWithGeneric: true
+          allowPrivilegeEscalation: false
         ports:
           - name: http
             containerPort: 8080
@@ -178,9 +201,23 @@ deployments:
           - name: app-settings
             mountPath: /etc/app
             readOnly: true
+          - name: projected-auth
+            mountPath: /var/run/projected
+            readOnly: true
     volumes:
       - name: app-settings
         type: configMap
+      - name: projected-auth
+        type: projected
+        sources:
+          - serviceAccountToken:
+              path: token
+              expirationSeconds: 3600
+          - secret:
+              name: '{{ include "helpers.app.fullname" (dict "name" "secret-envs" "context" $) }}'
+              items:
+                - key: API_TOKEN
+                  path: api-token
 
 daemonSets:
   node-agent:
@@ -250,8 +287,15 @@ statefulSets:
       - name: cache
         type: emptyDir
 
+serviceAccountGeneral:
+  imagePullSecrets:
+    includePlatformDefault: true
+
 serviceAccount:
   deployer:
+    imagePullSecrets:
+      additional:
+        - registry.example.com-rw
     role:
       name: deployer-role
       rules:

@@ -1,0 +1,72 @@
+nameOverride: prom-observe
+
+deployments:
+  app:
+    labels:
+      app: prom-observe
+    containers:
+      app:
+        image: nginx
+        imageTag: "1.27.5"
+        ports:
+          - name: http
+            containerPort: 8080
+
+services:
+  app:
+    enabled: true
+    labels:
+      app: prom-observe
+    selector:
+      app: prom-observe
+    ports:
+      - name: http
+        port: 8080
+        targetPort: http
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  scrapeConfigs: {}
+  serviceMonitors:
+    app:
+      enabled: true
+      name: app
+      spec:
+        selector:
+          matchLabels:
+            app: prom-observe
+        endpoints:
+          - port: http
+            interval: 30s
+  podMonitors:
+    app:
+      enabled: true
+      name: app
+      spec:
+        selector:
+          matchLabels:
+            app: prom-observe
+        podMetricsEndpoints:
+          - port: http
+  probes:
+    app:
+      enabled: true
+      name: app
+      spec:
+        prober:
+          url: blackbox-exporter.monitoring.svc:19115
+        targets:
+          staticConfig:
+            static:
+              - http://prom-observe-app.default.svc.cluster.local:8080/healthz
+  prometheusRules:
+    app:
+      enabled: true
+      name: app
+      spec:
+        groups:
+          - name: app-health
+            rules:
+              - alert: AppTargetDown
+                expr: vector(1)
+                for: 5m
