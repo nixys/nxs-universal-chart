@@ -3,15 +3,9 @@ name: Regression Tests
 run-name: ${{ github.actor }} is running ${{ github.event.inputs.suite }} suite
 
 on:
-  workflow_dispatch:
-    inputs:
-      suite:
-        description: 'Suite to run'
-        required: true
-        default: 'smoke'
-        type: choice
-        options:
-          - 'smoke'
+  push:
+    branches:
+      - '**'
 
 jobs:
   lint-test:
