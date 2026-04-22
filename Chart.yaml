@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.12
+version: 3.0.13
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -47,6 +47,10 @@ dependencies:
     condition: nuc-certificates.enabled
   - name: nuc-istio
     version: 1.0.5
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-istio.enabled
+  - name: nuc-fluxcd
+    version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
   - name: nuc-knative
@@ -97,3 +101,15 @@ dependencies:
     version: 1.0.0
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-elk.enabled
+  - name: nuc-external-secrets
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-external-secrets.enabled
+  - name: nuc-mongodb-percona-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-mongodb-percona-operator.enabled
+  - name: nuc-envoy-gateway
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-envoy-gateway.enabled
