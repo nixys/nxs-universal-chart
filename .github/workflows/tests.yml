@@ -1,6 +1,6 @@
 ---
-name: Regression Tests
-run-name: ${{ github.actor }} is running ${{ github.event.inputs.suite }} suite
+name: Tests
+run-name: ${{ github.actor }} is running test suite
 
 on:
   push:
