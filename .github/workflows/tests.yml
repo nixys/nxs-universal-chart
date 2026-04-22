@@ -1,0 +1,177 @@
+---
+name: Start tests
+run-name: ${{ github.actor }} is running test suites
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+
+env:
+  KUBECONFORM_VERSION: "v0.7.0"
+  ARCH: "amd64"
+
+jobs:
+  lint-tests:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5.0.0
+
+      - uses: actions/setup-python@v6.0.0
+        with:
+          python-version: '3.13'
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed="$(ct list-changed --config .github/linters/ct.yaml)"
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "changed_list=\"${changed//$'\n'/ }\"" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: install helm unittest plugin
+        if: steps.list-changed.outputs.changed == 'true'
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git --version 1.0.3 --verify=false
+
+      - name: Run chart-testing (lint)
+        run: ct lint --config .github/linters/ct.yaml --chart-dirs . --charts .
+
+  security-tests:
+    needs: lint-tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Scan with gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Trivy Helm config & image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          helm-values: 'values.yaml,values-prod.yaml'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          format: 'table'
+
+      - name: Check deprecated K8s APIs
+        uses: FairwindsOps/pluto/github-action@master
+        with:
+          helm-chart-path: .
+          ignore-deprecations: false
+          output: table
+
+  smoke-tests:
+    needs: lint-tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5.0.0
+
+      - name: Update helm dependencies
+        run: |
+          helm dependency update
+
+      - uses: actions/setup-python@v6.0.0
+        with:
+          python-version: '3.13'
+      - run: pip install PyYAML
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-${ARCH}.tar.gz" |
+          tar -xz -C /usr/local/bin kubeconform
+
+      - name: Run chart-testing (smoke-tests)
+        run: |
+          python3 tests/smokes/run/smoke.py --scenario default-empty
+          python3 tests/smokes/run/smoke.py --scenario schema-invalid-list-contract
+          python3 tests/smokes/run/smoke.py --scenario rendering-contract
+          python3 tests/smokes/run/smoke.py --scenario example-render
+          python3 tests/smokes/run/smoke.py --scenario example-kubeconform
+
+  unit-tests:
+    needs: lint-tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5.0.0
+
+      - name: Install helm unittest plugin
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --version 1.0.3 --verify=false
+
+      - name: Run chart-testing (unit-tests)
+        run: |
+          helm dependency update
+          helm unittest -f 'tests/units/*_test.yaml' .
+
+  e2e-tests:
+    needs:
+      - lint-tests
+      - security-tests
+      - smoke-tests
+      - unit-tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5.0.0
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: nxs-universal-chart-e2e
+          config: tests/e2e/kind.yaml
+          node_image: kindest/node:v1.35.0
+          kubectl_version: v1.35.0
+          wait: 60s
+
+      - name: Run end-to-end install checks
+        env:
+          USE_EXISTING_CLUSTER: "true"
+          CLUSTER_NAME: nxs-universal-chart-e2e
+        run: bash tests/e2e/test-e2e.sh

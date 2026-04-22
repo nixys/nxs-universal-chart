@@ -20,3 +20,4 @@ values.yaml.example
 .gitignore
 .gitlab-ci.yml
 .codex
+.github/

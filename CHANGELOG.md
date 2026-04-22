@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.13] - April 22, 2026
+### Added
+* added new pre-release subchart `NUC FluxCD` to dependency list
+* added new pre-release subchart `NUC External Secrets` to dependency list
+* added new pre-release subchart `NUC MongoDB Percona Operator` to dependency list
+* added new pre-release subchart `NUC Envoy Gateway` to dependency list
+* added GitHub chart-testing and CI configuration under `.github/`, including lint, security, smoke, unit, and e2e workflows
+* added contributor templates in `docs/`:
+  * `docs/PULL_REQUEST_TEMPLATE.md`
+  * `docs/ISSUE_TEMPLATE/bug_report.yml`
+  * `docs/ISSUE_TEMPLATE/feature_request.yml`
+
 ## [3.0.12] - April 21, 2026
 ### Added
 * added shared `generic.nodeSelector` defaults for workloads
