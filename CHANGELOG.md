@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.15] - April 23, 2026
+### Fixed
+* fixed error with generalCronJob resources
+
 ## [3.0.13] - April 22, 2026
 ### Added
 * added new pre-release subchart `NUC FluxCD` to dependency list

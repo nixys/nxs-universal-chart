@@ -70,7 +70,7 @@ spec:
         spec:
           {{- include "helpers.pod" (dict "value" $job "general" $general "name" $name "context" $) | nindent 10 }}
           restartPolicy: {{ $job.restartPolicy | default "Never" }}
-{{- if $job.commandDurationAlert }}
+{{ if $job.commandDurationAlert -}}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule

@@ -137,6 +137,7 @@ Quick links to value tables:
 - [Common Workload Entry Fields](#common-workload-entry-fields)
 - [Container Entry Fields](#container-entry-fields)
 - [Workload-Specific Fields](#workload-specific-fields)
+- [Workload General Fields](#workload-general-fields)
 - [Networking Resources](#networking-resources)
 - [Config and Secret Resources](#config-and-secret-resources)
 - [RBAC, Storage, and Observability](#rbac-storage-and-observability)
@@ -198,7 +199,7 @@ Schema matching note:
 | `generic.volumeMounts` | `generic.volumeMounts: [{name: shared, mountPath: /etc/shared}]` | `[]` | Volume mounts appended to all containers. |
 | `generic.extraVolumeMounts` | `generic.extraVolumeMounts: [{name: old, mountPath: /old}]` | `[]` | Deprecated alias for `generic.volumeMounts`. |
 | `generic.extraImagePullSecrets` | `generic.extraImagePullSecrets: [{name: regcred}]` | `[]` | Extra pull secrets appended to workload pod specs. |
-| `generic.resources` | `generic.resources.requests.cpu: 100m` | `{}` | Shared container resources used when a container omits `resources`. |
+| `generic.resources` | `generic.resources.requests.cpu: 100m` | `{}` | Last-resort container resources fallback. Applied when neither the container nor its workload `*General` sets `resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `generic.tolerations` | `generic.tolerations: [{key: dedicated, operator: Exists}]` | `[]` | Shared pod tolerations. |
 | `generic.nodeSelector` | `generic.nodeSelector.nodepool: apps` | `{}` | Shared node selector applied to workloads when omitted per workload. |
 | `generic.topologySpreadConstraints` | `generic.topologySpreadConstraints: [{maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway}]` | `[]` | Shared topology spread constraints for workloads. |
@@ -236,24 +237,26 @@ Schema matching note:
 
 | Field | Example | Default | Description |
 |---|---|---|---|
-| `deploymentsGeneral` | `deploymentsGeneral.podLabels.role: "api"` | `{}` | Shared defaults applied to all Deployment entries. |
+| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`. |
 | `deployments` | `deployments.api.replicas: 2` | `{}` | Deployment resources keyed by suffix. |
-| `daemonSetsGeneral` | `daemonSetsGeneral.podLabels.role: "agent"` | `{}` | Shared defaults applied to all DaemonSet entries. |
+| `daemonSetsGeneral` | `daemonSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all DaemonSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`. |
 | `daemonSets` | `daemonSets.node-agent.containers.agent.image: busybox` | `{}` | DaemonSet resources keyed by suffix. |
-| `podsGeneral` | `podsGeneral.podLabels.role: "tooling"` | `{}` | Shared defaults applied to all Pod entries. |
+| `podsGeneral` | `podsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Pod entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields). |
 | `pods` | `pods.toolbox.containers.toolbox.image: busybox` | `{}` | Pod resources keyed by suffix. |
-| `statefulSetsGeneral` | `statefulSetsGeneral.podLabels.role: "worker"` | `{}` | Shared defaults applied to all StatefulSet entries. |
+| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`. |
 | `statefulSets` | `statefulSets.worker.serviceName: headless` | `{}` | StatefulSet resources keyed by suffix. |
-| `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. |
+| `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `parallelism`, `completions`, `activeDeadlineSeconds`, `backoffLimit`, `ttlSecondsAfterFinished`, `restartPolicy`, `commandDurationAlert`, `commandDurationAlertNamespace`. |
 | `jobs` | `jobs.migrate.containers.migrate.image: busybox` | `{}` | One-shot batch jobs keyed by suffix, or one raw templated YAML string. |
-| `cronJobsGeneral` | `cronJobsGeneral.timeZone: UTC` | `{}` | Shared defaults applied to CronJobs. |
+| `cronJobsGeneral` | `cronJobsGeneral.timeZone: UTC` | `{}` | Shared defaults applied to all CronJobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) and all jobsGeneral fields plus `suspend`, `timeZone`, `singleOnly`, `startingDeadlineSeconds`, `successfulJobsHistoryLimit`, `failedJobsHistoryLimit`. See [cronJobsGeneral](#cronJobsGeneral) for details. |
 | `cronJobs` | `cronJobs.cleanup.schedule: "*/30 * * * *"` | `{}` | CronJobs keyed by suffix, or one raw templated YAML string. |
-| `hooksGeneral` | `hooksGeneral.backoffLimit: 1` | `{}` | Shared defaults for Helm hook jobs. |
+| `hooksGeneral` | `hooksGeneral.backoffLimit: 1` | `{}` | Shared defaults for Helm hook jobs. Supports all jobsGeneral fields plus `kind`, `weight`, `deletePolicy`. |
 | `hooks` | `hooks.predeploy.kind: pre-install` | `{}` | Helm hook jobs keyed by suffix, or one raw templated YAML string. |
 
 ### Common Workload Entry Fields
 
-These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, and `hooks.<name>` (and their `*General` where relevant).
+These fields are shared by individual workload entries (`deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>`) **and** their corresponding `*General` defaults objects (`deploymentsGeneral`, `cronJobsGeneral`, etc.).
+
+Fields set on a `*General` object act as defaults for every workload in that family. A field on an individual workload entry overrides the `*General` value.
 
 | Field | Example | Default | Description |
 |---|---|---|---|
@@ -277,6 +280,7 @@ These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<nam
 | `terminationGracePeriodSeconds` | `terminationGracePeriodSeconds: 30` | `n/a` | Grace period before forced pod termination. |
 | `initContainers` | `initContainers.prepare.image: busybox` | `n/a` | Init containers, supports both map and array forms. |
 | `containers` | `containers.api.image: nginx` | `required per workload` | Main containers, supports both map and array forms. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` | Default container resources for this workload. When set on a `*General` object, acts as a fallback for all containers in that family that omit their own `resources`. Overrides `generic.resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `volumes` / `extraVolumes` | `volumes: [{name: app, type: configMap}]` | `[]` | Typed and raw volumes for workload pods. |
 | `usePredefinedAffinity` | `usePredefinedAffinity: false` | `true` (via generic) | Enables/disables generated affinity presets for this workload. |
 
@@ -296,7 +300,7 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `ports` | `ports: [{name: http, containerPort: 8080}]` | `n/a` | Exposed container ports. |
 | `lifecycle` | `lifecycle.preStop.exec.command: ["sleep","5"]` | `n/a` | Lifecycle hook settings. |
 | `startupProbe`, `livenessProbe`, `readinessProbe` | `startupProbe.httpGet.path: /healthz` | `n/a` | Probe configuration blocks. |
-| `resources` | `resources.requests.cpu: 100m` | `n/a` (or generic fallback) | CPU/memory requests and limits. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. Resolved with three-level fallback: container `resources` → workload `*General.resources` → `generic.resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. Add `mergeWithGeneric: true` to merge with `generic.containerSecurityContext`. |
 | `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
 | `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
@@ -369,6 +373,97 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `hooks.<name>.kind` | `kind: "pre-install,pre-upgrade"` | `"pre-install,pre-upgrade"` | Hook phase list for Helm execution. |
 | `hooks.<name>.weight` | `weight: "5"` | `"5"` | Hook ordering weight. |
 | `hooks.<name>.deletePolicy` | `deletePolicy: "before-hook-creation"` | `"before-hook-creation"` | Hook resource deletion policy. |
+
+### Workload General Fields
+
+Each `*General` object accepts all fields from [Common Workload Entry Fields](#common-workload-entry-fields) (including `resources`, `nodeSelector`, `tolerations`, `podLabels`, `imagePullSecrets`, etc.) as defaults for every workload in that family. In addition, some `*General` objects accept the extra family-specific fields listed below.
+
+#### deploymentsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `deploymentsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default deployment strategy for all Deployments. |
+| `deploymentsGeneral.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `n/a` | Default rollout progress deadline in seconds. |
+
+#### daemonSetsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `daemonSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all DaemonSets. |
+| `daemonSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds before pod is considered available. |
+
+#### podsGeneral
+
+Accepts all [Common Workload Entry Fields](#common-workload-entry-fields). No additional family-specific fields.
+
+#### statefulSetsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `statefulSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all StatefulSets. |
+| `statefulSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds per pod. |
+| `statefulSetsGeneral.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | Default PVC templates applied to all StatefulSets. |
+
+#### jobsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `jobsGeneral.parallelism` | `parallelism: 2` | `n/a` | Default maximum parallel pods for Jobs. |
+| `jobsGeneral.completions` | `completions: 1` | `n/a` | Default number of successful completions required. |
+| `jobsGeneral.activeDeadlineSeconds` | `activeDeadlineSeconds: 600` | `n/a` | Default job timeout in seconds. |
+| `jobsGeneral.backoffLimit` | `backoffLimit: 1` | `n/a` | Default retry limit for failed pods. |
+| `jobsGeneral.ttlSecondsAfterFinished` | `ttlSecondsAfterFinished: 3600` | `n/a` | Default cleanup TTL after job completion. |
+| `jobsGeneral.restartPolicy` | `restartPolicy: Never` | `"Never"` | Default pod restart policy for Job pods. |
+| `jobsGeneral.commandDurationAlert` | `commandDurationAlert: "900"` | `n/a` | Default long-running command alert threshold (seconds) for all Jobs. |
+| `jobsGeneral.commandDurationAlertNamespace` | `commandDurationAlertNamespace: monitoring` | release namespace | Default namespace for generated PrometheusRule alert. |
+
+#### cronJobsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) and all [jobsGeneral](#jobsgeneral) fields plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `cronJobsGeneral.suspend` | `suspend: false` | `false` | Default suspend flag for all CronJobs. |
+| `cronJobsGeneral.timeZone` | `timeZone: UTC` | `n/a` | Default cron timezone for all CronJobs. |
+| `cronJobsGeneral.singleOnly` | `singleOnly: true` | `false` | If true, sets `concurrencyPolicy: Forbid` on all CronJobs by default. |
+| `cronJobsGeneral.startingDeadlineSeconds` | `startingDeadlineSeconds: 120` | `n/a` | Default late-start deadline for missed runs. |
+| `cronJobsGeneral.successfulJobsHistoryLimit` | `successfulJobsHistoryLimit: 3` | `n/a` | Default number of successful job runs to retain. |
+| `cronJobsGeneral.failedJobsHistoryLimit` | `failedJobsHistoryLimit: 1` | `n/a` | Default number of failed job runs to retain. |
+
+Example — set default resources and timezone for all CronJobs:
+
+```yaml
+cronJobsGeneral:
+  timeZone: UTC
+  restartPolicy: Never
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+```
+
+A container with its own `resources` block overrides `cronJobsGeneral.resources`. If neither the container nor `cronJobsGeneral` sets resources, `generic.resources` is used as the last resort.
+
+#### hooksGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) and all [jobsGeneral](#jobsgeneral) fields plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `hooksGeneral.kind` | `kind: "pre-install,pre-upgrade"` | `"pre-install,pre-upgrade"` | Default hook phase list for all hook jobs. |
+| `hooksGeneral.weight` | `weight: "5"` | `"5"` | Default hook ordering weight. |
+| `hooksGeneral.deletePolicy` | `deletePolicy: "before-hook-creation"` | `"before-hook-creation"` | Default hook resource deletion policy. |
 
 ### Networking Resources
 
@@ -521,8 +616,8 @@ These reusable definitions are referenced across multiple value blocks and match
 | Definition | Used By | Fields |
 |---|---|---|
 | `resourceGitopsConfig` | `gitops` in most resources (`services`, `ingresses`, workload entries, storage, RBAC, observability) | `commonLabels`, `commonAnnotations`, `argo.enabled`, `argo.syncWave`, `argo.syncOptions`, `argo.compareOptions`, `flux.enabled`, `flux.labels`, `flux.annotations` |
-| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `automountServiceAccountToken`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
-| `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. |
+| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `automountServiceAccountToken`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `resources`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
+| `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. The `resources` field on a `*General` object sets the default container resources for all workloads in that family, overriding `generic.resources` but overridden by container-level `resources`. |
 | `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts`, `stdin`, `tty` |
 | `workloadContainerListOrMap` | `containers`, `initContainers` | `array` of `workloadContainer` or `map` of `<containerKey> -> workloadContainer`. |
 | `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sources`, `sizeLimit`, `medium`; list is `array` of these objects. |
