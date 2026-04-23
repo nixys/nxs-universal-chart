@@ -138,7 +138,7 @@
           "$ref": "#/definitions/freeFormArray"
         },
         "resources": {
-          "$ref": "#/definitions/freeFormObject"
+          "$ref": "#/definitions/k8sResources"
         },
         "tolerations": {
           "$ref": "#/definitions/freeFormArray"
@@ -410,6 +410,39 @@
       "default": {},
       "additionalProperties": true
     },
+    "k8sResources": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "integer"]
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "integer"]
+          }
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "request": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
     "freeFormArray": {
       "type": "array",
       "default": [],
@@ -512,7 +545,7 @@
           "$ref": "#/definitions/freeFormObject"
         },
         "resources": {
-          "$ref": "#/definitions/freeFormObject"
+          "$ref": "#/definitions/k8sResources"
         },
         "securityContext": {
           "$ref": "#/definitions/freeFormObject"
@@ -1300,6 +1333,9 @@
         },
         "terminationGracePeriodSeconds": {
           "type": "integer"
+        },
+        "resources": {
+          "$ref": "#/definitions/k8sResources"
         },
         "initContainers": {
           "$ref": "#/definitions/workloadContainerListOrMap"

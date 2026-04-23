@@ -834,6 +834,8 @@ initContainers:
   {{- $containerResources := get $container "resources" -}}
   {{- if $containerResources }}
   resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $general.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $general.resources "context" $) | nindent 4 }}
   {{- else if $.Values.generic.resources }}
   resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}
@@ -897,6 +899,8 @@ containers:
   {{- $containerResources := get $container "resources" -}}
   {{- if $containerResources }}
   resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $general.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $general.resources "context" $) | nindent 4 }}
   {{- else if $.Values.generic.resources }}
   resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}

@@ -1,0 +1,64 @@
+generic:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+cronJobsGeneral:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 400m
+      memory: 512Mi
+
+jobsGeneral:
+  resources:
+    requests:
+      cpu: 300m
+      memory: 384Mi
+
+deploymentsGeneral:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+cronJobs:
+  from-general:
+    schedule: "*/5 * * * *"
+    containers:
+      - name: task
+        image: busybox
+        imageTag: "1.36.1"
+        command: echo run
+  with-own-resources:
+    schedule: "*/10 * * * *"
+    containers:
+      - name: task
+        image: busybox
+        imageTag: "1.36.1"
+        command: echo run
+        resources:
+          requests:
+            cpu: 999m
+            memory: 999Mi
+
+jobs:
+  from-general:
+    containers:
+      - name: task
+        image: busybox
+        imageTag: "1.36.1"
+        command: echo run
+
+deployments:
+  from-general:
+    containers:
+      - name: app
+        image: nginx
+        imageTag: "1.25"
