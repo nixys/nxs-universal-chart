@@ -1,12 +1,12 @@
 # VictoriaMetrics Observability
 
-Кейс для интеграции приложения с VictoriaMetrics через VMServiceScrape, VMProbe, VMRule и VMAlert.
+Integrating an application with VictoriaMetrics through VMServiceScrape, VMProbe, VMRule, and VMAlert.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-victoria-metrics`
 
-## Используемые технологии
+## Used Technologies
 - VictoriaMetrics Operator
-- VMServiceScrape и VMProbe
-- VMRule и VMAlert
+- VMServiceScrape and VMProbe
+- VMRule and VMAlert

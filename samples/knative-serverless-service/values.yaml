@@ -2,17 +2,6 @@ nameOverride: knative-svc
 
 nuc-knative:
   enabled: true
-  certificates: {}
-  clusterDomainClaims: {}
-  configurations: {}
-  domainMappings: {}
-  images: {}
-  ingresses: {}
-  metrics: {}
-  podAutoscalers: {}
-  revisions: {}
-  routes: {}
-  serverlessServices: {}
   services:
     app:
       spec:

@@ -137,6 +137,25 @@ nuc-fluxcd:
   enabled: false
 nuc-keda:
   enabled: false
+nuc-cloudnativepg:
+  enabled: false
+nuc-mysql-percona-operator:
+  enabled: false
+nuc-rabbitmq:
+  enabled: false
+nuc-clickhouse:
+  enabled: false
+nuc-elk:
+  enabled: false
+nuc-external-secrets:
+  enabled: false
+nuc-mongodb-percona-operator:
+  enabled: false
+nuc-valkey:
+  enabled: false
+global:
+  nuc-envoy-gateway:
+    enabled: false
 
 # -- Pod affinity preset used when generated affinities are enabled.
 podAffinityPreset: soft

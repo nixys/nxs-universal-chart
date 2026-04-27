@@ -1,7 +1,5 @@
 nuc-rabbitmq:
   enabled: true
-  federations: {}
-  shovels: {}
   policies:
     ha:
       spec:

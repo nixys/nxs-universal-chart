@@ -1,12 +1,12 @@
 # Vault Dynamic Secrets
 
-Кейс для выдачи динамических учётных данных из Vault для базы данных и передачи их в приложение как Kubernetes Secret.
+Issuing dynamic database credentials from Vault and passing them to the application as a Kubernetes Secret.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-vault-secret-operator`
 
-## Используемые технологии
+## Used Technologies
 - HashiCorp Vault
 - Vault Dynamic Secret
 - Kubernetes Deployment

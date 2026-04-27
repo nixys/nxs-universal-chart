@@ -1,12 +1,12 @@
 # Prometheus Observability
 
-Кейс для скрейпа метрик приложения, проб и алертинга через ServiceMonitor, PodMonitor, Probe и PrometheusRule.
+Application metrics scraping, probes, and alerting through ServiceMonitor, PodMonitor, Probe, and PrometheusRule.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kube-prometheus-stack`
 
-## Используемые технологии
+## Used Technologies
 - Prometheus Operator
-- ServiceMonitor и PodMonitor
+- ServiceMonitor and PodMonitor
 - PrometheusRule

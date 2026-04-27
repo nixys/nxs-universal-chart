@@ -14,6 +14,9 @@
     "kubeVersion": {
       "$ref": "#/definitions/stringValue"
     },
+    "global": {
+      "$ref": "#/definitions/freeFormObject"
+    },
     "workloadMode": {
       "type": "string",
       "enum": ["auto", "deployment", "daemonset", "pod", "statefulset", "batch", "job", "cronjob", "hook", "none", "jobs", "jobs-only", "jobsonly"]
@@ -206,6 +209,30 @@
       "$ref": "#/definitions/enabledToggle"
     },
     "nuc-keda": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-cloudnativepg": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-mysql-percona-operator": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-rabbitmq": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-clickhouse": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-elk": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-external-secrets": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-mongodb-percona-operator": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-valkey": {
       "$ref": "#/definitions/enabledToggle"
     },
     "podAffinityPreset": {
@@ -1265,7 +1292,35 @@
       }
     },
     "baseWorkloadGeneral": {
-      "$ref": "#/definitions/baseWorkload"
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "env": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envFrom": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envConfigmaps": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envSecrets": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envsFromConfigmap": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "envsFromSecret": {
+              "$ref": "#/definitions/freeFormObject"
+            }
+          }
+        }
+      ]
     },
     "baseWorkload": {
       "type": ["object", "null"],
@@ -1697,7 +1752,7 @@
           "additionalProperties": true,
           "properties": {
             "suspend": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "schedule": {
               "$ref": "#/definitions/stringValue"
@@ -1706,7 +1761,7 @@
               "$ref": "#/definitions/stringValue"
             },
             "singleOnly": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "startingDeadlineSeconds": {
               "type": "integer"
@@ -1731,13 +1786,13 @@
           "additionalProperties": true,
           "properties": {
             "suspend": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "timeZone": {
               "$ref": "#/definitions/stringValue"
             },
             "singleOnly": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "startingDeadlineSeconds": {
               "type": "integer"

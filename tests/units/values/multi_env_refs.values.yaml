@@ -26,6 +26,12 @@ deployments:
           app-secret:
             - APP_PASSWORD: password
             - APP_TOKEN: token
+        envConfigmaps:
+          - app-envs
+          - app-cm
+        envSecrets:
+          - app-secret-envs
+          - app-secret-extra
         env:
           - name: RUNTIME_ENV
             value: production

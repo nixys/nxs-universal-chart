@@ -1,12 +1,11 @@
 # Knative Serverless Service
 
-Serverless HTTP сервис на Knative Serving.
+Serverless HTTP service on Knative Serving.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-knative`
 
-## Используемые технологии
+## Used Technologies
 - Knative Service
-- Route, Configuration и Revision как часть Serving-модели
-
+- Route, Configuration, and Revision as part of the Serving model

@@ -33,14 +33,11 @@ nuc-istio:
         trafficPolicy:
           tls:
             mode: ISTIO_MUTUAL
-  envoyfilters: {}
-  gateways: {}
   peerauthentications:
     default:
       spec:
         mtls:
           mode: STRICT
-  proxyconfigs: {}
   requestauthentications:
     jwt:
       spec:
@@ -50,13 +47,6 @@ nuc-istio:
         jwtRules:
           - issuer: https://issuer.example.local
             jwksUri: https://issuer.example.local/.well-known/jwks.json
-  serviceentries: {}
-  sidecars: {}
-  telemetries: {}
-  virtualservices: {}
-  wasmplugins: {}
-  workloadentries: {}
-  workloadgroups: {}
   authorizationpolicies:
     api:
       spec:
@@ -71,13 +61,6 @@ nuc-istio:
 
 nuc-vault-secret-operator:
   enabled: true
-  hcpAuths: {}
-  hcpVaultSecretsApps: {}
-  secretTransformations: {}
-  vaultAuth: {}
-  vaultAuthGlobals: {}
-  vaultDynamicSecrets: {}
-  vaultPKISecrets: {}
   vaultConnections:
     default:
       spec:
@@ -102,9 +85,6 @@ nuc-vault-secret-operator:
 
 nuc-kube-prometheus-stack:
   enabled: true
-  scrapeConfigs: {}
-  podMonitors: {}
-  probes: {}
   serviceMonitors:
     api:
       enabled: true

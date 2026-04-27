@@ -1,6 +1,5 @@
 nuc-clickhouse:
   enabled: true
-  clickhouseoperatorconfigurations: {}
   clickhouseinstallationtemplates:
     default-layout:
       spec:

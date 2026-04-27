@@ -2,12 +2,6 @@ nameOverride: ai-gateway
 
 nuc-native-gateway:
   enabled: true
-  backendTLSPolicies: {}
-  gatewayClasses: {}
-  grpcRoutes: {}
-  listenerSets: {}
-  referenceGrants: {}
-  tlsRoutes: {}
   gateways:
     edge:
       spec:
@@ -31,14 +25,6 @@ nuc-native-gateway:
 
 nuc-kserve:
   enabled: true
-  clusterServingRuntimes: {}
-  clusterStorageContainers: {}
-  inferenceGraphs: {}
-  localModelCaches: {}
-  localModelNodeGroups: {}
-  localModelNodes: {}
-  servingRuntimes: {}
-  trainedModels: {}
   inferenceServices:
     predictor:
       spec:
@@ -50,17 +36,6 @@ nuc-kserve:
 
 nuc-knative:
   enabled: true
-  certificates: {}
-  clusterDomainClaims: {}
-  configurations: {}
-  domainMappings: {}
-  images: {}
-  ingresses: {}
-  metrics: {}
-  podAutoscalers: {}
-  revisions: {}
-  routes: {}
-  serverlessServices: {}
   services:
     runtime:
       spec:
@@ -71,13 +46,6 @@ nuc-knative:
 
 nuc-vault-secret-operator:
   enabled: true
-  hcpAuths: {}
-  hcpVaultSecretsApps: {}
-  secretTransformations: {}
-  vaultAuth: {}
-  vaultAuthGlobals: {}
-  vaultDynamicSecrets: {}
-  vaultPKISecrets: {}
   vaultConnections:
     default:
       spec:
@@ -102,7 +70,6 @@ nuc-vault-secret-operator:
 
 nuc-kube-prometheus-stack:
   enabled: true
-  scrapeConfigs: {}
   serviceMonitors:
     predictor:
       enabled: true
@@ -113,8 +80,6 @@ nuc-kube-prometheus-stack:
             app: predictor
         endpoints:
           - port: http
-  podMonitors: {}
-  probes: {}
   prometheusRules:
     predictor:
       enabled: true

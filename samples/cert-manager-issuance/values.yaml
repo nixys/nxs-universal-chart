@@ -2,10 +2,6 @@ nameOverride: cert-manager-app
 
 nuc-certificates:
   enabled: true
-  certificateRequests: {}
-  challenges: {}
-  issuers: {}
-  orders: {}
   clusterIssuers:
     letsencrypt:
       spec:

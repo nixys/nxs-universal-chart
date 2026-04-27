@@ -33,6 +33,10 @@ class SmokeContext:
         return self.repo_root / "tests" / "smokes" / "fixtures" / "invalid-list-contract.values.yaml"
 
     @property
+    def null_workload_entries_values(self) -> Path:
+        return self.repo_root / "tests" / "smokes" / "fixtures" / "null-workload-entries.values.yaml"
+
+    @property
     def hook_annotations_values(self) -> Path:
         return self.repo_root / "tests" / "smokes" / "fixtures" / "hook-annotations.values.yaml"
 
@@ -129,6 +133,26 @@ def check_rendering_contract(context: SmokeContext) -> None:
 
     persistent_volume = render.select_document(documents, kind="PersistentVolume", name="platform-shared-data")
     render.assert_path(persistent_volume, "spec.capacity.storage", "2Gi")
+
+
+def check_null_workload_entries(context: SmokeContext) -> None:
+    helm.lint(
+        context.chart_dir,
+        values_file=context.null_workload_entries_values,
+        workdir=context.workdir,
+    )
+    output_path = context.render_dir / "null-workload-entries.yaml"
+    helm.template(
+        context.chart_dir,
+        release_name=context.release_name,
+        namespace=context.namespace,
+        values_file=context.null_workload_entries_values,
+        output_path=output_path,
+        workdir=context.workdir,
+    )
+
+    documents = render.load_documents(output_path)
+    render.assert_doc_count(documents, 0)
 
 
 def check_example_render(context: SmokeContext) -> None:
@@ -369,6 +393,7 @@ SCENARIOS: list[tuple[str, Callable[[SmokeContext], None]]] = [
     ("default-empty", check_default_empty),
     ("schema-invalid-list-contract", check_schema_invalid_list_contract),
     ("rendering-contract", check_rendering_contract),
+    ("null-workload-entries", check_null_workload_entries),
     ("hook-annotations", check_hook_annotations),
     ("samples-render", check_samples_render),
     ("example-render", check_example_render),

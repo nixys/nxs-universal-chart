@@ -1,0 +1,31 @@
+nuc-external-secrets:
+  enabled: true
+  nameOverride: external-secrets
+  secretStores:
+    fake:
+      spec:
+        provider:
+          fake:
+            data:
+              - key: /app/config
+                value: '{"username":"demo","password":"demo-password"}'
+                version: v1
+  externalSecrets:
+    app-config:
+      spec:
+        refreshInterval: 1h
+        secretStoreRef:
+          kind: SecretStore
+          name: external-secrets-fake
+        target:
+          name: app-config
+          creationPolicy: Owner
+        data:
+          - secretKey: username
+            remoteRef:
+              key: /app/config
+              property: username
+          - secretKey: password
+            remoteRef:
+              key: /app/config
+              property: password

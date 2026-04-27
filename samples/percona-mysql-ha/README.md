@@ -1,11 +1,11 @@
 # Percona MySQL HA
 
-Кейс для Percona XtraDB Cluster с резервным копированием через Percona operator CRD.
+Percona XtraDB Cluster with backups through Percona operator CRDs.
 
-## Используемые чарты
+## Used Charts
 - `nuc-mysql-percona-operator`
 
-## Используемые технологии
+## Used Technologies
 - Percona XtraDB Cluster
 - MySQL HA
 - Percona Backup

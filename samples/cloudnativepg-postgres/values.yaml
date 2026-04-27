@@ -1,11 +1,5 @@
 nuc-cloudnativepg:
   enabled: true
-  backups: {}
-  clusterImageCatalogs: {}
-  failoverQuorums: {}
-  imageCatalogs: {}
-  publications: {}
-  subscriptions: {}
   clusters:
     app-db:
       spec:
@@ -18,7 +12,8 @@ nuc-cloudnativepg:
         cluster:
           name: app-db
         instances: 1
-        pgbouncer: {}
+        pgbouncer:
+          poolMode: session
         type: rw
   databases:
     app:

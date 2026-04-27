@@ -1,12 +1,11 @@
 # Batch Processing
 
-Контур фоновых задач с one-shot Job, CronJob и hook Job для подготовительных операций.
+Background jobs setup with a one-shot Job, CronJob, and hook Job for preparatory operations.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 
-## Используемые технологии
+## Used Technologies
 - Kubernetes Job
 - Kubernetes CronJob
 - Helm hook Job
-

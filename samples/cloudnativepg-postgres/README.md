@@ -1,11 +1,11 @@
 # CloudNativePG Postgres
 
-Кейс для прикладного PostgreSQL-кластера с pooler, базой и плановым бэкапом.
+Application PostgreSQL cluster with a pooler, database, and scheduled backup.
 
-## Используемые чарты
+## Used Charts
 - `nuc-cloudnativepg`
 
-## Используемые технологии
+## Used Technologies
 - CloudNativePG
 - PostgreSQL Cluster
-- Pooler и ScheduledBackup
+- Pooler and ScheduledBackup

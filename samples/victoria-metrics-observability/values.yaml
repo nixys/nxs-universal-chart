@@ -26,8 +26,6 @@ services:
 
 nuc-victoria-metrics:
   enabled: true
-  vmScrapeConfigs: {}
-  vmStaticScrapes: {}
   vmServiceScrapes:
     app:
       name: app

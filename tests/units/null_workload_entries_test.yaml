@@ -1,0 +1,24 @@
+suite: null workload entries
+templates:
+  - templates/workloads/deployment.yml
+  - templates/batch/cronjob.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: skips null deployment entries without rendering documents
+    values:
+      - values/null_workload_entries.values.yaml
+    template: templates/workloads/deployment.yml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: skips null cronjob entries without rendering documents
+    values:
+      - values/null_workload_entries.values.yaml
+    template: templates/batch/cronjob.yml
+    asserts:
+      - hasDocuments:
+          count: 0

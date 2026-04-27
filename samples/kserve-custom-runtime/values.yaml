@@ -2,13 +2,6 @@ nameOverride: custom-runtime
 
 nuc-kserve:
   enabled: true
-  clusterServingRuntimes: {}
-  clusterStorageContainers: {}
-  inferenceGraphs: {}
-  localModelCaches: {}
-  localModelNodeGroups: {}
-  localModelNodes: {}
-  trainedModels: {}
   servingRuntimes:
     triton-runtime:
       spec:

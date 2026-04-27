@@ -13,9 +13,6 @@ deployments:
 
 nuc-rabbitmq:
   enabled: true
-  federations: {}
-  shovels: {}
-  policies: {}
   exchanges:
     tasks:
       spec:
@@ -41,9 +38,6 @@ nuc-rabbitmq:
         routingKey: tasks
         rabbitmqClusterReference:
           name: messaging
-  users: {}
-  permissions: {}
-  vhosts: {}
   rabbitmqclusters:
     messaging:
       spec:
@@ -51,9 +45,6 @@ nuc-rabbitmq:
 
 nuc-keda:
   enabled: true
-  clusterTriggerAuthentications: {}
-  scaledJobs: {}
-  triggerAuthentications: {}
   scaledObjects:
     worker:
       spec:

@@ -1,0 +1,78 @@
+nameOverride: general-env
+
+configMaps:
+  shared-env:
+    data:
+      APP_MODE: production
+  extra-env:
+    data:
+      APP_REGION: local
+  cron-env:
+    data:
+      CRON_MODE: cleanup
+  cron-extra-env:
+    data:
+      CRON_REGION: local
+
+secrets:
+  shared-secret:
+    data:
+      token: deployment-token
+  extra-secret:
+    data:
+      token: deployment-extra-token
+  cron-secret:
+    data:
+      token: cron-token
+  cron-extra-secret:
+    data:
+      token: cron-extra-token
+
+deploymentsGeneral:
+  envConfigmaps:
+    - shared-env
+    - null
+    - ""
+    - extra-env
+  envSecrets:
+    - shared-secret
+    - null
+    - ""
+    - extra-secret
+
+deployments:
+  api:
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+
+cronJobsGeneral:
+  suspend: true
+  singleOnly: true
+  envConfigmaps:
+    - cron-env
+    - null
+    - ""
+    - cron-extra-env
+  envSecrets:
+    - cron-secret
+    - null
+    - ""
+    - cron-extra-secret
+
+cronJobs:
+  cleanup:
+    schedule: "*/10 * * * *"
+    containers:
+      cleanup:
+        image: busybox
+        imageTag: "1.36.1"
+  override:
+    schedule: "*/15 * * * *"
+    suspend: false
+    singleOnly: false
+    containers:
+      cleanup:
+        image: busybox
+        imageTag: "1.36.1"

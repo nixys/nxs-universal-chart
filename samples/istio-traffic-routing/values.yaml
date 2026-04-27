@@ -2,17 +2,6 @@ nameOverride: istio-routing
 
 nuc-istio:
   enabled: true
-  authorizationpolicies: {}
-  envoyfilters: {}
-  peerauthentications: {}
-  proxyconfigs: {}
-  requestauthentications: {}
-  serviceentries: {}
-  sidecars: {}
-  telemetries: {}
-  wasmplugins: {}
-  workloadentries: {}
-  workloadgroups: {}
   gateways:
     public:
       spec:

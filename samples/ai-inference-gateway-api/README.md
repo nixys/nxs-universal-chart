@@ -1,8 +1,8 @@
 # AI Inference Gateway API
 
-Inference-контур с Gateway API, KServe, Knative, Vault и Prometheus Operator.
+Inference setup with Gateway API, KServe, Knative, Vault, and Prometheus Operator.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-native-gateway`
 - `nuc-kserve`
@@ -10,10 +10,9 @@ Inference-контур с Gateway API, KServe, Knative, Vault и Prometheus Oper
 - `nuc-vault-secret-operator`
 - `nuc-kube-prometheus-stack`
 
-## Используемые технологии
-- Gateway API Gateway и HTTPRoute
+## Used Technologies
+- Gateway API Gateway and HTTPRoute
 - KServe InferenceService
 - Knative Service
 - VaultStaticSecret
-- ServiceMonitor и PrometheusRule
-
+- ServiceMonitor and PrometheusRule

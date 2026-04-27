@@ -1,8 +1,31 @@
 # Changelog
 
-## [3.0.15] - April 23, 2026
+## [3.0.17] - April 27, 2026
 ### Fixed
-* fixed error with generalCronJob resources
+* fixed deprecated workload `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
+
+### Testing
+* added unit and smoke coverage for `null` workload entries in `deployments` and `cronJobs`.
+
+## [3.0.16] - April 26, 2026
+### Added
+* added samples for `nuc-fluxcd`, `nuc-external-secrets`, `nuc-mongodb-percona-operator`, `nuc-envoy-gateway`, and `nuc-valkey`.
+
+### Fixed
+* fixed the FluxCD dependency condition to use `nuc-fluxcd.enabled`.
+* fixed the Envoy Gateway dependency condition to use `global.nuc-envoy-gateway.enabled`, avoiding an `enabled` key rejected by the subchart schema.
+* fixed `cronJobsGeneral.suspend` and `cronJobsGeneral.singleOnly` so CronJobs inherit the general defaults while still allowing per-CronJob `false` or `null` overrides.
+* fixed `envConfigmaps` and `envSecrets` rendering to preserve multiple entries and skip `null` or empty items without rendering an empty `envFrom` block.
+* fixed automatic checksum reference collection for `*General.envConfigmaps` and `*General.envSecrets`.
+* fixed deprecated workload `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
+
+### Changed
+* completed Dependency Subcharts documentation for all dependencies declared in `Chart.yaml`.
+* removed empty optional maps from sample values files and filled required sample fields with concrete values.
+* documented `deploymentsGeneral` and `cronJobsGeneral` environment source defaults, including empty-value handling and override behavior.
+
+### Testing
+* added unit and smoke coverage for `null` workload entries in `deployments` and `cronJobs`.
 
 ## [3.0.13] - April 22, 2026
 ### Added

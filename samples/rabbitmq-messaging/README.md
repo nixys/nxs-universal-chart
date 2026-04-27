@@ -1,11 +1,11 @@
 # RabbitMQ Messaging Backbone
 
-Кейс для типового messaging backbone: cluster, vhost, user, exchange, queue, binding и permission.
+Typical messaging backbone case: cluster, vhost, user, exchange, queue, binding, and permission.
 
-## Используемые чарты
+## Used Charts
 - `nuc-rabbitmq`
 
-## Используемые технологии
+## Used Technologies
 - RabbitMQ Cluster Operator
-- Exchanges и Queues
-- Permissions и Vhosts
+- Exchanges and Queues
+- Permissions and Vhosts

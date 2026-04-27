@@ -1,14 +1,14 @@
 # Secure Internal Platform
 
-Кейс для внутренней платформы с сервисом за Istio-mTLS, JWT auth, secret delivery из Vault и мониторингом через Prometheus.
+Internal platform case with a service behind Istio mTLS, JWT auth, secret delivery from Vault, and Prometheus monitoring.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-istio`
 - `nuc-vault-secret-operator`
 - `nuc-kube-prometheus-stack`
 
-## Используемые технологии
-- Istio AuthorizationPolicy и RequestAuthentication
+## Used Technologies
+- Istio AuthorizationPolicy and RequestAuthentication
 - Vault Static Secret
 - Prometheus Operator

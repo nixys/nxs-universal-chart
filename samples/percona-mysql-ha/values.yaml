@@ -5,7 +5,6 @@ nuc-mysql-percona-operator:
       spec:
         pxcCluster: app-mysql
         storageName: s3-us-east
-  perconaXtraDBClusterRestores: {}
   perconaXtraDBClusters:
     app-mysql:
       spec:

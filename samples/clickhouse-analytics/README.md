@@ -1,11 +1,11 @@
 # ClickHouse Analytics
 
-Кейс для аналитического ClickHouse deployment с keeper-контуром и installation template.
+Analytical ClickHouse deployment with a keeper setup and installation template.
 
-## Используемые чарты
+## Used Charts
 - `nuc-clickhouse`
 
-## Используемые технологии
+## Used Technologies
 - ClickHouse Operator
 - ClickHouseInstallation
 - ClickHouseKeeper

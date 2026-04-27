@@ -1,8 +1,8 @@
 # AI Inference Mesh
 
-Inference-контур с mesh ingress, KServe, Knative, Vault-секретами и Prometheus-мониторингом.
+Inference setup with mesh ingress, KServe, Knative, Vault secrets, and Prometheus monitoring.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-istio`
 - `nuc-kserve`
@@ -10,10 +10,9 @@ Inference-контур с mesh ingress, KServe, Knative, Vault-секретам�
 - `nuc-vault-secret-operator`
 - `nuc-kube-prometheus-stack`
 
-## Используемые технологии
+## Used Technologies
 - Istio Gateway, VirtualService, AuthorizationPolicy, DestinationRule
 - KServe InferenceService
 - Knative Service
 - VaultConnection, VaultAuth, VaultStaticSecret
 - ServiceMonitor, PodMonitor, PrometheusRule
-

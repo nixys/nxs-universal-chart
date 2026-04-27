@@ -351,6 +351,14 @@ hooks:
         args:
           - echo preparing-release
 
+cronJobsGeneral:
+  suspend: true
+  singleOnly: true
+  envConfigmaps:
+    - envs
+  envSecrets:
+    - secret-envs
+
 cronJobs:
   cleanup:
     labels:

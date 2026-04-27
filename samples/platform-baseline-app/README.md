@@ -1,8 +1,8 @@
 # Platform Baseline App
 
-Базовый platform-кейс для приложения с основной ingress-точкой через Istio Gateway, сертификатом для Gateway, секретами из Vault, мониторингом через Prometheus Operator, автоскейлингом через KEDA и обычным Deployment приложения.
+Baseline platform case for an application with a primary ingress endpoint through Istio Gateway, a Gateway certificate, Vault secrets, Prometheus Operator monitoring, KEDA autoscaling, and a regular application Deployment.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-istio`
 - `nuc-certificates`
@@ -10,10 +10,10 @@
 - `nuc-kube-prometheus-stack`
 - `nuc-keda`
 
-## Используемые технологии
-- Istio Gateway, VirtualService и DestinationRule
-- cert-manager Certificate и ClusterIssuer
+## Used Technologies
+- Istio Gateway, VirtualService, and DestinationRule
+- cert-manager Certificate and ClusterIssuer
 - Vault Static Secret
-- Prometheus ServiceMonitor и PrometheusRule
+- Prometheus ServiceMonitor and PrometheusRule
 - KEDA ScaledObject
-- Kubernetes Deployment и Service
+- Kubernetes Deployment and Service
