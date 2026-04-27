@@ -65,3 +65,25 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[4].value
           value: production
+
+  - it: renders multiple envConfigmaps and envSecrets entries in order
+    values:
+      - values/multi_env_refs.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: multi-env-api
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
+          value: multi-env-app-envs
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[1].configMapRef.name
+          value: multi-env-app-cm
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[2].secretRef.name
+          value: multi-env-app-secret-envs
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
+          value: multi-env-app-secret-extra
+      - notExists:
+          path: spec.template.spec.containers[0].envFrom[4]

@@ -26,7 +26,6 @@ services:
 
 nuc-kube-prometheus-stack:
   enabled: true
-  scrapeConfigs: {}
   serviceMonitors:
     app:
       enabled: true

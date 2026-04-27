@@ -13,7 +13,6 @@ deployments:
 
 nuc-keda:
   enabled: true
-  clusterTriggerAuthentications: {}
   triggerAuthentications:
     queue-auth:
       spec:
@@ -21,7 +20,6 @@ nuc-keda:
           - parameter: connection
             name: queue-credentials
             key: connection
-  scaledJobs: {}
   scaledObjects:
     worker:
       spec:

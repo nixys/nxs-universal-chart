@@ -20,14 +20,6 @@ services:
 
 nuc-kserve:
   enabled: true
-  clusterServingRuntimes: {}
-  clusterStorageContainers: {}
-  inferenceGraphs: {}
-  localModelCaches: {}
-  localModelNodeGroups: {}
-  localModelNodes: {}
-  servingRuntimes: {}
-  trainedModels: {}
   inferenceServices:
     predictor:
       spec:
@@ -39,17 +31,6 @@ nuc-kserve:
 
 nuc-knative:
   enabled: true
-  certificates: {}
-  clusterDomainClaims: {}
-  configurations: {}
-  domainMappings: {}
-  images: {}
-  ingresses: {}
-  metrics: {}
-  podAutoscalers: {}
-  revisions: {}
-  routes: {}
-  serverlessServices: {}
   services:
     runtime:
       spec:
@@ -60,13 +41,6 @@ nuc-knative:
 
 nuc-vault-secret-operator:
   enabled: true
-  hcpAuths: {}
-  hcpVaultSecretsApps: {}
-  secretTransformations: {}
-  vaultAuth: {}
-  vaultAuthGlobals: {}
-  vaultDynamicSecrets: {}
-  vaultPKISecrets: {}
   vaultConnections:
     default:
       spec:
@@ -91,9 +65,6 @@ nuc-vault-secret-operator:
 
 nuc-keda:
   enabled: true
-  clusterTriggerAuthentications: {}
-  scaledJobs: {}
-  triggerAuthentications: {}
   scaledObjects:
     gateway:
       spec:
@@ -111,9 +82,6 @@ nuc-keda:
 
 nuc-kube-prometheus-stack:
   enabled: true
-  scrapeConfigs: {}
-  podMonitors: {}
-  probes: {}
   serviceMonitors:
     gateway:
       enabled: true

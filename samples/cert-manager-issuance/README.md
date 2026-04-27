@@ -1,12 +1,11 @@
 # Cert Manager Issuance
 
-Выдача TLS-сертификата через cert-manager с ClusterIssuer и Certificate.
+TLS certificate issuance through cert-manager with ClusterIssuer and Certificate.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-certificates`
 
-## Используемые технологии
+## Used Technologies
 - cert-manager ClusterIssuer
 - cert-manager Certificate
-

@@ -1,12 +1,12 @@
 # KEDA Event Autoscaling
 
-Кейс для autoscaling worker Deployment по внешним событиям через ScaledObject и TriggerAuthentication.
+Autoscaling a worker Deployment on external events through ScaledObject and TriggerAuthentication.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-keda`
 
-## Используемые технологии
+## Used Technologies
 - KEDA
 - ScaledObject
 - TriggerAuthentication

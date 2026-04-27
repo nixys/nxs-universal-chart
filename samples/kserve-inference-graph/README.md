@@ -1,12 +1,11 @@
 # KServe Inference Graph
 
-Составной inference-граф с несколькими InferenceService и InferenceGraph.
+Composite inference graph with multiple InferenceServices and an InferenceGraph.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kserve`
 
-## Используемые технологии
+## Used Technologies
 - KServe InferenceGraph
-- Несколько KServe InferenceService
-
+- Multiple KServe InferenceServices

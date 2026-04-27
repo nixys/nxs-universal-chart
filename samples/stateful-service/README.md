@@ -1,12 +1,11 @@
 # Stateful Service
 
-Состояниефул workload с headless Service, PersistentVolume и PersistentVolumeClaim.
+Stateful workload with a headless Service, PersistentVolume, and PersistentVolumeClaim.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 
-## Используемые технологии
+## Used Technologies
 - Kubernetes StatefulSet
 - Headless Service
-- PersistentVolume и PersistentVolumeClaim
-
+- PersistentVolume and PersistentVolumeClaim

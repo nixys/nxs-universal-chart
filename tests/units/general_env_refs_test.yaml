@@ -1,0 +1,108 @@
+suite: general env references and cron defaults
+templates:
+  - templates/workloads/deployment.yml
+  - templates/batch/cronjob.yml
+release:
+  name: unit-test
+  namespace: default
+
+tests:
+  - it: applies deploymentsGeneral env refs to main containers and keeps all non-empty entries
+    values:
+      - values/general_env_refs.values.yaml
+    template: templates/workloads/deployment.yml
+    documentSelector:
+      path: metadata.name
+      value: general-env-api
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
+          value: general-env-shared-env
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[1].configMapRef.name
+          value: general-env-extra-env
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[2].secretRef.name
+          value: general-env-shared-secret
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
+          value: general-env-extra-secret
+      - notExists:
+          path: spec.template.spec.containers[0].envFrom[4]
+      - exists:
+          path: spec.template.metadata.annotations["checksum/configmap-shared-env"]
+      - exists:
+          path: spec.template.metadata.annotations["checksum/secret-shared-secret"]
+
+  - it: applies cronJobsGeneral env refs and control flags
+    values:
+      - values/general_env_refs.values.yaml
+    template: templates/batch/cronjob.yml
+    documentSelector:
+      path: metadata.name
+      value: general-env-cleanup
+    asserts:
+      - equal:
+          path: spec.suspend
+          value: true
+      - equal:
+          path: spec.concurrencyPolicy
+          value: Forbid
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[0].configMapRef.name
+          value: general-env-cron-env
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[1].configMapRef.name
+          value: general-env-cron-extra-env
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[2].secretRef.name
+          value: general-env-cron-secret
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[3].secretRef.name
+          value: general-env-cron-extra-secret
+      - notExists:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[4]
+      - exists:
+          path: spec.jobTemplate.spec.template.metadata.annotations["checksum/configmap-cron-env"]
+      - exists:
+          path: spec.jobTemplate.spec.template.metadata.annotations["checksum/secret-cron-secret"]
+
+  - it: lets CronJob values override cronJobsGeneral booleans with false
+    values:
+      - values/general_env_refs.values.yaml
+    template: templates/batch/cronjob.yml
+    documentSelector:
+      path: metadata.name
+      value: general-env-override
+    asserts:
+      - equal:
+          path: spec.suspend
+          value: false
+      - notExists:
+          path: spec.concurrencyPolicy
+
+  - it: skips null and empty env refs without rendering envFrom
+    values:
+      - values/empty_env_refs.values.yaml
+    template: templates/workloads/deployment.yml
+    documentSelector:
+      path: metadata.name
+      value: empty-env-api
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].envFrom
+
+  - it: allows null CronJob flags to suppress general defaults
+    values:
+      - values/empty_env_refs.values.yaml
+    template: templates/batch/cronjob.yml
+    documentSelector:
+      path: metadata.name
+      value: empty-env-cleanup
+    asserts:
+      - notExists:
+          path: spec.suspend
+      - notExists:
+          path: spec.concurrencyPolicy
+      - notExists:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom

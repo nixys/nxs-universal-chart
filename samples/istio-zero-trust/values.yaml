@@ -2,15 +2,6 @@ nameOverride: istio-zero-trust
 
 nuc-istio:
   enabled: true
-  destinationrules: {}
-  envoyfilters: {}
-  proxyconfigs: {}
-  serviceentries: {}
-  sidecars: {}
-  telemetries: {}
-  wasmplugins: {}
-  workloadentries: {}
-  workloadgroups: {}
   gateways:
     edge:
       spec:

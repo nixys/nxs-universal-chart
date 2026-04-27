@@ -1,10 +1,5 @@
 nuc-elk:
   enabled: true
-  agents: {}
-  apmservers: {}
-  elasticmapsservers: {}
-  enterprisesearches: {}
-  logstashes: {}
   beats:
     filebeat:
       spec:

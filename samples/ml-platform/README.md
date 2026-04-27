@@ -1,8 +1,8 @@
 # ML Platform
 
-Комбинированный кейс платформы для model serving: KServe, Knative, Vault, KEDA и Prometheus monitoring.
+Combined model-serving platform case: KServe, Knative, Vault, KEDA, and Prometheus monitoring.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kserve`
 - `nuc-knative`
@@ -10,7 +10,7 @@
 - `nuc-keda`
 - `nuc-kube-prometheus-stack`
 
-## Используемые технологии
+## Used Technologies
 - KServe
 - Knative Serving
 - Vault Secret Operator

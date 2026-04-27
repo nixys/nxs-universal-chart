@@ -29,17 +29,6 @@ services:
 
 nuc-istio:
   enabled: true
-  authorizationpolicies: {}
-  envoyfilters: {}
-  peerauthentications: {}
-  proxyconfigs: {}
-  requestauthentications: {}
-  serviceentries: {}
-  sidecars: {}
-  telemetries: {}
-  wasmplugins: {}
-  workloadentries: {}
-  workloadgroups: {}
   gateways:
     public:
       spec:
@@ -78,10 +67,6 @@ nuc-istio:
 
 nuc-certificates:
   enabled: true
-  certificateRequests: {}
-  challenges: {}
-  issuers: {}
-  orders: {}
   clusterIssuers:
     letsencrypt:
       spec:
@@ -107,13 +92,6 @@ nuc-certificates:
 
 nuc-vault-secret-operator:
   enabled: true
-  hcpAuths: {}
-  hcpVaultSecretsApps: {}
-  secretTransformations: {}
-  vaultAuth: {}
-  vaultAuthGlobals: {}
-  vaultDynamicSecrets: {}
-  vaultPKISecrets: {}
   vaultConnections:
     default:
       spec:
@@ -138,9 +116,6 @@ nuc-vault-secret-operator:
 
 nuc-kube-prometheus-stack:
   enabled: true
-  scrapeConfigs: {}
-  podMonitors: {}
-  probes: {}
   serviceMonitors:
     api:
       enabled: true
@@ -166,9 +141,6 @@ nuc-kube-prometheus-stack:
 
 nuc-keda:
   enabled: true
-  clusterTriggerAuthentications: {}
-  scaledJobs: {}
-  triggerAuthentications: {}
   scaledObjects:
     api:
       spec:

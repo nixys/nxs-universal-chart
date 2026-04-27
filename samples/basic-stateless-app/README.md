@@ -1,11 +1,10 @@
 # Basic Stateless App
 
-Базовый HTTP-сервис на стандартных Kubernetes ресурсах: Deployment, Service, Ingress, ConfigMap и Secret.
+Basic HTTP service on standard Kubernetes resources: Deployment, Service, Ingress, ConfigMap, and Secret.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 
-## Используемые технологии
+## Used Technologies
 - Kubernetes Deployment/Service/Ingress
-- ConfigMap и Secret
-
+- ConfigMap and Secret

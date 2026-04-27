@@ -1,12 +1,12 @@
 # KServe Local Model Cache
 
-Кейс для локального кэша моделей рядом с inference-нодами. Покрывает LocalModelCache, trained model metadata и размещение inference workload рядом с подготовленным кэшем.
+Local model cache placed near inference nodes. Covers LocalModelCache, trained model metadata, and placing the inference workload near the prepared cache.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kserve`
 
-## Используемые технологии
+## Used Technologies
 - KServe LocalModelCache
 - KServe InferenceService
 - Kubernetes Deployment

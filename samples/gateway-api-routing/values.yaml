@@ -2,12 +2,6 @@ nameOverride: native-gateway
 
 nuc-native-gateway:
   enabled: true
-  backendTLSPolicies: {}
-  gatewayClasses: {}
-  grpcRoutes: {}
-  listenerSets: {}
-  referenceGrants: {}
-  tlsRoutes: {}
   gateways:
     edge:
       spec:

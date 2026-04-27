@@ -1,13 +1,12 @@
 # Istio Egress
 
-Управляемый исходящий трафик из mesh во внешний API через ServiceEntry и DestinationRule.
+Managed outbound traffic from the mesh to an external API through ServiceEntry and DestinationRule.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-istio`
 
-## Используемые технологии
+## Used Technologies
 - Istio ServiceEntry
 - Istio DestinationRule
 - Istio VirtualService
-

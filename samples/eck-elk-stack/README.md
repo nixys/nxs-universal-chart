@@ -1,11 +1,11 @@
 # ECK ELK Stack
 
-Кейс для базового ECK-контура с Elasticsearch, Kibana и Beat.
+Basic ECK setup with Elasticsearch, Kibana, and Beat.
 
-## Используемые чарты
+## Used Charts
 - `nuc-elk`
 
-## Используемые технологии
+## Used Technologies
 - Elastic Cloud on Kubernetes
 - Elasticsearch
-- Kibana и Beat
+- Kibana and Beat

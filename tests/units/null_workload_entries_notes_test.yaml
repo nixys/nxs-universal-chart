@@ -1,0 +1,13 @@
+suite: null workload entries notes
+templates:
+  - templates/NOTES.txt
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders NOTES without failing for null workload entries
+    values:
+      - values/null_workload_entries.values.yaml
+    asserts:
+      - matchSnapshot: {}

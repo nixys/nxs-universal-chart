@@ -1,11 +1,10 @@
 # KServe Inference Service
 
-Минимальный inference-сервис на KServe с built-in predictor.
+Minimal inference service on KServe with a built-in predictor.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kserve`
 
-## Используемые технологии
+## Used Technologies
 - KServe InferenceService
-

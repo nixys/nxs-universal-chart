@@ -1,12 +1,11 @@
 # Traefik Edge Routing
 
-Публикация сервиса через Traefik CRD-маршруты вместо стандартного Ingress.
+Publishing a service through Traefik CRD routes instead of a standard Ingress.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-traefik`
 
-## Используемые технологии
+## Used Technologies
 - Traefik IngressRoute
 - Traefik Middleware
-

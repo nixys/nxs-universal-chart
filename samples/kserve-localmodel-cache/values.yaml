@@ -13,11 +13,6 @@ deployments:
 
 nuc-kserve:
   enabled: true
-  clusterServingRuntimes: {}
-  clusterStorageContainers: {}
-  inferenceGraphs: {}
-  servingRuntimes: {}
-  localModelNodes: {}
   trainedModels:
     embedding-model:
       spec:

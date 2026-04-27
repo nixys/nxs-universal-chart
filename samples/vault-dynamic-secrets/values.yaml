@@ -11,13 +11,6 @@ deployments:
 
 nuc-vault-secret-operator:
   enabled: true
-  hcpAuths: {}
-  hcpVaultSecretsApps: {}
-  secretTransformations: {}
-  vaultAuth: {}
-  vaultAuthGlobals: {}
-  vaultPKISecrets: {}
-  vaultStaticSecrets: {}
   vaultConnections:
     default:
       spec:

@@ -1,0 +1,34 @@
+nameOverride: empty-env
+
+deployments:
+  api:
+    containers:
+      api:
+        image: nginx
+        imageTag: "1.27.5"
+        envConfigmaps:
+          - null
+          - ""
+        envSecrets:
+          - null
+          - ""
+
+cronJobsGeneral:
+  suspend: true
+  singleOnly: true
+
+cronJobs:
+  cleanup:
+    schedule: "*/20 * * * *"
+    suspend:
+    singleOnly:
+    containers:
+      cleanup:
+        image: busybox
+        imageTag: "1.36.1"
+        envConfigmaps:
+          - null
+          - ""
+        envSecrets:
+          - null
+          - ""

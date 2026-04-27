@@ -11,6 +11,33 @@
 {{- $job := get $cronJobs $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $job)) }}
 {{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+{{- $suspendSet := false -}}
+{{- $suspend := false -}}
+{{- if hasKey $general "suspend" -}}
+  {{- if ne $general.suspend nil -}}
+    {{- $suspend = $general.suspend -}}
+    {{- $suspendSet = true -}}
+  {{- end -}}
+{{- end -}}
+{{- if hasKey $job "suspend" -}}
+  {{- if ne $job.suspend nil -}}
+    {{- $suspend = $job.suspend -}}
+    {{- $suspendSet = true -}}
+  {{- else -}}
+    {{- $suspendSet = false -}}
+  {{- end -}}
+{{- end -}}
+{{- $singleOnly := false -}}
+{{- if and (hasKey $general "singleOnly") (ne $general.singleOnly nil) -}}
+  {{- $singleOnly = $general.singleOnly -}}
+{{- end -}}
+{{- if hasKey $job "singleOnly" -}}
+  {{- if ne $job.singleOnly nil -}}
+    {{- $singleOnly = $job.singleOnly -}}
+  {{- else -}}
+    {{- $singleOnly = false -}}
+  {{- end -}}
+{{- end -}}
 ---
 apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
 kind: CronJob
@@ -25,12 +52,14 @@ metadata:
   annotations:
     {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
 spec:
-  suspend: {{ default false $job.suspend }}
+  {{- if $suspendSet }}
+  suspend: {{ $suspend }}
+  {{- end }}
   schedule: {{ include "helpers.tplvalues.render" (dict "value" $job.schedule "context" $) | quote }}
   {{- with (coalesce $job.timeZone $general.timeZone) }}
   timeZone: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) | quote }}
   {{- end }}
-  {{- if $job.singleOnly }}
+  {{- if $singleOnly }}
   concurrencyPolicy: Forbid
   {{- end }}
   {{- with (coalesce $job.startingDeadlineSeconds $general.startingDeadlineSeconds) }}

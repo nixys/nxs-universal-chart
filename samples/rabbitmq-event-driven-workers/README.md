@@ -1,13 +1,13 @@
 # RabbitMQ Event-Driven Workers
 
-Кейс для очереди задач на RabbitMQ с autoscaling worker'ов через KEDA.
+Task queue on RabbitMQ with KEDA-based worker autoscaling.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-rabbitmq`
 - `nuc-keda`
 
-## Используемые технологии
+## Used Technologies
 - RabbitMQ Cluster Operator
 - KEDA ScaledObject
 - Kubernetes Deployment

@@ -1,12 +1,11 @@
 # KServe Custom Runtime
 
-KServe с кастомным ServingRuntime и InferenceService, который на него опирается.
+KServe with a custom ServingRuntime and an InferenceService that uses it.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-kserve`
 
-## Используемые технологии
+## Used Technologies
 - KServe ServingRuntime
 - KServe InferenceService
-

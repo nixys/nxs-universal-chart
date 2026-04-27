@@ -1,13 +1,12 @@
 # Istio Traffic Routing
 
-Базовый north-south routing через Istio Gateway, VirtualService и DestinationRule.
+Basic north-south routing through Istio Gateway, VirtualService, and DestinationRule.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-istio`
 
-## Используемые технологии
+## Used Technologies
 - Istio Gateway
 - Istio VirtualService
 - Istio DestinationRule
-

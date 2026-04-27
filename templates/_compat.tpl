@@ -94,6 +94,51 @@ Backward-compatible alias retained for older charts.
 {{- include "helpers.app.defaultHookAnnotations" $ctx -}}
 {{- end -}}
 
+{{/*
+Compatibility override for the published nuc-common helper:
+- tolerate null workload entries inside object maps
+- support hooks/jobs/cronJobs values provided as YAML strings
+*/}}
+{{- define "helpers.deprecation.workload.imagePullSecrets.family" -}}
+{{- $items := .items | default dict -}}
+{{- range $name := keys $items | sortAlpha }}
+{{- $workload := get $items $name -}}
+{{- if kindIs "map" $workload -}}
+{{- with (get $workload "imagePullSecrets") }}
+
+** WARNING **
+
+You use deprecated option `imagePullSecrets` for {{ $.kind }} "{{ $name }}". Please use `extraImagePullSecrets` instead.
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.deprecation.workload.imagePullSecrets" -}}
+{{- $hooks := dict -}}
+{{- $cronJobs := dict -}}
+{{- $jobs := dict -}}
+{{- if kindIs "string" .Values.hooks -}}
+{{- $hooks = fromYaml .Values.hooks | default dict -}}
+{{- else if kindIs "map" .Values.hooks -}}
+{{- $hooks = .Values.hooks -}}
+{{- end -}}
+{{- if kindIs "string" .Values.cronJobs -}}
+{{- $cronJobs = fromYaml .Values.cronJobs | default dict -}}
+{{- else if kindIs "map" .Values.cronJobs -}}
+{{- $cronJobs = .Values.cronJobs -}}
+{{- end -}}
+{{- if kindIs "string" .Values.jobs -}}
+{{- $jobs = fromYaml .Values.jobs | default dict -}}
+{{- else if kindIs "map" .Values.jobs -}}
+{{- $jobs = .Values.jobs -}}
+{{- end -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "deployment" "items" (.Values.deployments | default dict)) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "hook" "items" $hooks) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "cronjob" "items" $cronJobs) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "job" "items" $jobs) -}}
+{{- end -}}
+
 {{- define "helpers.app.gitopsLabels" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -325,6 +370,62 @@ false
 {{ toYaml $entries }}
 {{- end -}}
 
+{{- define "helpers.configmaps.includeEnvConfigmap" -}}
+{{- $ctx := .context -}}
+{{- range $sName := (.value | default list) }}
+{{- if and (kindIs "string" $sName) $sName }}
+{{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $sName "context" $ctx) -}}
+{{- if $resolvedName }}
+- configMapRef:
+    name: {{ include "helpers.app.fullname" (dict "name" $resolvedName "context" $ctx) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.secrets.includeEnvSecret" -}}
+{{- $ctx := .context -}}
+{{- range $sName := (.value | default list) }}
+{{- if and (kindIs "string" $sName) $sName }}
+{{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $sName "context" $ctx) -}}
+{{- if $resolvedName }}
+- secretRef:
+    name: {{ include "helpers.app.fullname" (dict "name" $resolvedName "context" $ctx) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.workloads.envsFrom" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $v := .value | default dict -}}
+{{- $envFrom := "" -}}
+{{- with $general.envConfigmaps }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.configmaps.includeEnvConfigmap" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envConfigmaps }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.configmaps.includeEnvConfigmap" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $general.envSecrets }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.secrets.includeEnvSecret" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envSecrets }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.secrets.includeEnvSecret" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $general.envFrom }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.tplvalues.render" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envFrom }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.tplvalues.render" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- $envFrom = trim $envFrom -}}
+{{- if $envFrom }}
+envFrom:
+{{ $envFrom | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.resources.isEnabled" -}}
 {{- $value := .value | default dict -}}
 {{- if and $value (not ($value.disabled | default false)) -}}true{{- else -}}false{{- end -}}
@@ -364,6 +465,33 @@ false
 {{- $value := .value | default dict -}}
 {{- $referencedConfigMaps := dict -}}
 {{- $referencedSecrets := dict -}}
+{{- /* Collect references from family-level defaults applied to every main container */ -}}
+{{- range $configMapName := (get $general "envConfigmaps" | default list) -}}
+  {{- if and (kindIs "string" $configMapName) $configMapName -}}
+    {{- $_ := set $referencedConfigMaps $configMapName true -}}
+  {{- end -}}
+{{- end -}}
+{{- range $secretName := (get $general "envSecrets" | default list) -}}
+  {{- if and (kindIs "string" $secretName) $secretName -}}
+    {{- $_ := set $referencedSecrets $secretName true -}}
+  {{- end -}}
+{{- end -}}
+{{- $generalEnvsFromConfigmap := get $general "envsFromConfigmap" | default dict -}}
+{{- if kindIs "map" $generalEnvsFromConfigmap -}}
+  {{- range $configMapName := keys $generalEnvsFromConfigmap -}}
+    {{- if $configMapName -}}
+      {{- $_ := set $referencedConfigMaps $configMapName true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $generalEnvsFromSecret := get $general "envsFromSecret" | default dict -}}
+{{- if kindIs "map" $generalEnvsFromSecret -}}
+  {{- range $secretName := keys $generalEnvsFromSecret -}}
+    {{- if $secretName -}}
+      {{- $_ := set $referencedSecrets $secretName true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 {{- /* Collect referenced names from all containers and initContainers */ -}}
 {{- $containers := list -}}
 {{- $containers = concat $containers (fromYamlArray (include "helpers.workloads.containerEntries" (dict "value" $value.containers)) | default list) -}}
@@ -371,19 +499,33 @@ false
 {{- range $container := $containers -}}
   {{- /* envConfigmaps: list of configmap names */ -}}
   {{- range (get $container "envConfigmaps" | default list) -}}
-    {{- $_ := set $referencedConfigMaps . true -}}
+    {{- if and (kindIs "string" .) . -}}
+      {{- $_ := set $referencedConfigMaps . true -}}
+    {{- end -}}
   {{- end -}}
   {{- /* envSecrets: list of secret names */ -}}
   {{- range (get $container "envSecrets" | default list) -}}
-    {{- $_ := set $referencedSecrets . true -}}
+    {{- if and (kindIs "string" .) . -}}
+      {{- $_ := set $referencedSecrets . true -}}
+    {{- end -}}
   {{- end -}}
   {{- /* envsFromConfigmap: map keyed by configmap name */ -}}
-  {{- range $configMapName := keys (get $container "envsFromConfigmap" | default dict) -}}
-    {{- $_ := set $referencedConfigMaps $configMapName true -}}
+  {{- $containerEnvsFromConfigmap := get $container "envsFromConfigmap" | default dict -}}
+  {{- if kindIs "map" $containerEnvsFromConfigmap -}}
+  {{- range $configMapName := keys $containerEnvsFromConfigmap -}}
+    {{- if $configMapName -}}
+      {{- $_ := set $referencedConfigMaps $configMapName true -}}
+    {{- end -}}
+  {{- end -}}
   {{- end -}}
   {{- /* envsFromSecret: map keyed by secret name */ -}}
-  {{- range $secretName := keys (get $container "envsFromSecret" | default dict) -}}
-    {{- $_ := set $referencedSecrets $secretName true -}}
+  {{- $containerEnvsFromSecret := get $container "envsFromSecret" | default dict -}}
+  {{- if kindIs "map" $containerEnvsFromSecret -}}
+  {{- range $secretName := keys $containerEnvsFromSecret -}}
+    {{- if $secretName -}}
+      {{- $_ := set $referencedSecrets $secretName true -}}
+    {{- end -}}
+  {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- /* Collect referenced names from workload, general and generic volumes */ -}}

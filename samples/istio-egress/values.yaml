@@ -2,17 +2,6 @@ nameOverride: istio-egress
 
 nuc-istio:
   enabled: true
-  authorizationpolicies: {}
-  envoyfilters: {}
-  gateways: {}
-  peerauthentications: {}
-  proxyconfigs: {}
-  requestauthentications: {}
-  sidecars: {}
-  telemetries: {}
-  wasmplugins: {}
-  workloadentries: {}
-  workloadgroups: {}
   serviceentries:
     external-api:
       spec:

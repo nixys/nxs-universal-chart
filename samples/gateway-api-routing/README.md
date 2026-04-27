@@ -1,12 +1,11 @@
 # Gateway API Routing
 
-Публикация HTTP сервиса через Kubernetes Gateway API.
+Publishing an HTTP service through Kubernetes Gateway API.
 
-## Используемые чарты
+## Used Charts
 - `nxs-universal-chart`
 - `nuc-native-gateway`
 
-## Используемые технологии
+## Used Technologies
 - Gateway API Gateway
 - Gateway API HTTPRoute
-

@@ -2,13 +2,6 @@ nameOverride: inference-graph
 
 nuc-kserve:
   enabled: true
-  clusterServingRuntimes: {}
-  clusterStorageContainers: {}
-  localModelCaches: {}
-  localModelNodeGroups: {}
-  localModelNodes: {}
-  servingRuntimes: {}
-  trainedModels: {}
   inferenceServices:
     preprocessor:
       spec:
