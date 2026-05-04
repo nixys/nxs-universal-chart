@@ -10,7 +10,7 @@
 {{- range $name := keys $hooks | sortAlpha }}
 {{- $hook := get $hooks $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $hook)) }}
-{{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+{{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) }}
 ---
 apiVersion: batch/v1
 kind: Job
