@@ -1,0 +1,301 @@
+---
+variables:
+  CHART_DIR: "."
+  RELEASE_NAME: "$CI_PROJECT_NAME"
+  RELEASE_NAMESPACE: "default"
+  KUBE_VERSION: "1.35.2"
+  KUBECONFORM_VERSION: "v0.6.7"
+  RENDER_DIR: ".rendered"
+  KUBECONFORM_CRD_SCHEMA_LOCATION: "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
+  KUBECONFORM_SKIP_KINDS: "ListenerSet,ReferenceGrant,TLSRoute,Application,ApplicationSet,AppProject"
+  GOBIN: "$CI_PROJECT_DIR/.bin"
+  GOMODCACHE: "$CI_PROJECT_DIR/.cache/go/pkg/mod"
+  GOCACHE: "$CI_PROJECT_DIR/.cache/go-build"
+  HELM_CACHE_HOME: "$CI_PROJECT_DIR/.helm/cache"
+  HELM_EXAMPLE_VALUES: "values.yaml.example"
+
+  CHART_PATH: ./
+  HARBOR_REGISTRY: $REGISTRY_NAME
+  HARBOR_PROJECT: "nuc"
+
+  COSIGN_VERSION: "v2.4.1"
+
+default:
+  image:
+    name: alpine/helm:4
+    entrypoint: ["/bin/sh", "-c"]
+  before_script:
+    - apk add --no-cache git
+
+
+
+.lint:
+  stage: lint
+  before_script:
+    - helm dependency update
+  script:
+    - helm lint .
+
+.unit-tests:
+  stage: tests
+  before_script:
+    - helm dependency update
+  script:
+    - echo "$KUBE_VERSION"
+    - helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false
+    - helm unittest -f 'tests/units/*_test.yaml' .
+  needs:
+    - lint
+
+.smoke-tests:
+  stage: tests
+  before_script:
+    - helm dependency update
+    - apk add --no-cache curl python3 py3-yaml
+    - >
+      ARCH="$(uname -m)" &&
+      case "$ARCH" in
+        x86_64) ARCH=amd64 ;;
+        aarch64) ARCH=arm64 ;;
+        *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;;
+      esac &&
+      curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-${ARCH}.tar.gz" |
+      tar -xz -C /usr/local/bin kubeconform
+  script:
+    - >
+      python3 tests/smokes/run/smoke.py
+      --scenario default-empty
+      --scenario schema-invalid-list-contract
+      --scenario rendering-contract
+      --scenario example-render
+      --scenario example-kubeconform
+  needs:
+    - lint
+
+.compatibility_tests:
+  stage: tests
+  variables:
+    GIT_DEPTH: "0"
+  before_script:
+    - helm dependency update
+    - apk add --no-cache git
+    - git fetch --tags --force
+  script:
+    - sh tests/units/backward_compatibility_test.sh
+  needs:
+    - lint
+
+.render_manifests:
+  stage: tests
+  before_script:
+    - helm dependency update
+  script:
+    - helm dependency build "$CHART_DIR"
+    - mkdir -p "$RENDER_DIR"
+    - >
+      helm template
+      "$RELEASE_NAME"
+      "$CHART_DIR"
+      --namespace "$RELEASE_NAMESPACE"
+      -f "$HELM_EXAMPLE_VALUES"
+      > "$RENDER_DIR/all.yaml"
+    - test -s "$RENDER_DIR/all.yaml"
+  artifacts:
+    when: always
+    paths:
+      - .rendered/
+  needs:
+    - lint
+
+.kubeconform_validate:
+  stage: tests
+  image:
+    name: ghcr.io/yannh/kubeconform:latest-alpine
+    entrypoint: [""]
+  needs:
+    - job: render_manifests
+      artifacts: true
+    - lint
+  script:
+    - >
+      /kubeconform
+      -summary
+      -strict
+      -output json
+      -kubernetes-version "$KUBE_VERSION"
+      -schema-location default
+      -schema-location "$KUBECONFORM_CRD_SCHEMA_LOCATION"
+      -skip "$KUBECONFORM_SKIP_KINDS"
+      "$RENDER_DIR/all.yaml"
+
+#############################################################################################
+
+lint:
+  extends:
+    - .lint
+unit-tests:
+  extends:
+    - .unit-tests
+smoke-tests:
+  extends:
+    - .smoke-tests
+compatibility_tests:
+  extends:
+    - .compatibility_tests
+render_manifests:
+  extends:
+    - .render_manifests
+kubeconform_validate:
+  extends:
+    - .kubeconform_validate
+
+.tag_semver_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/'
+
+.validate_chart_version:
+  stage: validate-tag
+  image: alpine:3.19
+  before_script:
+    - apk add --no-cache yq
+  script:
+    - CHART_VERSION=$(yq e '.version' $CHART_PATH/Chart.yaml)
+    - TAG_VERSION=$(echo $CI_COMMIT_TAG | sed 's/^v//')
+
+    - |
+      if [ "$CHART_VERSION" != "$TAG_VERSION" ]; then
+        echo "Version mismatch!"
+        exit 1
+      fi
+
+.package_helm_chart:
+  stage: package
+  image: 
+    name: alpine/helm:3.20.1
+    entrypoint: [""]
+  script:
+    - helm dependency update $CHART_PATH
+    - helm package $CHART_PATH --destination ./dist
+  artifacts:
+    paths:
+      - dist/*.tgz
+
+.publish_helm_chart:
+  stage: publish
+  image: 
+    name: alpine/helm:3.20.1
+    entrypoint: [""]
+  before_script:
+    - helm registry login $HARBOR_REGISTRY -u "$HARBOR_USERNAME" -p "$HARBOR_PASSWORD"
+  script:
+    - helm push dist/*.tgz oci://$HARBOR_REGISTRY/$HARBOR_PROJECT
+
+#############################################################################################
+
+validate_job:
+  extends:
+    - .validate_chart_version
+    - .tag_semver_rules
+
+package_chart:
+  extends:
+    - .package_helm_chart
+    - .tag_semver_rules
+  needs:
+    - validate_job
+
+publish_chart:
+  extends:
+    - .publish_helm_chart
+    - .tag_semver_rules
+  needs:
+    - package_chart
+
+
+.tag_semver_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/'
+
+.sign_chart:
+  stage: sign
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache curl docker-cli helm
+    - curl -fsSL -o /usr/local/bin/cosign "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+    - chmod +x /usr/local/bin/cosign
+    - cosign version
+    - export CHART_VERSION="$(helm show chart "$CHART_DIR" | awk '/^version:/ {print $2}')"
+    - echo "CHART_VERSION=$CHART_VERSION"
+  script:
+    - printf '%s' "$COSIGN_PRIVATE_KEY" > cosign.key
+    - chmod 600 cosign.key
+    - mkdir -p ~/.docker
+    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+    - cosign sign --yes --key cosign.key "$HARBOR_REGISTRY/$HARBOR_PROJECT/$CI_PROJECT_NAME:${CHART_VERSION}"
+
+.push_artifacthub_metadata:
+  stage: metadata
+  image:
+    name: ghcr.io/oras-project/oras:v1.2.2
+    entrypoint: [""]
+  script:
+    - test -f artifacthub-repo.yml
+    - echo "$HARBOR_PASSWORD" | oras login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+    - |
+      oras push --disable-path-validation \
+        "$HARBOR_REGISTRY/$HARBOR_PROJECT/$CI_PROJECT_NAME:artifacthub.io" \
+        --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+        artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+
+.verify_signature:
+  stage: verify
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache curl docker-cli helm
+    - curl -fsSL -o /usr/local/bin/cosign "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+    - chmod +x /usr/local/bin/cosign
+    - cosign version
+    - export CHART_VERSION="$(helm show chart "$CHART_DIR" | awk '/^version:/ {print $2}')"
+    - echo "CHART_VERSION=$CHART_VERSION"
+  script:
+    - printf '%s' "$COSIGN_PUBLIC_KEY" > cosign.pub
+    - chmod 644 cosign.pub
+    - mkdir -p ~/.docker
+    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" -u "$HARBOR_USERNAME" --password-stdin
+    - cosign verify --key cosign.pub "$HARBOR_REGISTRY/$HARBOR_PROJECT/$CI_PROJECT_NAME:${CHART_VERSION}"
+
+#############################################################################################
+
+sign_chart:
+  extends:
+    - .sign_chart
+    - .tag_semver_rules
+  needs:
+    - publish_chart
+
+push_artifacthub_metadata:
+  extends:
+    - .push_artifacthub_metadata
+    - .tag_semver_rules
+  needs:
+    - sign_chart
+
+verify_signature:
+  extends:
+    - .verify_signature
+    - .tag_semver_rules
+  needs:
+    - push_artifacthub_metadata
+
+
+stages:
+  - lint
+  - tests
+
+  - validate-tag
+  - package
+  - publish
+
+  - sign
+  - metadata
+  - verify
