@@ -1,0 +1,92 @@
+name: Bug Report
+description: Create a report to help us improve nxs-universal-chart
+title: "[nxs-universal-chart] short bug summary"
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report.
+        Please do not include secrets, tokens, passwords, or other sensitive values in the issue body.
+
+  - type: textarea
+    id: desc
+    attributes:
+      label: Describe the bug
+      description: Give a clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: input
+    id: helm-version
+    attributes:
+      label: What's your Helm version?
+      description: Enter the output of `helm version`.
+      placeholder: Copy and paste the full output
+    validations:
+      required: true
+
+  - type: input
+    id: kubectl-version
+    attributes:
+      label: What's your kubectl version?
+      description: Enter the output of `kubectl version`.
+    validations:
+      required: true
+
+  - type: input
+    id: chart-version
+    attributes:
+      label: What's the chart version?
+      description: Enter the version of `nxs-universal-chart` where you encountered the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Enter exactly what happened.
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: What did you expect to happen?
+      description: Describe the expected behavior.
+    validations:
+      required: false
+
+  - type: textarea
+    id: how-to-reproduce
+    attributes:
+      label: How can we reproduce it?
+      description: Provide the smallest possible values snippet and steps to reproduce the problem.
+    validations:
+      required: false
+
+  - type: textarea
+    id: changed-values
+    attributes:
+      label: Changed values
+      description: Enter only values that differ from the chart defaults. Enter `NONE` if nothing changed.
+      placeholder: "key: value"
+    validations:
+      required: false
+
+  - type: textarea
+    id: helm-command
+    attributes:
+      label: Command or release configuration
+      description: Paste the Helm command, Argo CD Application snippet, Flux HelmRelease snippet, or equivalent deployment configuration.
+      placeholder: helm upgrade --install my-release . --values values.yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: anything-else
+    attributes:
+      label: Anything else we need to know?
+    validations:
+      required: false

@@ -11,6 +11,33 @@
 {{- $job := get $cronJobs $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $job)) }}
 {{- $fullName := include "helpers.app.fullname" (dict "name" $name "context" $) -}}
+{{- $suspendSet := false -}}
+{{- $suspend := false -}}
+{{- if hasKey $general "suspend" -}}
+  {{- if ne $general.suspend nil -}}
+    {{- $suspend = $general.suspend -}}
+    {{- $suspendSet = true -}}
+  {{- end -}}
+{{- end -}}
+{{- if hasKey $job "suspend" -}}
+  {{- if ne $job.suspend nil -}}
+    {{- $suspend = $job.suspend -}}
+    {{- $suspendSet = true -}}
+  {{- else -}}
+    {{- $suspendSet = false -}}
+  {{- end -}}
+{{- end -}}
+{{- $singleOnly := false -}}
+{{- if and (hasKey $general "singleOnly") (ne $general.singleOnly nil) -}}
+  {{- $singleOnly = $general.singleOnly -}}
+{{- end -}}
+{{- if hasKey $job "singleOnly" -}}
+  {{- if ne $job.singleOnly nil -}}
+    {{- $singleOnly = $job.singleOnly -}}
+  {{- else -}}
+    {{- $singleOnly = false -}}
+  {{- end -}}
+{{- end }}
 ---
 apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
 kind: CronJob
@@ -23,17 +50,16 @@ metadata:
     {{- with $general.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
     {{- with $job.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
-    {{- with $general.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
-    {{- with $job.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $job) | nindent 4 }}
 spec:
-  suspend: {{ default false $job.suspend }}
+  {{- if $suspendSet }}
+  suspend: {{ $suspend }}
+  {{- end }}
   schedule: {{ include "helpers.tplvalues.render" (dict "value" $job.schedule "context" $) | quote }}
   {{- with (coalesce $job.timeZone $general.timeZone) }}
   timeZone: {{ include "helpers.tplvalues.render" (dict "value" . "context" $) | quote }}
   {{- end }}
-  {{- if $job.singleOnly }}
+  {{- if $singleOnly }}
   concurrencyPolicy: Forbid
   {{- end }}
   {{- with (coalesce $job.startingDeadlineSeconds $general.startingDeadlineSeconds) }}
@@ -69,14 +95,11 @@ spec:
             {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
             {{- with $job.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
           annotations:
-            {{- include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 12 }}
-            {{- with $.Values.generic.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-            {{- with $general.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
-            {{- with $job.podAnnotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}{{- end }}
+            {{- include "helpers.workloads.podAnnotations" (dict "context" $ "general" $general "value" $job) | nindent 12 }}
         spec:
           {{- include "helpers.pod" (dict "value" $job "general" $general "name" $name "context" $) | nindent 10 }}
           restartPolicy: {{ $job.restartPolicy | default "Never" }}
-{{- if $job.commandDurationAlert }}
+{{ if $job.commandDurationAlert -}}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule

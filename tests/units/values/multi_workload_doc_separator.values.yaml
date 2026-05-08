@@ -1,0 +1,48 @@
+nameOverride: multi
+jobs:
+  alpha:
+    containers:
+      - name: alpha
+        image: busybox
+        command:
+          - echo
+          - alpha
+  bravo:
+    containers:
+      - name: bravo
+        image: busybox
+        command:
+          - echo
+          - bravo
+hooks:
+  postdeploy:
+    containers:
+      - name: postdeploy
+        image: busybox
+        command:
+          - echo
+          - post
+  predeploy:
+    containers:
+      - name: predeploy
+        image: busybox
+        command:
+          - echo
+          - pre
+cronJobs:
+  alpha:
+    schedule: "0 * * * *"
+    containers:
+      - name: alpha
+        image: busybox
+        command:
+          - echo
+          - alpha
+  bravo:
+    schedule: "30 * * * *"
+    containers:
+      - name: bravo
+        image: busybox
+        command:
+          - echo
+          - bravo

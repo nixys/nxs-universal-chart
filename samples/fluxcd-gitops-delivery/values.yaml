@@ -1,0 +1,36 @@
+nuc-fluxcd:
+  enabled: true
+  gitRepositories:
+    app:
+      spec:
+        interval: 1m
+        url: https://github.com/nixys/example-platform.git
+        ref:
+          branch: main
+  kustomizations:
+    app:
+      spec:
+        interval: 5m
+        path: ./clusters/dev
+        prune: true
+        sourceRef:
+          kind: GitRepository
+          name: app
+  helmRepositories:
+    platform:
+      spec:
+        interval: 1h
+        url: https://charts.example.local/platform
+  helmReleases:
+    ingress:
+      spec:
+        interval: 10m
+        chart:
+          spec:
+            chart: ingress-app
+            version: "1.2.3"
+            sourceRef:
+              kind: HelmRepository
+              name: platform
+        values:
+          replicaCount: 2

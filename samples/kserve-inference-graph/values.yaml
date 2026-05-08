@@ -1,0 +1,24 @@
+nameOverride: inference-graph
+
+nuc-kserve:
+  enabled: true
+  inferenceServices:
+    preprocessor:
+      spec:
+        predictor:
+          sklearn:
+            storageUri: s3://models/preprocessor
+    predictor:
+      spec:
+        predictor:
+          sklearn:
+            storageUri: s3://models/predictor
+  inferenceGraphs:
+    graph:
+      spec:
+        nodes:
+          root:
+            routerType: Sequence
+            steps:
+              - serviceName: preprocessor
+              - serviceName: predictor

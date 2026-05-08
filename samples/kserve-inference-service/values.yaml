@@ -1,0 +1,10 @@
+nameOverride: kserve-predictor
+
+nuc-kserve:
+  enabled: true
+  inferenceServices:
+    sklearn-model:
+      spec:
+        predictor:
+          sklearn:
+            storageUri: s3://models/sklearn

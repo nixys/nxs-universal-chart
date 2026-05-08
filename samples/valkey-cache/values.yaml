@@ -1,0 +1,21 @@
+nuc-valkey:
+  enabled: true
+  valkeyclusters:
+    cache:
+      spec:
+        image: valkey/valkey:8.1
+        shards: 3
+        replicas: 1
+        workloadType: StatefulSet
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        exporter:
+          enabled: true
+          image: oliver006/redis_exporter:v1.67.0
+        config:
+          maxmemory-policy: allkeys-lru

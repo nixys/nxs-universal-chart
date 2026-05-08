@@ -28,6 +28,117 @@ Remove these once the dependency includes the same fixes.
 {{- end -}}
 {{- end -}}
 
+{{- define "helpers.app.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "helpers.app.genericSelectorLabels" -}}
+{{- if and $.Values.generic (hasKey $.Values.generic "extraSelectorLabels") -}}
+{{- with $.Values.generic.extraSelectorLabels -}}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "helpers.app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{ include "helpers.app.genericSelectorLabels" $ }}
+{{- end -}}
+
+{{- define "helpers.app.labels" -}}
+{{ include "helpers.app.selectorLabels" . }}
+helm.sh/chart: {{ include "helpers.app.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+{{- if and .Values.generic (hasKey .Values.generic "labels") -}}
+{{- with .Values.generic.labels }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.app.genericAnnotations" -}}
+{{- if and .Values.generic (hasKey .Values.generic "annotations") -}}
+{{- with .Values.generic.annotations }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Default hook annotations for generated ConfigMaps and Secrets.
+
+Backward compatibility:
+- if generic.hookAnnotations is not defined, keep the historical defaults
+- if generic.hookAnnotations is defined as null, disable default hook annotations
+*/}}
+{{- define "helpers.app.defaultHookAnnotations" -}}
+{{- $defaultHookAnnotations := dict "helm.sh/hook" "pre-install,pre-upgrade" "helm.sh/hook-weight" "-999" "helm.sh/hook-delete-policy" "before-hook-creation" -}}
+{{- if and .Values.generic (hasKey .Values.generic "hookAnnotations") -}}
+  {{- with .Values.generic.hookAnnotations }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $) }}
+  {{- end -}}
+{{- else -}}
+{{ toYaml $defaultHookAnnotations }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Backward-compatible alias retained for older charts.
+*/}}
+{{- define "helpers.app.hooksAnnotations" -}}
+{{- $ctx := .context | default . -}}
+{{- include "helpers.app.defaultHookAnnotations" $ctx -}}
+{{- end -}}
+
+{{/*
+Compatibility override for the published nuc-common helper:
+- tolerate null workload entries inside object maps
+- support hooks/jobs/cronJobs values provided as YAML strings
+*/}}
+{{- define "helpers.deprecation.workload.imagePullSecrets.family" -}}
+{{- $items := .items | default dict -}}
+{{- range $name := keys $items | sortAlpha }}
+{{- $workload := get $items $name -}}
+{{- if kindIs "map" $workload -}}
+{{- with (get $workload "imagePullSecrets") }}
+
+** WARNING **
+
+You use deprecated option `imagePullSecrets` for {{ $.kind }} "{{ $name }}". Please use `extraImagePullSecrets` instead.
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.deprecation.workload.imagePullSecrets" -}}
+{{- $hooks := dict -}}
+{{- $cronJobs := dict -}}
+{{- $jobs := dict -}}
+{{- if kindIs "string" .Values.hooks -}}
+{{- $hooks = fromYaml .Values.hooks | default dict -}}
+{{- else if kindIs "map" .Values.hooks -}}
+{{- $hooks = .Values.hooks -}}
+{{- end -}}
+{{- if kindIs "string" .Values.cronJobs -}}
+{{- $cronJobs = fromYaml .Values.cronJobs | default dict -}}
+{{- else if kindIs "map" .Values.cronJobs -}}
+{{- $cronJobs = .Values.cronJobs -}}
+{{- end -}}
+{{- if kindIs "string" .Values.jobs -}}
+{{- $jobs = fromYaml .Values.jobs | default dict -}}
+{{- else if kindIs "map" .Values.jobs -}}
+{{- $jobs = .Values.jobs -}}
+{{- end -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "deployment" "items" (.Values.deployments | default dict)) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "hook" "items" $hooks) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "cronjob" "items" $cronJobs) -}}
+{{- include "helpers.deprecation.workload.imagePullSecrets.family" (dict "kind" "job" "items" $jobs) -}}
+{{- end -}}
+
 {{- define "helpers.app.gitopsLabels" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -110,6 +221,96 @@ Remove these once the dependency includes the same fixes.
 {{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
 {{- end -}}
 
+{{/*
+Merge resource metadata annotations without duplicate keys.
+
+Order of precedence (later wins):
+- default hook annotations when includeHooks=true
+- fixedAnnotations
+- generic annotations
+- gitops annotations
+- general.annotations
+- value.annotations
+- extraAnnotations
+*/}}
+{{- define "helpers.app.annotations" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $annotations := dict -}}
+{{- if .includeHooks -}}
+  {{- with (include "helpers.app.defaultHookAnnotations" $ctx | fromYaml) -}}
+    {{- $annotations = mergeOverwrite $annotations . -}}
+  {{- end -}}
+{{- end -}}
+{{- with .fixedAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- with (include "helpers.app.genericAnnotations" $ctx | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- with (include "helpers.app.gitopsAnnotations" (dict "context" $ctx "general" $general "value" $value) | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- with (get $general "annotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with (get $value "annotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with .extraAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
+{{- end -}}
+
+{{/*
+Merge pod-level annotations without duplicate keys.
+
+Order of precedence (later wins):
+- automatic checksum annotations
+- generic pod annotations
+- general.podAnnotations
+- value.podAnnotations
+- extraAnnotations
+*/}}
+{{- define "helpers.workloads.podAnnotations" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $annotations := dict -}}
+{{- with (include "helpers.workloads.autoChecksumAnnotations" (dict "context" $ctx "general" $general "value" $value) | fromYaml) -}}
+  {{- $annotations = mergeOverwrite $annotations . -}}
+{{- end -}}
+{{- if and $ctx.Values.generic (hasKey $ctx.Values.generic "podAnnotations") -}}
+  {{- with $ctx.Values.generic.podAnnotations -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- with (get $general "podAnnotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with (get $value "podAnnotations") -}}
+  {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+{{- end -}}
+{{- with .extraAnnotations -}}
+  {{- if kindIs "string" . -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml .) | default dict) -}}
+  {{- else -}}
+    {{- $annotations = mergeOverwrite $annotations ((fromYaml (include "helpers.tplvalues.render" (dict "value" . "context" $ctx))) | default dict) -}}
+  {{- end -}}
+{{- end -}}
+{{- if $annotations }}{{ toYaml $annotations }}{{- end -}}
+{{- end -}}
+
 {{- define "helpers.workloads.gitOpsSafeMode" -}}
 {{ include "helpers.workloads.deterministicNames" . }}
 {{- end -}}
@@ -169,6 +370,62 @@ false
 {{ toYaml $entries }}
 {{- end -}}
 
+{{- define "helpers.configmaps.includeEnvConfigmap" -}}
+{{- $ctx := .context -}}
+{{- range $sName := (.value | default list) }}
+{{- if and (kindIs "string" $sName) $sName }}
+{{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $sName "context" $ctx) -}}
+{{- if $resolvedName }}
+- configMapRef:
+    name: {{ include "helpers.app.fullname" (dict "name" $resolvedName "context" $ctx) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.secrets.includeEnvSecret" -}}
+{{- $ctx := .context -}}
+{{- range $sName := (.value | default list) }}
+{{- if and (kindIs "string" $sName) $sName }}
+{{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $sName "context" $ctx) -}}
+{{- if $resolvedName }}
+- secretRef:
+    name: {{ include "helpers.app.fullname" (dict "name" $resolvedName "context" $ctx) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "helpers.workloads.envsFrom" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $v := .value | default dict -}}
+{{- $envFrom := "" -}}
+{{- with $general.envConfigmaps }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.configmaps.includeEnvConfigmap" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envConfigmaps }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.configmaps.includeEnvConfigmap" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $general.envSecrets }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.secrets.includeEnvSecret" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envSecrets }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.secrets.includeEnvSecret" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $general.envFrom }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.tplvalues.render" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- with $v.envFrom }}
+{{- $envFrom = printf "%s\n%s" $envFrom (include "helpers.tplvalues.render" (dict "value" . "context" $ctx)) -}}
+{{- end }}
+{{- $envFrom = trim $envFrom -}}
+{{- if $envFrom }}
+envFrom:
+{{ $envFrom | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
 {{- define "helpers.resources.isEnabled" -}}
 {{- $value := .value | default dict -}}
 {{- if and $value (not ($value.disabled | default false)) -}}true{{- else -}}false{{- end -}}
@@ -202,6 +459,91 @@ false
 {{ toYaml $ports }}
 {{- end -}}
 
+{{- define "helpers.workloads.referencedResources" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $referencedConfigMaps := dict -}}
+{{- $referencedSecrets := dict -}}
+{{- /* Collect references from family-level defaults applied to every main container */ -}}
+{{- range $configMapName := (get $general "envConfigmaps" | default list) -}}
+  {{- if and (kindIs "string" $configMapName) $configMapName -}}
+    {{- $_ := set $referencedConfigMaps $configMapName true -}}
+  {{- end -}}
+{{- end -}}
+{{- range $secretName := (get $general "envSecrets" | default list) -}}
+  {{- if and (kindIs "string" $secretName) $secretName -}}
+    {{- $_ := set $referencedSecrets $secretName true -}}
+  {{- end -}}
+{{- end -}}
+{{- $generalEnvsFromConfigmap := get $general "envsFromConfigmap" | default dict -}}
+{{- if kindIs "map" $generalEnvsFromConfigmap -}}
+  {{- range $configMapName := keys $generalEnvsFromConfigmap -}}
+    {{- if $configMapName -}}
+      {{- $_ := set $referencedConfigMaps $configMapName true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $generalEnvsFromSecret := get $general "envsFromSecret" | default dict -}}
+{{- if kindIs "map" $generalEnvsFromSecret -}}
+  {{- range $secretName := keys $generalEnvsFromSecret -}}
+    {{- if $secretName -}}
+      {{- $_ := set $referencedSecrets $secretName true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Collect referenced names from all containers and initContainers */ -}}
+{{- $containers := list -}}
+{{- $containers = concat $containers (fromYamlArray (include "helpers.workloads.containerEntries" (dict "value" $value.containers)) | default list) -}}
+{{- $containers = concat $containers (fromYamlArray (include "helpers.workloads.containerEntries" (dict "value" $value.initContainers)) | default list) -}}
+{{- range $container := $containers -}}
+  {{- /* envConfigmaps: list of configmap names */ -}}
+  {{- range (get $container "envConfigmaps" | default list) -}}
+    {{- if and (kindIs "string" .) . -}}
+      {{- $_ := set $referencedConfigMaps . true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* envSecrets: list of secret names */ -}}
+  {{- range (get $container "envSecrets" | default list) -}}
+    {{- if and (kindIs "string" .) . -}}
+      {{- $_ := set $referencedSecrets . true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* envsFromConfigmap: map keyed by configmap name */ -}}
+  {{- $containerEnvsFromConfigmap := get $container "envsFromConfigmap" | default dict -}}
+  {{- if kindIs "map" $containerEnvsFromConfigmap -}}
+  {{- range $configMapName := keys $containerEnvsFromConfigmap -}}
+    {{- if $configMapName -}}
+      {{- $_ := set $referencedConfigMaps $configMapName true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- end -}}
+  {{- /* envsFromSecret: map keyed by secret name */ -}}
+  {{- $containerEnvsFromSecret := get $container "envsFromSecret" | default dict -}}
+  {{- if kindIs "map" $containerEnvsFromSecret -}}
+  {{- range $secretName := keys $containerEnvsFromSecret -}}
+    {{- if $secretName -}}
+      {{- $_ := set $referencedSecrets $secretName true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Collect referenced names from workload, general and generic volumes */ -}}
+{{- $volumes := concat ($value.volumes | default list) ($general.volumes | default list) ($ctx.Values.generic.volumes | default list) -}}
+{{- range $vol := $volumes -}}
+  {{- $volType := get $vol "type" | default "" -}}
+  {{- $volName := get $vol "name" | default "" -}}
+  {{- if and (eq $volType "configMap") $volName -}}
+    {{- $_ := set $referencedConfigMaps $volName true -}}
+  {{- end -}}
+  {{- if and (eq $volType "secret") $volName -}}
+    {{- $_ := set $referencedSecrets $volName true -}}
+  {{- end -}}
+{{- end -}}
+configMaps: {{ toJson $referencedConfigMaps }}
+secrets: {{ toJson $referencedSecrets }}
+{{- end -}}
+
 {{- define "helpers.workloads.autoChecksumAnnotations" -}}
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
@@ -231,6 +573,8 @@ false
   {{- end -}}
 {{- end -}}
 {{- if $enabled -}}
+  {{- /* Resolve referenced resources for this workload */ -}}
+  {{- $referencedResources := fromYaml (include "helpers.workloads.referencedResources" (dict "context" $ctx "general" $general "value" $value)) | default dict -}}
   {{- if or (not (empty $ctx.Values.envs)) (not (empty $ctx.Values.envsString)) -}}
     {{- if not (hasKey $reserved "checksum/envs") -}}
       {{- $_ := set $annotations "checksum/envs" (sha256sum (printf "%s\n%s" ($ctx.Values.envs | toYaml) (include "helpers.tplvalues.render" (dict "value" $ctx.Values.envsString "context" $ctx)))) -}}
@@ -242,35 +586,244 @@ false
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.configMaps | default dict) | sortAlpha }}
-    {{- $configMap := get $ctx.Values.configMaps $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $configMap)) -}}
-      {{- $annotationName := printf "checksum/configmap-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($configMap | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "configMaps" | default dict) $name -}}
+      {{- $configMap := get $ctx.Values.configMaps $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $configMap)) -}}
+        {{- $annotationName := printf "checksum/configmap-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($configMap | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.secrets | default dict) | sortAlpha }}
-    {{- $secret := get $ctx.Values.secrets $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
-      {{- $annotationName := printf "checksum/secret-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "secrets" | default dict) $name -}}
+      {{- $secret := get $ctx.Values.secrets $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
+        {{- $annotationName := printf "checksum/secret-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
   {{- range $name := keys ($ctx.Values.sealedSecrets | default dict) | sortAlpha }}
-    {{- $secret := get $ctx.Values.sealedSecrets $name -}}
-    {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
-      {{- $annotationName := printf "checksum/sealed-secret-%s" $name -}}
-      {{- if not (hasKey $reserved $annotationName) -}}
-        {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+    {{- if hasKey (get $referencedResources "secrets" | default dict) $name -}}
+      {{- $secret := get $ctx.Values.sealedSecrets $name -}}
+      {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $secret)) -}}
+        {{- $annotationName := printf "checksum/sealed-secret-%s" $name -}}
+        {{- if not (hasKey $reserved $annotationName) -}}
+          {{- $_ := set $annotations $annotationName (sha256sum (($secret | toYaml) | trim)) -}}
+        {{- end -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- if $annotations -}}
 {{ toYaml $annotations }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Render pod/container securityContext with optional generic defaults.
+
+If mergeWithGeneric=true is set on the specific securityContext, generic keys are
+merged first and the specific keys override them. Otherwise the specific value
+replaces the generic default.
+*/}}
+{{- define "helpers.securityContext" -}}
+{{- $ctx := .context -}}
+{{- $specific := .securityContext -}}
+{{- $generic := .genericSecurityContext -}}
+{{- $final := dict -}}
+{{- if and $specific (kindIs "map" $specific) (get $specific "mergeWithGeneric") $generic -}}
+  {{- $final = mergeOverwrite $final ($generic | default dict) (omit $specific "mergeWithGeneric") -}}
+{{- else if $specific -}}
+  {{- if and (kindIs "map" $specific) (hasKey $specific "mergeWithGeneric") -}}
+    {{- $final = omit $specific "mergeWithGeneric" -}}
+  {{- else -}}
+    {{- $final = $specific -}}
+  {{- end -}}
+{{- else if $generic -}}
+  {{- $final = $generic -}}
+{{- end -}}
+{{- if $final }}
+securityContext: {{- include "helpers.tplvalues.render" (dict "value" $final "context" $ctx) | nindent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Render imagePullSecrets for generated ServiceAccounts.
+
+The general and local imagePullSecrets blocks support:
+- includePlatformDefault: bool
+- additional: [{name: regcred}] or ["regcred"]
+
+The local value can also be provided directly as a list for convenience.
+*/}}
+{{- define "helpers.serviceAccounts.imagePullSecrets" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value | default dict -}}
+{{- $generalConfig := get $general "imagePullSecrets" | default dict -}}
+{{- $valueConfig := get $value "imagePullSecrets" -}}
+{{- $includeDefault := false -}}
+{{- if and (kindIs "map" $generalConfig) (hasKey $generalConfig "includePlatformDefault") -}}
+  {{- $includeDefault = $generalConfig.includePlatformDefault -}}
+{{- end -}}
+{{- if and (kindIs "map" $valueConfig) (hasKey $valueConfig "includePlatformDefault") -}}
+  {{- $includeDefault = $valueConfig.includePlatformDefault -}}
+{{- end -}}
+{{- $items := list -}}
+{{- if and (kindIs "map" $generalConfig) (kindIs "slice" ($generalConfig.additional | default list)) -}}
+  {{- $items = concat $items ($generalConfig.additional | default list) -}}
+{{- end -}}
+{{- if kindIs "slice" $valueConfig -}}
+  {{- $items = concat $items $valueConfig -}}
+{{- else if and (kindIs "map" $valueConfig) (kindIs "slice" ($valueConfig.additional | default list)) -}}
+  {{- $items = concat $items ($valueConfig.additional | default list) -}}
+{{- end -}}
+{{- $names := list -}}
+{{- if and $includeDefault $ctx.Values.serviceAccountDefaultImagePullSecretName -}}
+  {{- $names = append $names $ctx.Values.serviceAccountDefaultImagePullSecretName -}}
+{{- end -}}
+{{- range $item := $items -}}
+  {{- if kindIs "string" $item -}}
+    {{- $names = append $names $item -}}
+  {{- else if and (kindIs "map" $item) (hasKey $item "name") -}}
+    {{- $names = append $names ($item.name | toString) -}}
+  {{- end -}}
+{{- end -}}
+{{- $seen := dict -}}
+{{- $rendered := list -}}
+{{- range $name := $names -}}
+  {{- $resolvedName := include "helpers.tplvalues.render" (dict "value" $name "context" $ctx) -}}
+  {{- if and $resolvedName (not (hasKey $seen $resolvedName)) -}}
+    {{- $_ := set $seen $resolvedName true -}}
+    {{- $rendered = append $rendered (dict "name" $resolvedName) -}}
+  {{- end -}}
+{{- end -}}
+{{- if $rendered }}
+imagePullSecrets:
+{{- range $entry := $rendered }}
+  - name: {{ $entry.name | quote }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.typed" -}}
+{{- $ctx := .context -}}
+{{- range .volumes -}}
+{{- if eq .type "configMap" }}
+- name: {{ .name }}
+  configMap:
+    {{- with .originalName }}
+    name: {{ . }}
+    {{- else }}
+    name: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
+    {{- with .items }}
+    items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 6 }}
+    {{- end }}
+{{- else if eq .type "secret" }}
+- name: {{ .name }}
+  secret:
+    {{- with .originalName }}
+    secretName: {{ . }}
+    {{- else }}
+    secretName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+    {{- with .items }}
+    items: {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 6 }}
+    {{- end }}
+{{- else if eq .type "pvc" }}
+- name: {{ .name }}
+  persistentVolumeClaim:
+    {{- with .originalName }}
+    claimName: {{ . }}
+    {{- else }}
+    claimName: {{ include "helpers.app.fullname" (dict "name" .name "context" $ctx) }}
+    {{- end }}
+{{- else if eq .type "emptyDir" }}
+- name: {{ .name }}
+  {{- if or .sizeLimit .medium }}
+  emptyDir:
+    {{- if .sizeLimit }}
+    sizeLimit: {{ .sizeLimit }}
+    {{- end }}
+    {{- if .medium }}
+    medium: {{ .medium }}
+    {{- end }}
+  {{- else }}
+  emptyDir: {}
+  {{- end }}
+{{- else if eq .type "projected" }}
+- name: {{ .name }}
+  projected:
+    {{- with .defaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
+    sources: {{- include "helpers.tplvalues.render" (dict "value" (.sources | default list) "context" $ctx) | nindent 6 }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.renderVolume" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $val := .value | default dict -}}
+{{- if or $val.volumes $general.volumes $ctx.Values.generic.volumes $val.extraVolumes $general.extraVolumes $ctx.Values.generic.extraVolumes -}}
+{{- with $val.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $general.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.volumes }}
+{{ include "helpers.volumes.typed" (dict "volumes" . "context" $ctx) }}
+{{- end }}
+{{- with $val.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.extraVolumes }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- else -}}
+[]
+{{- end -}}
+{{- end -}}
+
+{{- define "helpers.volumes.renderVolumeMounts" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $val := .value | default dict -}}
+{{- if or $val.volumeMounts $val.extraVolumeMounts $general.volumeMounts $general.extraVolumeMounts $ctx.Values.generic.volumeMounts $ctx.Values.generic.extraVolumeMounts -}}
+{{- with $val.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $val.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $general.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.volumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- with $ctx.Values.generic.extraVolumeMounts }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) }}
+{{- end }}
+{{- else -}}
+[]
 {{- end -}}
 {{- end -}}
 
@@ -298,6 +851,11 @@ serviceAccountName: {{ include "helpers.app.fullname" (dict "name" $serviceAccou
 {{- else }}
 serviceAccountName: {{ $serviceAccountName }}
 {{- end }}
+{{- end }}
+{{- if hasKey . "automountServiceAccountToken" }}
+automountServiceAccountToken: {{ .automountServiceAccountToken }}
+{{- else if and $.Values.generic (hasKey $.Values.generic "automountServiceAccountToken") }}
+automountServiceAccountToken: {{ $.Values.generic.automountServiceAccountToken }}
 {{- end }}
 {{- if .hostAliases }}
 hostAliases: {{- include "helpers.tplvalues.render" (dict "value" .hostAliases "context" $) | nindent 2 }}
@@ -333,8 +891,10 @@ dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 {{- with .restartPolicy }}
 restartPolicy: {{ . }}
 {{- end }}
-{{- with .nodeSelector }}
-nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
+{{- if .nodeSelector }}
+nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" .nodeSelector "context" $) | nindent 2 }}
+{{- else if $.Values.generic.nodeSelector }}
+nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.nodeSelector "context" $) | nindent 2 }}
 {{- end }}
 {{- $combinedTolerations := list -}}
 {{- if .tolerations }}
@@ -346,9 +906,7 @@ nodeSelector: {{- include "helpers.tplvalues.render" (dict "value" . "context" $
 tolerations:
 {{ toYaml $combinedTolerations | nindent 2 }}
 {{- end }}
-{{- with .securityContext }}
-securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
-{{- end }}
+{{- include "helpers.securityContext" (dict "securityContext" .securityContext "genericSecurityContext" $.Values.generic.podSecurityContext "context" $) }}
 {{- if or $.Values.imagePullSecrets $.Values.generic.extraImagePullSecrets .imagePullSecrets .extraImagePullSecrets }}
 imagePullSecrets:
 {{- range $sName := keys $.Values.imagePullSecrets | sortAlpha }}
@@ -377,9 +935,13 @@ initContainers:
   {{- with (get $container "imageTag") }}{{- $imageTag = include "helpers.tplvalues.render" (dict "value" . "context" $) -}}{{- end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ get $container "imagePullPolicy" | default $.Values.defaultImagePullPolicy }}
-  {{- with (get $container "securityContext") }}
-  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- if get $container "stdin" }}
+  stdin: {{ get $container "stdin" }}
   {{- end }}
+  {{- if get $container "tty" }}
+  tty: {{ get $container "tty" }}
+  {{- end }}
+  {{- include "helpers.securityContext" (dict "securityContext" (get $container "securityContext") "genericSecurityContext" $.Values.generic.containerSecurityContext "context" $) | nindent 2 }}
   {{- if $diagnosticEnabled }}
   args: {{- include "helpers.tplvalues.render" (dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if (get $container "args") }}
@@ -411,8 +973,13 @@ initContainers:
   {{- with (get $container "readinessProbe") }}
   readinessProbe: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-  {{- with (get $container "resources") }}
-  resources: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- $containerResources := get $container "resources" -}}
+  {{- if $containerResources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $general.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $general.resources "context" $) | nindent 4 }}
+  {{- else if $.Values.generic.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" $container "general" $general "context" $) | nindent 4 }}
 {{- end }}
@@ -433,9 +1000,13 @@ containers:
   {{- with (get $container "imageTag") }}{{- $imageTag = include "helpers.tplvalues.render" (dict "value" . "context" $) -}}{{- end }}
   image: {{ $image }}:{{ $imageTag }}
   imagePullPolicy: {{ get $container "imagePullPolicy" | default $.Values.defaultImagePullPolicy }}
-  {{- with (get $container "securityContext") }}
-  securityContext: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- if get $container "stdin" }}
+  stdin: {{ get $container "stdin" }}
   {{- end }}
+  {{- if get $container "tty" }}
+  tty: {{ get $container "tty" }}
+  {{- end }}
+  {{- include "helpers.securityContext" (dict "securityContext" (get $container "securityContext") "genericSecurityContext" $.Values.generic.containerSecurityContext "context" $) | nindent 2 }}
   {{- if $diagnosticEnabled }}
   args: {{- include "helpers.tplvalues.render" (dict "value" $.Values.diagnosticMode.args "context" $) | nindent 2 }}
   {{- else if (get $container "args") }}
@@ -467,8 +1038,13 @@ containers:
   {{- with (get $container "readinessProbe") }}
   readinessProbe: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-  {{- with (get $container "resources") }}
-  resources: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- $containerResources := get $container "resources" -}}
+  {{- if $containerResources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $containerResources "context" $) | nindent 4 }}
+  {{- else if $general.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $general.resources "context" $) | nindent 4 }}
+  {{- else if $.Values.generic.resources }}
+  resources: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.resources "context" $) | nindent 4 }}
   {{- end }}
   volumeMounts: {{- include "helpers.volumes.renderVolumeMounts" (dict "value" $container "general" $general "context" $) | nindent 4 }}
 {{- end }}

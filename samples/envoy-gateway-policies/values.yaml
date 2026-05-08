@@ -1,0 +1,25 @@
+global:
+  nuc-envoy-gateway:
+    enabled: true
+
+nuc-envoy-gateway:
+  nameOverride: envoy-gateway
+  backends:
+    api:
+      spec:
+        endpoints:
+          - fqdn:
+              hostname: api.example.local
+              port: 443
+        tls:
+          wellKnownCACertificates: System
+  backendTrafficPolicies:
+    api:
+      spec:
+        targetRefs:
+          - group: gateway.envoyproxy.io
+            kind: Backend
+            name: api
+        timeout:
+          tcp:
+            connectTimeout: 3s

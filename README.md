@@ -79,7 +79,7 @@ The chart can render these Kubernetes resource families:
 
 ## Dependency Subcharts
 
-The chart also declares reusable dependency subcharts. `nuc-common` is always loaded as the shared helper library; the remaining `nuc-*` dependencies are enabled only through their matching `.Values.<name>.enabled` flags.
+The chart also declares reusable dependency subcharts. `nuc-common` is always loaded as the shared helper library; most remaining `nuc-*` dependencies are enabled through their matching `.Values.<name>.enabled` flags. `nuc-envoy-gateway` is enabled through `global.nuc-envoy-gateway.enabled` because its subchart schema does not accept an `enabled` key under `nuc-envoy-gateway`.
 
 | Subchart | Enabled by | Source chart | Includes |
 |----------|------------|--------------|----------|
@@ -87,14 +87,24 @@ The chart also declares reusable dependency subcharts. `nuc-common` is always lo
 | `nuc-traefik` | `nuc-traefik.enabled` | [nuc-traefik](https://github.com/nixys/nuc-traefik) | Traefik CRDs: `IngressRoute`, `IngressRouteTCP`, `IngressRouteUDP`, `Middleware`, `MiddlewareTCP`, `TLSOption`, `TLSStore`, `ServersTransport`, `ServersTransportTCP`, and `TraefikService`. |
 | `nuc-certificates` | `nuc-certificates.enabled` | [nuc-certificates](https://github.com/nixys/nuc-certificates) | cert-manager resources: `Certificate`, `CertificateRequest`, `Issuer`, `ClusterIssuer`, `Challenge`, and `Order`. |
 | `nuc-istio` | `nuc-istio.enabled` | [nuc-istio](https://github.com/nixys/nuc-istio) | Istio traffic-management resources: `Gateway`, `VirtualService`, and `DestinationRule`. |
+| `nuc-fluxcd` | `nuc-fluxcd.enabled` | [nuc-fluxcd](https://github.com/nixys/nuc-fluxcd) | Flux CD resources: `GitRepository`, `Kustomization`, `HelmRepository`, `HelmRelease`, `OCIRepository`, image automation, and notification resources. |
 | `nuc-knative` | `nuc-knative.enabled` | [nuc-knative](https://github.com/nixys/nuc-knative) | Knative Serving resources including `Service`, `Route`, `Configuration`, `Revision`, `Ingress`, `PodAutoscaler`, `ServerlessService`, `DomainMapping`, and related serving objects. |
 | `nuc-kserve` | `nuc-kserve.enabled` | [nuc-kserve](https://github.com/nixys/nuc-kserve) | KServe resources such as `InferenceService`, `InferenceGraph`, `ServingRuntime`, `ClusterServingRuntime`, `TrainedModel`, and model cache/storage CRDs. |
 | `nuc-kube-prometheus-stack` | `nuc-kube-prometheus-stack.enabled` | [nuc-kube-prometheus-stack](https://github.com/nixys/nuc-kube-prometheus-stack) | Prometheus Operator monitoring resources: `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, and `ServiceMonitor`. |
 | `nuc-native-gateway` | `nuc-native-gateway.enabled` | [nuc-native-gateway](https://github.com/nixys/nuc-native-gateway) | Gateway API resources: `GatewayClass`, `Gateway`, `HTTPRoute`, `GRPCRoute`, `TLSRoute`, `ReferenceGrant`, `BackendTLSPolicy`, and `ListenerSet`. |
+| `nuc-envoy-gateway` | `global.nuc-envoy-gateway.enabled` | [nuc-envoy-gateway](https://github.com/nixys/nuc-envoy-gateway) | Envoy Gateway extension resources: `Backend`, `BackendTrafficPolicy`, `ClientTrafficPolicy`, `EnvoyExtensionPolicy`, `EnvoyPatchPolicy`, `EnvoyProxy`, `HTTPRouteFilter`, and `SecurityPolicy`. |
 | `nuc-victoria-metrics` | `nuc-victoria-metrics.enabled` | [nuc-victoria-metrics](https://github.com/nixys/nuc-victoria-metrics) | VictoriaMetrics Operator resources: `VMAlert`, `VMRule`, `VMProbe`, `VMScrapeConfig`, `VMServiceScrape`, and `VMStaticScrape`. |
 | `nuc-vault-secret-operator` | `nuc-vault-secret-operator.enabled` | [nuc-vault-secret-operator](https://github.com/nixys/nuc-vault-secret-operator) | Vault Secret Operator resources: `VaultAuth` and `VaultStaticSecret`. |
 | `nuc-argocd` | `nuc-argocd.enabled` | [nuc-argocd](https://github.com/nixys/nuc-argocd) | Argo CD resources: `Application`, `ApplicationSet`, and `AppProject`. |
 | `nuc-keda` | `nuc-keda.enabled` | [nuc-keda](https://github.com/nixys/nuc-keda) | KEDA autoscaling resources: `ScaledObject`, `ScaledJob`, `TriggerAuthentication`, and `ClusterTriggerAuthentication`. |
+| `nuc-cloudnativepg` | `nuc-cloudnativepg.enabled` | [nuc-cloudnativepg](https://github.com/nixys/nuc-cloudnativepg) | CloudNativePG resources: `Backup`, `ClusterImageCatalog`, `Cluster`, `Database`, `FailoverQuorum`, `ImageCatalog`, `Pooler`, `Publication`, `ScheduledBackup`, and `Subscription`. |
+| `nuc-mysql-percona-operator` | `nuc-mysql-percona-operator.enabled` | [nuc-mysql-percona-operator](https://github.com/nixys/nuc-mysql-percona-operator) | Percona XtraDB Cluster Operator resources: `PerconaXtraDBCluster`, `PerconaXtraDBClusterBackup`, and `PerconaXtraDBClusterRestore`. |
+| `nuc-rabbitmq` | `nuc-rabbitmq.enabled` | [nuc-rabbitmq](https://github.com/nixys/nuc-rabbitmq) | RabbitMQ Cluster Operator and Messaging Topology Operator resources: `RabbitmqCluster`, `Queue`, `Policy`, `Exchange`, `Binding`, `User`, `Permission`, `Vhost`, `Federation`, and `Shovel`. |
+| `nuc-clickhouse` | `nuc-clickhouse.enabled` | [nuc-clickhouse](https://github.com/nixys/nuc-clickhouse) | Altinity ClickHouse Operator resources: `ClickHouseInstallation`, `ClickHouseInstallationTemplate`, `ClickHouseOperatorConfiguration`, and `ClickHouseKeeperInstallation`. |
+| `nuc-elk` | `nuc-elk.enabled` | [nuc-elk](https://github.com/nixys/nuc-elk) | Elastic Cloud on Kubernetes resources: `Elasticsearch`, `Kibana`, `ApmServer`, `Beat`, `Agent`, `EnterpriseSearch`, `ElasticMapsServer`, and `Logstash`. |
+| `nuc-external-secrets` | `nuc-external-secrets.enabled` | [nuc-external-secrets](https://github.com/nixys/nuc-external-secrets) | External Secrets Operator resources: `ExternalSecret`, `SecretStore`, `ClusterSecretStore`, push secrets, and generator resources. |
+| `nuc-mongodb-percona-operator` | `nuc-mongodb-percona-operator.enabled` | [nuc-mongodb-percona-operator](https://github.com/nixys/nuc-mongodb-percona-operator) | Percona Server for MongoDB Operator resources: `PerconaServerMongoDB`, `PerconaServerMongoDBBackup`, and `PerconaServerMongoDBRestore`. |
+| `nuc-valkey` | `nuc-valkey.enabled` | [nuc-valkey](https://github.com/nixys/nuc-valkey) | Valkey Operator resources: `ValkeyCluster` and `ValkeyNode`. |
 
 ## Values Model
 
@@ -132,6 +142,7 @@ Quick links to value tables:
 - [Common Workload Entry Fields](#common-workload-entry-fields)
 - [Container Entry Fields](#container-entry-fields)
 - [Workload-Specific Fields](#workload-specific-fields)
+- [Workload General Fields](#workload-general-fields)
 - [Networking Resources](#networking-resources)
 - [Config and Secret Resources](#config-and-secret-resources)
 - [RBAC, Storage, and Observability](#rbac-storage-and-observability)
@@ -174,13 +185,16 @@ Schema matching note:
 |---|---|---|---|
 | `generic.labels` | `generic.labels.environment: "prod"` | `{}` | Global labels merged into every rendered object. |
 | `generic.annotations` | `generic.annotations.contact: "platform@corp"` | `{}` | Global annotations merged into every rendered object. |
+| `generic.hookAnnotations` | `generic.hookAnnotations.helm.sh/hook: "pre-install,pre-upgrade"` | `{"helm.sh/hook":"pre-install,pre-upgrade","helm.sh/hook-weight":"-999","helm.sh/hook-delete-policy":"before-hook-creation"}` | Default hook annotations for generated ConfigMaps and Secrets. Set to `null` to disable them. |
 | `generic.fullnameOverride` | `generic.fullnameOverride: "platform-core"` | `""` | Deterministic base name override for all resources. |
 | `generic.nameSuffix` | `generic.nameSuffix: "blue"` | `""` | Suffix appended to deterministic base name. |
 | `generic.deterministicNames` | `generic.deterministicNames: true` | `true` | Enables deterministic fallback names for unnamed containers/initContainers. |
-| `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for managed ConfigMaps/Secrets. |
+| `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for ConfigMaps/Secrets referenced by each workload. |
 | `generic.extraSelectorLabels` | `generic.extraSelectorLabels.tenant: "shared"` | `{}` | Extra labels merged into selectors and pod labels. |
 | `generic.podLabels` | `generic.podLabels.tier: "backend"` | `{}` | Labels applied to all workload pod templates. |
 | `generic.podAnnotations` | `generic.podAnnotations.rendered-from: "values"` | `{}` | Annotations applied to all workload pod templates. |
+| `generic.podSecurityContext` | `generic.podSecurityContext.runAsNonRoot: true` | `{}` | Default pod security context applied when workload-level `securityContext` is omitted. |
+| `generic.containerSecurityContext` | `generic.containerSecurityContext.readOnlyRootFilesystem: true` | `{}` | Default container security context applied when container-level `securityContext` is omitted. |
 | `generic.defaultURL` | `generic.defaultURL: "https://app.example.com"` | `""` | Optional shared URL value for templates and `tpl` usage. |
 | `generic.helmVersion` | `generic.helmVersion: "v3.17.1"` | `""` | Optional Helm version override for capability checks. |
 | `generic.kubeVersion` | `generic.kubeVersion: "1.31.0"` | `""` | Optional Kubernetes version override for capability checks. |
@@ -190,12 +204,15 @@ Schema matching note:
 | `generic.volumeMounts` | `generic.volumeMounts: [{name: shared, mountPath: /etc/shared}]` | `[]` | Volume mounts appended to all containers. |
 | `generic.extraVolumeMounts` | `generic.extraVolumeMounts: [{name: old, mountPath: /old}]` | `[]` | Deprecated alias for `generic.volumeMounts`. |
 | `generic.extraImagePullSecrets` | `generic.extraImagePullSecrets: [{name: regcred}]` | `[]` | Extra pull secrets appended to workload pod specs. |
+| `generic.resources` | `generic.resources.requests.cpu: 100m` | `{}` | Last-resort container resources fallback. Applied when neither the container nor its workload `*General` sets `resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `generic.tolerations` | `generic.tolerations: [{key: dedicated, operator: Exists}]` | `[]` | Shared pod tolerations. |
+| `generic.nodeSelector` | `generic.nodeSelector.nodepool: apps` | `{}` | Shared node selector applied to workloads when omitted per workload. |
 | `generic.topologySpreadConstraints` | `generic.topologySpreadConstraints: [{maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway}]` | `[]` | Shared topology spread constraints for workloads. |
 | `generic.hostAliases` | `generic.hostAliases: [{ip: 10.0.0.1, hostnames: [internal.local]}]` | `[]` | Shared host aliases block. |
 | `generic.priorityClassName` | `generic.priorityClassName: "high-priority"` | `""` | Shared priority class for workload pods. |
 | `generic.dnsPolicy` | `generic.dnsPolicy: "ClusterFirst"` | `""` | Shared DNS policy for workload pods. |
 | `generic.serviceAccountName` | `generic.serviceAccountName: "deployer"` | `""` | Default service account name when workload-level field is omitted. |
+| `generic.automountServiceAccountToken` | `generic.automountServiceAccountToken: false` | `n/a` | Default `automountServiceAccountToken` for workload pods when omitted per workload. |
 | `generic.usePredefinedAffinity` | `generic.usePredefinedAffinity: true` | `true` | Enables generated affinity presets when explicit affinity is not set. |
 
 ### Runtime Defaults and Shared Generated Resources
@@ -212,6 +229,7 @@ Schema matching note:
 | `secretEnvs` | `secretEnvs.API_TOKEN: "secret"` | `{}` | Shared key-values for generated `secret-envs` Secret. |
 | `secretEnvsString` | `secretEnvsString: "PASSWORD: strong"` | `""` | Raw YAML merged into generated `secret-envs` Secret. |
 | `imagePullSecrets` | `imagePullSecrets.registry.example.com: '{"auths":{...}}'` | `{}` | Generates `kubernetes.io/dockerconfigjson` Secrets by name. |
+| `serviceAccountDefaultImagePullSecretName` | `serviceAccountDefaultImagePullSecretName: "registry.example.com"` | `""` | Optional default imagePullSecret name that generated ServiceAccounts can reference. |
 | `diagnosticMode.enabled` | `diagnosticMode.enabled: true` | `false` | Enables diagnostic command/args override for all workload containers. |
 | `diagnosticMode.enbled` | `diagnosticMode.enbled: true` | `false` | Backward-compatible typo alias for `diagnosticMode.enabled`. |
 | `diagnosticMode.command` | `diagnosticMode.command: ["sleep"]` | `["sleep"]` | Command used in diagnostic mode. |
@@ -224,24 +242,26 @@ Schema matching note:
 
 | Field | Example | Default | Description |
 |---|---|---|---|
-| `deploymentsGeneral` | `deploymentsGeneral.podLabels.role: "api"` | `{}` | Shared defaults applied to all Deployment entries. |
+| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`. |
 | `deployments` | `deployments.api.replicas: 2` | `{}` | Deployment resources keyed by suffix. |
-| `daemonSetsGeneral` | `daemonSetsGeneral.podLabels.role: "agent"` | `{}` | Shared defaults applied to all DaemonSet entries. |
+| `daemonSetsGeneral` | `daemonSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all DaemonSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`. |
 | `daemonSets` | `daemonSets.node-agent.containers.agent.image: busybox` | `{}` | DaemonSet resources keyed by suffix. |
-| `podsGeneral` | `podsGeneral.podLabels.role: "tooling"` | `{}` | Shared defaults applied to all Pod entries. |
+| `podsGeneral` | `podsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Pod entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields). |
 | `pods` | `pods.toolbox.containers.toolbox.image: busybox` | `{}` | Pod resources keyed by suffix. |
-| `statefulSetsGeneral` | `statefulSetsGeneral.podLabels.role: "worker"` | `{}` | Shared defaults applied to all StatefulSet entries. |
+| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`. |
 | `statefulSets` | `statefulSets.worker.serviceName: headless` | `{}` | StatefulSet resources keyed by suffix. |
-| `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. |
+| `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `parallelism`, `completions`, `activeDeadlineSeconds`, `backoffLimit`, `ttlSecondsAfterFinished`, `restartPolicy`, `commandDurationAlert`, `commandDurationAlertNamespace`. |
 | `jobs` | `jobs.migrate.containers.migrate.image: busybox` | `{}` | One-shot batch jobs keyed by suffix, or one raw templated YAML string. |
-| `cronJobsGeneral` | `cronJobsGeneral.timeZone: UTC` | `{}` | Shared defaults applied to CronJobs. |
+| `cronJobsGeneral` | `cronJobsGeneral.suspend: true` | `{}` | Shared defaults applied to all CronJobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) and all jobsGeneral fields plus `suspend`, `timeZone`, `singleOnly`, `startingDeadlineSeconds`, `successfulJobsHistoryLimit`, `failedJobsHistoryLimit`. See [cronJobsGeneral](#cronJobsGeneral) for details. |
 | `cronJobs` | `cronJobs.cleanup.schedule: "*/30 * * * *"` | `{}` | CronJobs keyed by suffix, or one raw templated YAML string. |
-| `hooksGeneral` | `hooksGeneral.backoffLimit: 1` | `{}` | Shared defaults for Helm hook jobs. |
+| `hooksGeneral` | `hooksGeneral.backoffLimit: 1` | `{}` | Shared defaults for Helm hook jobs. Supports all jobsGeneral fields plus `kind`, `weight`, `deletePolicy`. |
 | `hooks` | `hooks.predeploy.kind: pre-install` | `{}` | Helm hook jobs keyed by suffix, or one raw templated YAML string. |
 
 ### Common Workload Entry Fields
 
-These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, and `hooks.<name>` (and their `*General` where relevant).
+These fields are shared by individual workload entries (`deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>`) **and** their corresponding `*General` defaults objects (`deploymentsGeneral`, `cronJobsGeneral`, etc.).
+
+Fields set on a `*General` object act as defaults for every workload in that family. A field on an individual workload entry overrides the `*General` value.
 
 | Field | Example | Default | Description |
 |---|---|---|---|
@@ -251,19 +271,21 @@ These fields are shared by `deployments.<name>`, `daemonSets.<name>`, `pods.<nam
 | `extraSelectorLabels` | `extraSelectorLabels.component: api` | `n/a` | Additional labels for selectors and selected pods. |
 | `gitops` | `gitops.argo.syncWave: "20"` | `n/a` | Resource-level GitOps overrides (Argo/Flux/common labels/annotations). |
 | `serviceAccountName` | `serviceAccountName: deployer` | `""` (via generic fallback) | ServiceAccount used by workload pods. |
+| `automountServiceAccountToken` | `automountServiceAccountToken: false` | `n/a` (or generic fallback) | Controls mounting of the pod service-account token. |
 | `hostAliases` | `hostAliases: [{ip: 10.0.0.1, hostnames: [db.local]}]` | `[]` (or generic fallback) | Pod host aliases. |
 | `affinity` | `affinity.nodeAffinity: {...}` | `generated` when enabled | Explicit affinity; overrides generated presets. |
 | `topologySpreadConstraints` | `topologySpreadConstraints: [{...}]` | `[]` (or generic fallback) | Per-workload topology spread constraints. |
 | `priorityClassName` | `priorityClassName: high-priority` | `""` (or generic fallback) | Priority class assigned to pods. |
 | `dnsPolicy` | `dnsPolicy: ClusterFirst` | `""` (or generic fallback) | DNS policy for pods. |
 | `restartPolicy` | `restartPolicy: Never` | `n/a` | Restart policy; typically set explicitly for Pod/Job-like workloads. |
-| `nodeSelector` | `nodeSelector.nodepool: apps` | `n/a` | Node selector labels for scheduling. |
+| `nodeSelector` | `nodeSelector.nodepool: apps` | `n/a` (or generic fallback) | Node selector labels for scheduling. |
 | `tolerations` | `tolerations: [{key: dedicated, operator: Exists}]` | `[]` (or generic fallback) | Pod tolerations list. |
-| `securityContext` | `securityContext.runAsNonRoot: true` | `n/a` | Pod-level security context. |
+| `securityContext` | `securityContext.runAsNonRoot: true` | `n/a` | Pod-level security context. Add `mergeWithGeneric: true` to merge with `generic.podSecurityContext`. |
 | `imagePullSecrets` / `extraImagePullSecrets` | `extraImagePullSecrets: [{name: regcred}]` | `[]` | Additional pull secrets for workload pod specs. |
 | `terminationGracePeriodSeconds` | `terminationGracePeriodSeconds: 30` | `n/a` | Grace period before forced pod termination. |
 | `initContainers` | `initContainers.prepare.image: busybox` | `n/a` | Init containers, supports both map and array forms. |
 | `containers` | `containers.api.image: nginx` | `required per workload` | Main containers, supports both map and array forms. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` | Default container resources for this workload. When set on a `*General` object, acts as a fallback for all containers in that family that omit their own `resources`. Overrides `generic.resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `volumes` / `extraVolumes` | `volumes: [{name: app, type: configMap}]` | `[]` | Typed and raw volumes for workload pods. |
 | `usePredefinedAffinity` | `usePredefinedAffinity: false` | `true` (via generic) | Enables/disables generated affinity presets for this workload. |
 
@@ -278,14 +300,16 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `imagePullPolicy` | `imagePullPolicy: IfNotPresent` | `defaultImagePullPolicy` | Pull policy override for container. |
 | `command` / `args` | `command: ["sh","-c"]`, `args: ["sleep 3600"]` | `n/a` | Command and args (also overridden by diagnostic mode). |
 | `env`, `envFrom` | `env: [{name: APP_MODE, value: prod}]` | `n/a` | Native env/envFrom blocks. |
-| `envConfigmaps`, `envSecrets` | `envConfigmaps: [envs]` | `n/a` | Includes all keys from named ConfigMaps/Secrets. |
+| `envConfigmaps`, `envSecrets` | `envConfigmaps: [envs, app-envs]` | `n/a` | Includes all keys from each named ConfigMap/Secret. Multiple entries are rendered in order; `null` and empty string entries are skipped. |
 | `envsFromConfigmap`, `envsFromSecret` | `envsFromConfigmap.app-settings: [APP_MODE]` | `n/a` | Includes selected keys from named ConfigMaps/Secrets. |
 | `ports` | `ports: [{name: http, containerPort: 8080}]` | `n/a` | Exposed container ports. |
 | `lifecycle` | `lifecycle.preStop.exec.command: ["sleep","5"]` | `n/a` | Lifecycle hook settings. |
 | `startupProbe`, `livenessProbe`, `readinessProbe` | `startupProbe.httpGet.path: /healthz` | `n/a` | Probe configuration blocks. |
-| `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. |
-| `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. |
+| `resources` | `resources.requests.cpu: 100m` | `n/a` | CPU/memory requests and limits. Resolved with three-level fallback: container `resources` → workload `*General.resources` → `generic.resources`. Allowed keys: `requests`, `limits`, `claims`. |
+| `securityContext` | `securityContext.readOnlyRootFilesystem: true` | `n/a` | Container-level security context. Add `mergeWithGeneric: true` to merge with `generic.containerSecurityContext`. |
 | `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
+| `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
+| `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
 
 ### Workload-Specific Fields
 
@@ -355,12 +379,131 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `hooks.<name>.weight` | `weight: "5"` | `"5"` | Hook ordering weight. |
 | `hooks.<name>.deletePolicy` | `deletePolicy: "before-hook-creation"` | `"before-hook-creation"` | Hook resource deletion policy. |
 
+### Workload General Fields
+
+Each `*General` object accepts all fields from [Common Workload Entry Fields](#common-workload-entry-fields) (including `resources`, `nodeSelector`, `tolerations`, `podLabels`, `imagePullSecrets`, etc.) as defaults for every workload in that family. In addition, some `*General` objects accept the extra family-specific fields listed below.
+
+`*General` objects also accept default container environment fields: `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. These defaults are rendered for every main container in that workload family before container-level environment entries.
+
+Empty or `null` entries in `envConfigmaps` and `envSecrets` are ignored. If no valid entries remain, the `envFrom` block is not rendered.
+
+#### deploymentsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `deploymentsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default deployment strategy for all Deployments. |
+| `deploymentsGeneral.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `n/a` | Default rollout progress deadline in seconds. |
+
+Example - set default environment sources for every Deployment container:
+
+```yaml
+deploymentsGeneral:
+  envSecrets:
+    - web-monolith-secret-envs
+  envConfigmaps:
+    - web-monolith-envs
+```
+
+#### daemonSetsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `daemonSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all DaemonSets. |
+| `daemonSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds before pod is considered available. |
+
+#### podsGeneral
+
+Accepts all [Common Workload Entry Fields](#common-workload-entry-fields). No additional family-specific fields.
+
+#### statefulSetsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `statefulSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all StatefulSets. |
+| `statefulSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds per pod. |
+| `statefulSetsGeneral.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | Default PVC templates applied to all StatefulSets. |
+
+#### jobsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `jobsGeneral.parallelism` | `parallelism: 2` | `n/a` | Default maximum parallel pods for Jobs. |
+| `jobsGeneral.completions` | `completions: 1` | `n/a` | Default number of successful completions required. |
+| `jobsGeneral.activeDeadlineSeconds` | `activeDeadlineSeconds: 600` | `n/a` | Default job timeout in seconds. |
+| `jobsGeneral.backoffLimit` | `backoffLimit: 1` | `n/a` | Default retry limit for failed pods. |
+| `jobsGeneral.ttlSecondsAfterFinished` | `ttlSecondsAfterFinished: 3600` | `n/a` | Default cleanup TTL after job completion. |
+| `jobsGeneral.restartPolicy` | `restartPolicy: Never` | `"Never"` | Default pod restart policy for Job pods. |
+| `jobsGeneral.commandDurationAlert` | `commandDurationAlert: "900"` | `n/a` | Default long-running command alert threshold (seconds) for all Jobs. |
+| `jobsGeneral.commandDurationAlertNamespace` | `commandDurationAlertNamespace: monitoring` | release namespace | Default namespace for generated PrometheusRule alert. |
+
+#### cronJobsGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) and all [jobsGeneral](#jobsgeneral) fields plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `cronJobsGeneral.suspend` | `suspend: true` | Kubernetes default `false` | Default suspend flag for all CronJobs. Omitted when unset or `null`. |
+| `cronJobsGeneral.timeZone` | `timeZone: UTC` | `n/a` | Default cron timezone for all CronJobs. |
+| `cronJobsGeneral.singleOnly` | `singleOnly: true` | `false` | If true, sets `concurrencyPolicy: Forbid` on all CronJobs by default. Omitted when unset, false, or `null`. |
+| `cronJobsGeneral.startingDeadlineSeconds` | `startingDeadlineSeconds: 120` | `n/a` | Default late-start deadline for missed runs. |
+| `cronJobsGeneral.successfulJobsHistoryLimit` | `successfulJobsHistoryLimit: 3` | `n/a` | Default number of successful job runs to retain. |
+| `cronJobsGeneral.failedJobsHistoryLimit` | `failedJobsHistoryLimit: 1` | `n/a` | Default number of failed job runs to retain. |
+
+Example - set default resources, environment sources, and schedule controls for all CronJobs:
+
+```yaml
+cronJobsGeneral:
+  suspend: true
+  singleOnly: true
+  timeZone: UTC
+  restartPolicy: Never
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  ttlSecondsAfterFinished: 7200
+  activeDeadlineSeconds: 7200
+  backoffLimit: 3
+  resources:
+    requests:
+      cpu: 10m
+      memory: 30Mi
+    limits:
+      cpu: 2
+      memory: 3072Mi
+  envSecrets:
+    - web-monolith-secret-envs
+  envConfigmaps:
+    - web-monolith-envs
+```
+
+A container with its own `resources` block overrides `cronJobsGeneral.resources`. If neither the container nor `cronJobsGeneral` sets resources, `generic.resources` is used as the last resort.
+
+A CronJob entry can override `cronJobsGeneral.suspend` or `cronJobsGeneral.singleOnly` with `false`. Setting either field to `null` on the entry suppresses the inherited value and omits the rendered field.
+
+#### hooksGeneral
+
+All [Common Workload Entry Fields](#common-workload-entry-fields) and all [jobsGeneral](#jobsgeneral) fields plus:
+
+| Field | Example | Default | Description |
+|---|---|---|---|
+| `hooksGeneral.kind` | `kind: "pre-install,pre-upgrade"` | `"pre-install,pre-upgrade"` | Default hook phase list for all hook jobs. |
+| `hooksGeneral.weight` | `weight: "5"` | `"5"` | Default hook ordering weight. |
+| `hooksGeneral.deletePolicy` | `deletePolicy: "before-hook-creation"` | `"before-hook-creation"` | Default hook resource deletion policy. |
+
 ### Networking Resources
 
 #### Services
 
 | Field | Example | Default | Description |
 |---|---|---|---|
+| `servicesGeneral` | `servicesGeneral.labels.traffic-scope: "shared"` | `{}` | Shared metadata defaults applied to rendered Service resources, including generated governing Services. |
 | `services` | `services.api.ports: [{port: 8080, targetPort: http}]` | `{}` | Service objects keyed by name. |
 | `services.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service entry. |
 | `services.<name>.labels` / `annotations` | `labels.tier: backend` | `{}` | Extra metadata for the service resource. |
@@ -432,10 +575,12 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | Field | Example | Default | Description |
 |---|---|---|---|
 | `serviceAccountGeneral` | `serviceAccountGeneral.labels.team: platform` | `{}` | Shared defaults for all service accounts and generated bindings. |
+| `serviceAccountGeneral.imagePullSecrets` | `includePlatformDefault: true` | `{includePlatformDefault: false, additional: []}` | Shared imagePullSecrets defaults for generated ServiceAccounts. |
 | `serviceAccount` | `serviceAccount.deployer.role.name: deployer-role` | `{}` | Service accounts keyed by suffix, with optional Role/ClusterRole settings. |
 | `serviceAccount.<name>.disabled` | `disabled: true` | `false` | Disables rendering of a service account entry. |
 | `serviceAccount.<name>.labels` / `annotations` | `labels.app: worker` | `{}` | Extra metadata for ServiceAccount resource. |
 | `serviceAccount.<name>.gitops` | `gitops.argo.syncWave: "1"` | `{}` | Resource-level GitOps metadata overlay. |
+| `serviceAccount.<name>.imagePullSecrets` | `additional: [{name: regcred}]` | `n/a` | Per-ServiceAccount imagePullSecrets override; supports config object or direct list shorthand. |
 | `serviceAccount.<name>.role` | `role.rules: [{apiGroups:[""], resources:["pods"], verbs:["get"]}]` | `n/a` | Namespaced role configuration. |
 | `serviceAccount.<name>.clusterRole` | `clusterRole.name: view` | `n/a` | Cluster-level role configuration. |
 | `pvs` | `pvs.shared.spec.capacity.storage: 10Gi` | `{}` | PersistentVolume resources keyed by suffix. |
@@ -495,6 +640,15 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `nuc-argocd.enabled` | `nuc-argocd.enabled: true` | `false` | Enables Argo CD subchart resources. |
 | `nuc-fluxcd.enabled` | `nuc-fluxcd.enabled: true` | `false` | Enables Flux CD subchart resources. |
 | `nuc-keda.enabled` | `nuc-keda.enabled: true` | `false` | Enables KEDA subchart resources. |
+| `nuc-cloudnativepg.enabled` | `nuc-cloudnativepg.enabled: true` | `false` | Enables CloudNativePG subchart resources. |
+| `nuc-mysql-percona-operator.enabled` | `nuc-mysql-percona-operator.enabled: true` | `false` | Enables Percona MySQL subchart resources. |
+| `nuc-rabbitmq.enabled` | `nuc-rabbitmq.enabled: true` | `false` | Enables RabbitMQ subchart resources. |
+| `nuc-clickhouse.enabled` | `nuc-clickhouse.enabled: true` | `false` | Enables ClickHouse subchart resources. |
+| `nuc-elk.enabled` | `nuc-elk.enabled: true` | `false` | Enables ECK/ELK subchart resources. |
+| `nuc-external-secrets.enabled` | `nuc-external-secrets.enabled: true` | `false` | Enables External Secrets subchart resources. |
+| `nuc-mongodb-percona-operator.enabled` | `nuc-mongodb-percona-operator.enabled: true` | `false` | Enables Percona MongoDB subchart resources. |
+| `global.nuc-envoy-gateway.enabled` | `global.nuc-envoy-gateway.enabled: true` | `false` | Enables Envoy Gateway subchart resources. |
+| `nuc-valkey.enabled` | `nuc-valkey.enabled: true` | `false` | Enables Valkey subchart resources. |
 
 ### Reusable Schema Contracts (Exact Definitions)
 
@@ -503,11 +657,11 @@ These reusable definitions are referenced across multiple value blocks and match
 | Definition | Used By | Fields |
 |---|---|---|
 | `resourceGitopsConfig` | `gitops` in most resources (`services`, `ingresses`, workload entries, storage, RBAC, observability) | `commonLabels`, `commonAnnotations`, `argo.enabled`, `argo.syncWave`, `argo.syncOptions`, `argo.compareOptions`, `flux.enabled`, `flux.labels`, `flux.annotations` |
-| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
-| `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`. |
-| `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts` |
+| `baseWorkload` | `deployments.<name>`, `daemonSets.<name>`, `pods.<name>`, `statefulSets.<name>`, `jobs.<name>`, `cronJobs.<name>`, `hooks.<name>` | `disabled`, `labels`, `annotations`, `podLabels`, `podAnnotations`, `extraSelectorLabels`, `gitops`, `serviceAccountName`, `automountServiceAccountToken`, `hostAliases`, `affinity`, `topologySpreadConstraints`, `priorityClassName`, `dnsPolicy`, `restartPolicy`, `nodeSelector`, `tolerations`, `securityContext`, `imagePullSecrets`, `extraImagePullSecrets`, `terminationGracePeriodSeconds`, `resources`, `initContainers`, `containers`, `volumes`, `extraVolumes`, `usePredefinedAffinity` |
+| `baseWorkloadGeneral` | `deploymentsGeneral`, `daemonSetsGeneral`, `podsGeneral`, `statefulSetsGeneral`, `jobsGeneral`, `cronJobsGeneral`, `hooksGeneral` | Same fields as `baseWorkload`, plus default container environment fields `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. The `resources` field on a `*General` object sets the default container resources for all workloads in that family, overriding `generic.resources` but overridden by container-level `resources`. |
+| `workloadContainer` | each item in `containers` and `initContainers` | `name`, `image`, `imageTag`, `imagePullPolicy`, `command`, `args`, `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, `ports`, `lifecycle`, `startupProbe`, `livenessProbe`, `readinessProbe`, `resources`, `securityContext`, `volumeMounts`, `extraVolumeMounts`, `stdin`, `tty` |
 | `workloadContainerListOrMap` | `containers`, `initContainers` | `array` of `workloadContainer` or `map` of `<containerKey> -> workloadContainer`. |
-| `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sizeLimit`, `medium`; list is `array` of these objects. |
+| `typedVolume` / `typedVolumeList` | `*.volumes`, `generic.volumes` | `name`, `type`, `originalName`, `defaultMode`, `items`, `sources`, `sizeLimit`, `medium`; list is `array` of these objects. |
 
 ## Included Values Files
 
@@ -561,6 +715,7 @@ Local dependency setup instructions are available in [docs/DEPENDENCY.md](docs/D
 
 - `SealedSecret` is a CRD-backed resource. Smoke `kubeconform` skips it by default, and e2e uses a CRD-free fixture so the local cluster flow stays lightweight.
 - Shared helper behavior comes from the `nuc-common` library dependency; run `make deps` before direct `helm lint`, `helm template`, or `helm install` commands.
+- Generated `ConfigMap` and `Secret` resources keep Helm hook annotations by default for backward compatibility; set `generic.hookAnnotations: null` to disable them cleanly.
 - Previous umbrella-chart toggles such as `nuc-common.enabled` remain in the values contract for compatibility.
 - `diagnosticMode.enbled` is still accepted for backward compatibility, but `diagnosticMode.enabled` is the supported field.
 
@@ -569,7 +724,7 @@ Local dependency setup instructions are available in [docs/DEPENDENCY.md](docs/D
 Following features are already in backlog for our development team and will be done soon:
 
 * Add a catalog of ready-to-use examples: `Deployment`, `StatefulSet`, `CronJob`, `Job`, `Ingress`, `PVC`, `HPA`, `PDB`, and `extraDeploy`.
-* Add examples for enabling dependency subcharts: `nuc-traefik`, `nuc-istio`, `nuc-native-gateway`, `nuc-keda`, and `nuc-kube-prometheus-stack`.
+* Expand dependency-subchart examples as new `nuc-*` integrations are added.
 * Introduce a compatibility matrix and CI validation for Kubernetes, OpenShift, and Helm across multiple supported versions.
 * Extend e2e and smoke scenarios with dedicated profiles for CRD-based resources and dependency subcharts.
 * Tighten `values.schema.json`: add more resource-specific validation, reduce implicit contracts, and define explicit deprecation paths.

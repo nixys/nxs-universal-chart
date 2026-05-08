@@ -1,0 +1,34 @@
+gitops:
+  commonAnnotations:
+    conflict: gitops
+    gitops-owner: platform
+  argo:
+    enabled: true
+    syncWave: "7"
+
+generic:
+  annotations:
+    conflict: generic
+    owner: platform
+  hookAnnotations:
+    helm.sh/hook: "pre-install,pre-upgrade"
+    helm.sh/hook-weight: "-999"
+    helm.sh/hook-delete-policy: before-hook-creation
+
+configMaps:
+  merged-config:
+    annotations:
+      helm.sh/hook: post-install
+      conflict: resource
+      custom: from-configmap
+    data:
+      feature: "on"
+
+secrets:
+  merged-secret:
+    annotations:
+      helm.sh/hook: post-install
+      conflict: resource
+      custom: from-secret
+    data:
+      password: supersecret

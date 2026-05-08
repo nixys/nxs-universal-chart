@@ -1,0 +1,93 @@
+nameOverride: ai-gateway
+
+nuc-native-gateway:
+  enabled: true
+  gateways:
+    edge:
+      spec:
+        gatewayClassName: nginx
+        listeners:
+          - name: http
+            port: 80
+            protocol: HTTP
+            hostname: ai-gateway.example.local
+  httpRoutes:
+    predictor:
+      spec:
+        parentRefs:
+          - name: edge
+        hostnames:
+          - ai-gateway.example.local
+        rules:
+          - backendRefs:
+              - name: predictor
+                port: 80
+
+nuc-kserve:
+  enabled: true
+  inferenceServices:
+    predictor:
+      spec:
+        predictor:
+          model:
+            modelFormat:
+              name: sklearn
+            storageUri: s3://models/gateway
+
+nuc-knative:
+  enabled: true
+  services:
+    runtime:
+      spec:
+        template:
+          spec:
+            containers:
+              - image: ghcr.io/nixys/inference-runtime:latest
+
+nuc-vault-secret-operator:
+  enabled: true
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: ai-gateway
+      serviceAccount: default
+  vaultStaticSecrets:
+    model-secret:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: ai/gateway
+        destination:
+          name: gateway-secret
+          create: true
+
+nuc-kube-prometheus-stack:
+  enabled: true
+  serviceMonitors:
+    predictor:
+      enabled: true
+      name: predictor
+      spec:
+        selector:
+          matchLabels:
+            app: predictor
+        endpoints:
+          - port: http
+  prometheusRules:
+    predictor:
+      enabled: true
+      name: predictor
+      spec:
+        groups:
+          - name: gateway-ai
+            rules:
+              - alert: InferenceUnavailable
+                expr: vector(1)
+                for: 10m

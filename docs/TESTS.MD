@@ -58,6 +58,7 @@ The structure is intentionally split into small reusable layers:
 - `scenarios/` orchestrates complete smoke flows
 - `steps/` contains reusable operations
 - `fixtures/` contains dedicated smoke-test values files
+- `samples/` contains scenario-oriented example values that are linted and rendered by smoke tests
 
 ## Smoke Directory Layout
 
@@ -99,7 +100,10 @@ Covered scenarios:
 4. `example-render`
    Renders `values.yaml.example` and verifies that every supported template family produces the expected manifest kinds.
 
-5. `example-kubeconform`
+5. `samples-render`
+   Iterates over every `samples/*/values.yaml`, verifies that the sample includes a README, runs `helm lint`, and checks that the sample renders at least one manifest.
+
+6. `example-kubeconform`
    Validates the example render with `kubeconform`.
    `SealedSecret` is skipped by default because it depends on an external CRD schema.
 

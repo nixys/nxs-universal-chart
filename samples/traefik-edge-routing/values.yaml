@@ -1,0 +1,25 @@
+nameOverride: traefik-edge
+
+nuc-traefik:
+  enabled: true
+  ingressRoutes:
+    web:
+      enabled: true
+      name: web
+      spec:
+        entryPoints:
+          - web
+        routes:
+          - match: Host(`traefik-edge.example.local`)
+            kind: Rule
+            services:
+              - name: traefik-edge-web
+                port: 80
+  middlewares:
+    strip-prefix:
+      enabled: true
+      name: strip-prefix
+      spec:
+        stripPrefix:
+          prefixes:
+            - /api

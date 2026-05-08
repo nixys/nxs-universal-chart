@@ -1,0 +1,15 @@
+deploymentsGeneral:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+deployments:
+  app:
+    containers:
+      - name: app
+        image: nginx
+        imageTag: "1.25"

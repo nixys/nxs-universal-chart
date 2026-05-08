@@ -1,0 +1,18 @@
+generic:
+  hookAnnotations: null
+
+envs:
+  APP_MODE: disabled
+
+secretEnvs:
+  API_TOKEN: disabled
+
+configMaps:
+  disabled-hooks-config:
+    data:
+      enabled: "false"
+
+secrets:
+  disabled-hooks-secret:
+    data:
+      password: disabled

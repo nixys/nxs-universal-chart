@@ -1,12 +1,94 @@
 # Changelog
 
-## [3.0.6] - March 30, 2026
+## [3.0.17] - April 27, 2026
+### Fixed
+* fixed deprecated workload `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
 
+### Testing
+* added unit and smoke coverage for `null` workload entries in `deployments` and `cronJobs`.
+
+## [3.0.16] - April 26, 2026
 ### Added
-* added nuc-kube-prometheus-stack, nuc-traefik & nuc-native-gateway subcharts from pre-release
+* added samples for `nuc-fluxcd`, `nuc-external-secrets`, `nuc-mongodb-percona-operator`, `nuc-envoy-gateway`, and `nuc-valkey`.
 
 ### Fixed
-* fixed OCI URL to main nxs-universal-chart & subcharts
+* fixed the FluxCD dependency condition to use `nuc-fluxcd.enabled`.
+* fixed the Envoy Gateway dependency condition to use `global.nuc-envoy-gateway.enabled`, avoiding an `enabled` key rejected by the subchart schema.
+* fixed `cronJobsGeneral.suspend` and `cronJobsGeneral.singleOnly` so CronJobs inherit the general defaults while still allowing per-CronJob `false` or `null` overrides.
+* fixed `envConfigmaps` and `envSecrets` rendering to preserve multiple entries and skip `null` or empty items without rendering an empty `envFrom` block.
+* fixed automatic checksum reference collection for `*General.envConfigmaps` and `*General.envSecrets`.
+* fixed deprecated workload `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
+
+### Changed
+* completed Dependency Subcharts documentation for all dependencies declared in `Chart.yaml`.
+* removed empty optional maps from sample values files and filled required sample fields with concrete values.
+* documented `deploymentsGeneral` and `cronJobsGeneral` environment source defaults, including empty-value handling and override behavior.
+
+### Testing
+* added unit and smoke coverage for `null` workload entries in `deployments` and `cronJobs`.
+
+## [3.0.13] - April 22, 2026
+### Added
+* added new pre-release subchart `NUC FluxCD` to dependency list
+* added new pre-release subchart `NUC External Secrets` to dependency list
+* added new pre-release subchart `NUC MongoDB Percona Operator` to dependency list
+* added new pre-release subchart `NUC Envoy Gateway` to dependency list
+* added GitHub chart-testing and CI configuration under `.github/`, including lint, security, smoke, unit, and e2e workflows
+* added contributor templates in `docs/`:
+  * `docs/PULL_REQUEST_TEMPLATE.md`
+  * `docs/ISSUE_TEMPLATE/bug_report.yml`
+  * `docs/ISSUE_TEMPLATE/feature_request.yml`
+
+## [3.0.12] - April 21, 2026
+### Added
+* added shared `generic.nodeSelector` defaults for workloads
+* added shared `generic.resources` defaults for workload containers
+* added `servicesGeneral` for common labels and annotations on rendered `Service` resources, including generated governing Services
+* added `generic.podSecurityContext` and `generic.containerSecurityContext` defaults with optional `mergeWithGeneric: true` override semantics
+* added `generic.automountServiceAccountToken` and workload-level `automountServiceAccountToken`
+* added typed `projected` volumes via `volumes[].type: projected`
+* added generated `ServiceAccount.imagePullSecrets` support via `serviceAccountDefaultImagePullSecretName`, `serviceAccountGeneral.imagePullSecrets`, and per-ServiceAccount overrides
+* added a curated `samples/` catalog with smoke coverage for the main deployment scenarios
+
+### Changed
+* updated the local compatibility helpers and `nuc-common` helper library to support the new pod/service account/security context behavior consistently
+* expanded `values.yaml`, `values.schema.json`, `values.yaml.example`, and README documentation for the new shared workload, Service, volume, and ServiceAccount options
+
+### Testing
+* extended unit and smoke coverage for:
+  * `servicesGeneral`
+  * generic pod/container `securityContext`
+  * `automountServiceAccountToken`
+  * projected typed volumes
+  * generated `ServiceAccount.imagePullSecrets`
+
+## [3.0.11] - April 20, 2026
+### Fixed
+* fixed error: configmaps and Secrets annotated by default hooks cannot be uninstalled
+
+## [3.0.10] - April 20, 2026
+### Changed
+* `autoRolloutChecksums` now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets that are actually referenced by a given workload (via `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, `envsFromSecret`, or typed `volumes`), instead of checksumming every resource in the release. Global `envs`/`secretEnvs` checksums remain on all workloads.
+
+### Added
+* added new pre-release subchart `NUC CloudNativePG` to dependency list
+* added new pre-release subchart `NUC MySQL Percona Operator` to dependency list
+* added new pre-release subchart `NUC ELK` to dependency list
+* added new pre-release subchart `NUC RabbitMQ` to dependency list
+* added new pre-release subchart `NUC Clickhouse` to dependency list
+
+## [3.0.8] - April 13, 2026
+### Added
+* added `stdin` and `tty` support for containers and initContainers
+
+## [3.0.7] - April 13, 2026
+### Added
+* Add new templates for nuc-istio: AuthorizationPolicy, DestinationRule, EnvoyFilter, Gateway, PeerAuthentication, ProxyConfig, RequestAuthentication, ServiceEntry, Sidecar, Telemetry, VirtualService, WasmPlugin, WorkloadEntry, WorkloadGroup.
+* Add new templates for nuc-vault-secret-operator: HCPAuth, HCPVaultSecretsApp, SecretTransformation, VaultAuthGlobal, VaultConnection, VaultDynamicSecret, VaultPKISecret.
+
+### Fixed
+* Fix error with multi env.
+* Add new unit tests for this case.
 
 ## [3.0.2] - March 30, 2026
 

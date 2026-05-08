@@ -19,6 +19,12 @@ tests:
       - equal:
           path: metadata.annotations["argocd.argoproj.io/sync-wave"]
           value: "5"
+      - equal:
+          path: imagePullSecrets[0].name
+          value: registry.example.com
+      - equal:
+          path: imagePullSecrets[1].name
+          value: registry.example.com-rw
 
   - it: renders the Role example
     values:

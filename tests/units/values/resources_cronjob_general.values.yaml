@@ -1,0 +1,17 @@
+cronJobsGeneral:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 400m
+      memory: 512Mi
+
+cronJobs:
+  task:
+    schedule: "*/5 * * * *"
+    containers:
+      - name: task
+        image: busybox
+        imageTag: "1.36.1"
+        command: echo run

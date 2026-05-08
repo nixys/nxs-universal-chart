@@ -18,9 +18,7 @@ metadata:
     {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $policy) | nindent 4 }}
     {{- with $policy.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $policy) | nindent 4 }}
-    {{- with $policy.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "value" $policy) | nindent 4 }}
 spec:
   {{- if $policy.spec }}
   {{- include "helpers.tplvalues.render" (dict "value" $policy.spec "context" $) | nindent 2 }}

@@ -1,0 +1,8 @@
+deployments:
+  web-monolith-esb-item-stock-qty-console:
+  web-monolith-esb-item-stock-qty-reset-console:
+  web-monolith-esb-item-stock-qty-update-console:
+
+cronJobs:
+  web-monolith-queue-receipt-ofd-job:
+  web-monolith-queue-receipt-send-job:

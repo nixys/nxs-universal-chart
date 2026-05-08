@@ -16,9 +16,7 @@ metadata:
     {{- include "helpers.app.gitopsLabels" (dict "context" $ "value" $hpa) | nindent 4 }}
     {{- with $hpa.labels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
   annotations:
-    {{- include "helpers.app.genericAnnotations" $ | nindent 4 }}
-    {{- include "helpers.app.gitopsAnnotations" (dict "context" $ "value" $hpa) | nindent 4 }}
-    {{- with $hpa.annotations }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.annotations" (dict "context" $ "value" $hpa) | nindent 4 }}
 spec:
   {{- with $hpa.scaleTargetRef }}
   scaleTargetRef:

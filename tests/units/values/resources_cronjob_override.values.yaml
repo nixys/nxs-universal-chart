@@ -1,0 +1,24 @@
+generic:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+cronJobsGeneral:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+cronJobs:
+  task:
+    schedule: "*/5 * * * *"
+    containers:
+      - name: task
+        image: busybox
+        imageTag: "1.36.1"
+        command: echo run
+        resources:
+          requests:
+            cpu: 999m
+            memory: 999Mi

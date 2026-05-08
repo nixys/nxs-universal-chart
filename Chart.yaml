@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.6
+version: 3.0.18
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -24,8 +24,8 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - kind: added
-      description: "Release nuc-kube-prometheus-stack, nuc-traefik & nuc-native-gateway subcharts"
+    - kind: fixed
+      description: "Fix: render YAML doc separator between consecutive jobs/hooks/cronjobs"
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -35,7 +35,8 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.0
+    version: 1.0.4
+
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
     version: 1.0.5
@@ -46,9 +47,13 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-certificates.enabled
   - name: nuc-istio
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
+  - name: nuc-fluxcd
+    version: 1.0.4
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-fluxcd.enabled
   - name: nuc-knative
     version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
@@ -70,10 +75,46 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-victoria-metrics.enabled
   - name: nuc-vault-secret-operator
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-vault-secret-operator.enabled
   - name: nuc-keda
     version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keda.enabled
+  - name: nuc-cloudnativepg
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-cloudnativepg.enabled
+  - name: nuc-mysql-percona-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-mysql-percona-operator.enabled
+  - name: nuc-rabbitmq
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-rabbitmq.enabled
+  - name: nuc-clickhouse
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-clickhouse.enabled
+  - name: nuc-elk
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-elk.enabled
+  - name: nuc-external-secrets
+    version: 1.1.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-external-secrets.enabled
+  - name: nuc-mongodb-percona-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-mongodb-percona-operator.enabled
+  - name: nuc-envoy-gateway
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: global.nuc-envoy-gateway.enabled
+  - name: nuc-valkey
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-valkey.enabled

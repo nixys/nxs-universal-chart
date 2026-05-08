@@ -26,7 +26,10 @@ tests:
           value: housekeeping
       - equal:
           path: spec.suspend
-          value: false
+          value: true
+      - equal:
+          path: spec.concurrencyPolicy
+          value: Forbid
       - equal:
           path: spec.jobTemplate.spec.template.metadata.labels["workload-tier"]
           value: backend
@@ -47,3 +50,9 @@ tests:
       - equal:
           path: spec.jobTemplate.spec.template.spec.containers[0].args[0]
           value: echo cleanup
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[0].configMapRef.name
+          value: universal-blue-envs
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom[1].secretRef.name
+          value: universal-blue-secret-envs

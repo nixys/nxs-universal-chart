@@ -1,0 +1,17 @@
+nuc-mongodb-percona-operator:
+  enabled: true
+  perconaServerMongoDBs:
+    app-mongo:
+      spec:
+        crVersion: 1.17.0
+        image: percona/percona-server-mongodb:7.0.12-7
+        replsets:
+          - name: rs0
+            size: 3
+            volumeSpec:
+              persistentVolumeClaim:
+                resources:
+                  requests:
+                    storage: 10Gi
+        secrets:
+          users: app-mongo-users

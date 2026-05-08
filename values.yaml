@@ -44,13 +44,20 @@ generic:
   labels: {}
   # -- Annotations merged into every resource.
   annotations: {}
+  # -- Optional override for default hook annotations added to generated ConfigMaps and Secrets.
+  # -- If omitted, the chart keeps the historical default hook annotations.
+  # -- Set to `null` to disable default hook annotations cleanly.
+  # hookAnnotations:
+  #   helm.sh/hook: "pre-install,pre-upgrade"
+  #   helm.sh/hook-weight: "-999"
+  #   helm.sh/hook-delete-policy: before-hook-creation
   # -- Deterministic base name override used by all rendered resources.
   fullnameOverride: ""
   # -- Optional suffix appended to the deterministic base name.
   nameSuffix: ""
   # -- Render deterministic fallback names for unnamed containers and initContainers.
   deterministicNames: true
-  # -- Add checksum annotations for chart-managed ConfigMaps and Secrets to workload pod templates.
+  # -- Add checksum annotations for ConfigMaps and Secrets referenced by each workload to its pod template.
   autoRolloutChecksums: true
   # -- Extra selector labels merged into selectors and workload pod labels.
   extraSelectorLabels: {}
@@ -58,6 +65,11 @@ generic:
   podLabels: {}
   # -- Extra annotations merged into all workload pods.
   podAnnotations: {}
+  # -- Shared pod securityContext applied when workload-level `securityContext` is omitted.
+  podSecurityContext: {}
+  # -- Shared container securityContext applied when container-level `securityContext` is omitted.
+  # -- Set `securityContext.mergeWithGeneric: true` on a specific pod/container to merge instead of replace.
+  containerSecurityContext: {}
   # -- Optional default URL override exposed through `.Values.generic.defaultURL`.
   defaultURL: ""
   # -- Optional Helm version override used by capability helpers.
@@ -77,8 +89,12 @@ generic:
   extraVolumeMounts: []
   # -- Shared imagePullSecrets appended to all workload specs.
   extraImagePullSecrets: []
+  # -- Shared container resources applied when container-level `resources` are omitted.
+  resources: {}
   # -- Shared pod tolerations.
   tolerations: []
+  # -- Shared nodeSelector applied to all workload pod specs unless overridden per workload.
+  nodeSelector: {}
   # -- Shared topologySpreadConstraints applied to all workload pod specs unless overridden per workload.
   topologySpreadConstraints: []
   # -- Shared hostAliases block.
@@ -89,6 +105,8 @@ generic:
   dnsPolicy: ""
   # -- Shared serviceAccountName used when workload-level value is omitted.
   serviceAccountName: ""
+  # -- Shared automountServiceAccountToken used when workload-level value is omitted.
+  # automountServiceAccountToken: true
   # -- Enable generated affinity presets when workload affinity is not specified.
   usePredefinedAffinity: true
 
@@ -119,6 +137,25 @@ nuc-fluxcd:
   enabled: false
 nuc-keda:
   enabled: false
+nuc-cloudnativepg:
+  enabled: false
+nuc-mysql-percona-operator:
+  enabled: false
+nuc-rabbitmq:
+  enabled: false
+nuc-clickhouse:
+  enabled: false
+nuc-elk:
+  enabled: false
+nuc-external-secrets:
+  enabled: false
+nuc-mongodb-percona-operator:
+  enabled: false
+nuc-valkey:
+  enabled: false
+global:
+  nuc-envoy-gateway:
+    enabled: false
 
 # -- Pod affinity preset used when generated affinities are enabled.
 podAffinityPreset: soft
@@ -150,6 +187,9 @@ secretEnvsString: ""
 # -- Docker config JSON payloads rendered as imagePullSecrets.
 imagePullSecrets: {}
 
+# -- Optional default imagePullSecret name that can be attached to generated ServiceAccounts.
+serviceAccountDefaultImagePullSecretName: ""
+
 # -- Optional diagnostic mode overriding container command and args in all workloads.
 diagnosticMode:
   enabled: false
@@ -170,6 +210,9 @@ defaultImagePullPolicy: IfNotPresent
 
 # -- Ingress resources keyed by host or logical name.
 ingresses: {}
+
+# -- Shared defaults applied to rendered Service resources.
+servicesGeneral: {}
 
 # -- Service resources keyed by service name.
 services: {}
@@ -202,10 +245,20 @@ statefulSetsGeneral: {}
 statefulSets: {}
 
 # -- Shared defaults applied to generated ServiceAccounts.
-serviceAccountGeneral: {}
+serviceAccountGeneral:
+  # -- Optional imagePullSecrets defaults for generated ServiceAccounts.
+  imagePullSecrets:
+    includePlatformDefault: false
+    additional: []
 
 # -- ServiceAccount resources keyed by service-account suffix.
 serviceAccount: {}
+# -- Example:
+# serviceAccount:
+#   deployer:
+#     imagePullSecrets:
+#       additional:
+#         - regcred-extra
 
 # -- Secret resources keyed by secret suffix.
 secrets: {}

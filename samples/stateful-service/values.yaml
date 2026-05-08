@@ -1,0 +1,48 @@
+nameOverride: stateful-db
+
+pvs:
+  data:
+    spec:
+      capacity:
+        storage: 5Gi
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: standard
+      persistentVolumeReclaimPolicy: Retain
+      hostPath:
+        path: /tmp/stateful-db-data
+        type: DirectoryOrCreate
+
+pvcs:
+  data:
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    storageClassName: standard
+    volumeName: '{{ include "helpers.app.fullname" (dict "name" "data" "context" $) }}'
+
+services:
+  db-headless:
+    clusterIP: None
+    extraSelectorLabels:
+      component: db
+    ports:
+      - name: tcp
+        port: 5432
+        targetPort: 5432
+
+statefulSets:
+  db:
+    serviceName: db-headless
+    extraSelectorLabels:
+      component: db
+    containers:
+      - name: postgres
+        image: postgres
+        imageTag: "16.4"
+        ports:
+          - containerPort: 5432
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+

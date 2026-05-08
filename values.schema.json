@@ -14,6 +14,9 @@
     "kubeVersion": {
       "$ref": "#/definitions/stringValue"
     },
+    "global": {
+      "$ref": "#/definitions/freeFormObject"
+    },
     "workloadMode": {
       "type": "string",
       "enum": ["auto", "deployment", "daemonset", "pod", "statefulset", "batch", "job", "cronjob", "hook", "none", "jobs", "jobs-only", "jobsonly"]
@@ -80,6 +83,9 @@
         "annotations": {
           "$ref": "#/definitions/stringMap"
         },
+        "hookAnnotations": {
+          "$ref": "#/definitions/stringMapOrNull"
+        },
         "fullnameOverride": {
           "$ref": "#/definitions/stringValue"
         },
@@ -100,6 +106,12 @@
         },
         "podAnnotations": {
           "$ref": "#/definitions/stringMap"
+        },
+        "podSecurityContext": {
+          "$ref": "#/definitions/freeFormObject"
+        },
+        "containerSecurityContext": {
+          "$ref": "#/definitions/freeFormObject"
         },
         "defaultURL": {
           "$ref": "#/definitions/stringValue"
@@ -128,8 +140,14 @@
         "extraImagePullSecrets": {
           "$ref": "#/definitions/freeFormArray"
         },
+        "resources": {
+          "$ref": "#/definitions/k8sResources"
+        },
         "tolerations": {
           "$ref": "#/definitions/freeFormArray"
+        },
+        "nodeSelector": {
+          "$ref": "#/definitions/freeFormObject"
         },
         "topologySpreadConstraints": {
           "$ref": "#/definitions/freeFormArray"
@@ -145,6 +163,9 @@
         },
         "serviceAccountName": {
           "$ref": "#/definitions/stringValue"
+        },
+        "automountServiceAccountToken": {
+          "type": "boolean"
         },
         "usePredefinedAffinity": {
           "type": "boolean"
@@ -188,6 +209,30 @@
       "$ref": "#/definitions/enabledToggle"
     },
     "nuc-keda": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-cloudnativepg": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-mysql-percona-operator": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-rabbitmq": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-clickhouse": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-elk": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-external-secrets": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-mongodb-percona-operator": {
+      "$ref": "#/definitions/enabledToggle"
+    },
+    "nuc-valkey": {
       "$ref": "#/definitions/enabledToggle"
     },
     "podAffinityPreset": {
@@ -236,6 +281,9 @@
         "type": "string"
       }
     },
+    "serviceAccountDefaultImagePullSecretName": {
+      "$ref": "#/definitions/stringValue"
+    },
     "diagnosticMode": {
       "type": "object",
       "additionalProperties": false,
@@ -265,6 +313,9 @@
     },
     "ingresses": {
       "$ref": "#/definitions/ingressResourceMap"
+    },
+    "servicesGeneral": {
+      "$ref": "#/definitions/resourceMetadataGeneralConfig"
     },
     "services": {
       "$ref": "#/definitions/serviceResourceMap"
@@ -372,10 +423,52 @@
         "type": "string"
       }
     },
+    "stringMapOrNull": {
+      "type": ["object", "null"],
+      "propertyNames": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "freeFormObject": {
       "type": "object",
       "default": {},
       "additionalProperties": true
+    },
+    "k8sResources": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "integer"]
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "integer"]
+          }
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "request": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     },
     "freeFormArray": {
       "type": "array",
@@ -479,7 +572,7 @@
           "$ref": "#/definitions/freeFormObject"
         },
         "resources": {
-          "$ref": "#/definitions/freeFormObject"
+          "$ref": "#/definitions/k8sResources"
         },
         "securityContext": {
           "$ref": "#/definitions/freeFormObject"
@@ -489,8 +582,37 @@
         },
         "extraVolumeMounts": {
           "$ref": "#/definitions/freeFormArray"
+        },
+        "stdin": {
+          "type": "boolean",
+          "default": false
+        },
+        "tty": {
+          "type": "boolean",
+          "default": false
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "tty": {
+                "const": true
+              }
+            },
+            "required": ["tty"]
+          },
+          "then": {
+            "properties": {
+              "stdin": {
+                "const": true
+              }
+            },
+            "required": ["stdin"]
+          }
+        }
+      ]
     },
     "workloadContainerMap": {
       "type": "object",
@@ -535,6 +657,9 @@
         "items": {
           "$ref": "#/definitions/freeFormArray"
         },
+        "sources": {
+          "$ref": "#/definitions/freeFormArray"
+        },
         "sizeLimit": {
           "$ref": "#/definitions/stringValue"
         },
@@ -549,6 +674,66 @@
       "items": {
         "$ref": "#/definitions/typedVolume"
       }
+    },
+    "resourceMetadataGeneralConfig": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "labels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "annotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "gitops": {
+          "$ref": "#/definitions/resourceGitopsConfig"
+        }
+      }
+    },
+    "serviceAccountImagePullSecretEntry": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/stringValue"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/stringValue"
+            }
+          }
+        }
+      ]
+    },
+    "serviceAccountImagePullSecretEntryList": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/definitions/serviceAccountImagePullSecretEntry"
+      }
+    },
+    "serviceAccountImagePullSecretsConfig": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "includePlatformDefault": {
+          "type": "boolean"
+        },
+        "additional": {
+          "$ref": "#/definitions/serviceAccountImagePullSecretEntryList"
+        }
+      }
+    },
+    "serviceAccountImagePullSecretsConfigOrList": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/serviceAccountImagePullSecretsConfig"
+        },
+        {
+          "$ref": "#/definitions/serviceAccountImagePullSecretEntryList"
+        }
+      ]
     },
     "resourceGitopsConfig": {
       "type": "object",
@@ -594,19 +779,20 @@
       }
     },
     "serviceAccountGeneralConfig": {
-      "type": ["object", "null"],
-      "additionalProperties": true,
-      "properties": {
-        "labels": {
-          "$ref": "#/definitions/stringMap"
+      "allOf": [
+        {
+          "$ref": "#/definitions/resourceMetadataGeneralConfig"
         },
-        "annotations": {
-          "$ref": "#/definitions/stringMap"
-        },
-        "gitops": {
-          "$ref": "#/definitions/resourceGitopsConfig"
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "imagePullSecrets": {
+              "$ref": "#/definitions/serviceAccountImagePullSecretsConfig"
+            }
+          }
         }
-      }
+      ]
     },
     "serviceResource": {
       "type": ["object", "null"],
@@ -996,6 +1182,9 @@
         "gitops": {
           "$ref": "#/definitions/resourceGitopsConfig"
         },
+        "imagePullSecrets": {
+          "$ref": "#/definitions/serviceAccountImagePullSecretsConfigOrList"
+        },
         "role": {
           "$ref": "#/definitions/freeFormObject"
         },
@@ -1103,7 +1292,35 @@
       }
     },
     "baseWorkloadGeneral": {
-      "$ref": "#/definitions/baseWorkload"
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseWorkload"
+        },
+        {
+          "type": ["object", "null"],
+          "additionalProperties": true,
+          "properties": {
+            "env": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envFrom": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envConfigmaps": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envSecrets": {
+              "$ref": "#/definitions/freeFormArray"
+            },
+            "envsFromConfigmap": {
+              "$ref": "#/definitions/freeFormObject"
+            },
+            "envsFromSecret": {
+              "$ref": "#/definitions/freeFormObject"
+            }
+          }
+        }
+      ]
     },
     "baseWorkload": {
       "type": ["object", "null"],
@@ -1132,6 +1349,9 @@
         },
         "serviceAccountName": {
           "$ref": "#/definitions/stringValue"
+        },
+        "automountServiceAccountToken": {
+          "type": "boolean"
         },
         "hostAliases": {
           "$ref": "#/definitions/freeFormArray"
@@ -1168,6 +1388,9 @@
         },
         "terminationGracePeriodSeconds": {
           "type": "integer"
+        },
+        "resources": {
+          "$ref": "#/definitions/k8sResources"
         },
         "initContainers": {
           "$ref": "#/definitions/workloadContainerListOrMap"
@@ -1529,7 +1752,7 @@
           "additionalProperties": true,
           "properties": {
             "suspend": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "schedule": {
               "$ref": "#/definitions/stringValue"
@@ -1538,7 +1761,7 @@
               "$ref": "#/definitions/stringValue"
             },
             "singleOnly": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "startingDeadlineSeconds": {
               "type": "integer"
@@ -1563,13 +1786,13 @@
           "additionalProperties": true,
           "properties": {
             "suspend": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "timeZone": {
               "$ref": "#/definitions/stringValue"
             },
             "singleOnly": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "startingDeadlineSeconds": {
               "type": "integer"

@@ -1,0 +1,95 @@
+suite: resources fallback precedence
+templates:
+  - templates/batch/cronjob.yml
+  - templates/batch/job.yml
+  - templates/workloads/deployment.yml
+release:
+  name: unit-test
+  namespace: default
+
+tests:
+  - it: applies cronJobsGeneral.resources when container has no resources
+    values:
+      - values/resources_cronjob_general.values.yaml
+    template: templates/batch/cronjob.yml
+    documentSelector:
+      path: metadata.name
+      value: unit-test-task
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.requests.cpu
+          value: 200m
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.requests.memory
+          value: 256Mi
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.limits.cpu
+          value: 400m
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.limits.memory
+          value: 512Mi
+
+  - it: container resources override cronJobsGeneral.resources
+    values:
+      - values/resources_cronjob_override.values.yaml
+    template: templates/batch/cronjob.yml
+    documentSelector:
+      path: metadata.name
+      value: unit-test-task
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.requests.cpu
+          value: 999m
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.requests.memory
+          value: 999Mi
+      - notExists:
+          path: spec.jobTemplate.spec.template.spec.containers[0].resources.limits
+
+  - it: applies jobsGeneral.resources when container has no resources
+    values:
+      - values/resources_job_general.values.yaml
+    template: templates/batch/job.yml
+    documentSelector:
+      path: metadata.name
+      value: unit-test-task
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 300m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 384Mi
+
+  - it: applies deploymentsGeneral.resources when container has no resources
+    values:
+      - values/resources_deployment_general.values.yaml
+    template: templates/workloads/deployment.yml
+    documentSelector:
+      path: metadata.name
+      value: unit-test-app
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 100m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 128Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 200m
+
+  - it: falls back to generic.resources when no workload-level general resources set
+    values:
+      - values/rendering_contract.values.yaml
+    template: templates/workloads/deployment.yml
+    documentSelector:
+      path: metadata.name
+      value: platform-api
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 100m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 128Mi

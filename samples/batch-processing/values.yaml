@@ -1,0 +1,40 @@
+nameOverride: batch-jobs
+
+hooks:
+  prepare:
+    containers:
+      - name: prepare
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo prepare
+
+jobs:
+  migration:
+    containers:
+      - name: migration
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo migrate
+
+cronJobs:
+  cleanup:
+    schedule: "0 * * * *"
+    timeZone: UTC
+    containers:
+      - name: cleanup
+        image: busybox
+        imageTag: "1.36.1"
+        command:
+          - sh
+          - -c
+        args:
+          - echo cleanup
+

@@ -61,7 +61,7 @@ tests:
           count: 4
         template: templates/rbac/serviceaccount.yml
       - hasDocuments:
-          count: 4
+          count: 5
         template: templates/security/secret.yml
       - hasDocuments:
           count: 1

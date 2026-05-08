@@ -1,0 +1,66 @@
+suite: hook annotations configmap
+templates:
+  - templates/misc/configmap.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: disables default hook annotations for generated env ConfigMaps when generic.hookAnnotations is null
+    values:
+      - values/hook_annotations_disabled.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: smoke-test-envs
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - notExists:
+          path: metadata.annotations["helm.sh/hook"]
+      - notExists:
+          path: metadata.annotations["helm.sh/hook-weight"]
+      - notExists:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+
+  - it: disables default hook annotations for application ConfigMaps when generic.hookAnnotations is null
+    values:
+      - values/hook_annotations_disabled.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: smoke-test-disabled-hooks-config
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - notExists:
+          path: metadata.annotations["helm.sh/hook"]
+
+  - it: merges ConfigMap annotations with resource values overriding hook and generic keys
+    values:
+      - values/hook_annotations_merged.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: smoke-test-merged-config
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-install
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "-999"
+      - equal:
+          path: metadata.annotations["argocd.argoproj.io/sync-wave"]
+          value: "7"
+      - equal:
+          path: metadata.annotations.owner
+          value: platform
+      - equal:
+          path: metadata.annotations["gitops-owner"]
+          value: platform
+      - equal:
+          path: metadata.annotations.conflict
+          value: resource
+      - equal:
+          path: metadata.annotations.custom
+          value: from-configmap

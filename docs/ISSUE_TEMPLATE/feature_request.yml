@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest an idea for nxs-universal-chart
+title: "[nxs-universal-chart] short feature summary"
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest an improvement for nxs-universal-chart.
+
+  - type: textarea
+    id: desc
+    attributes:
+      label: Is your feature request related to a problem?
+      description: Give a clear and concise description of the problem you are trying to solve.
+      placeholder: "Example: I am always frustrated when ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: prop-solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you have considered. If nothing, enter `NONE`.
+    validations:
+      required: true
+
+  - type: textarea
+    id: values-impact
+    attributes:
+      label: Values or resource impact
+      description: If known, describe which values, templates, or rendered Kubernetes resources would be affected.
+      placeholder: "Example: generic.*, deployments.*, templates/workloads/*"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-ctxt
+    attributes:
+      label: Additional context
+      description: Add any other context, examples, or screenshots here.
+    validations:
+      required: false

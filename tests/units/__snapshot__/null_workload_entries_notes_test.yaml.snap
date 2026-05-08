@@ -1,0 +1,14 @@
+renders NOTES without failing for null workload entries:
+  1: |
+    raw: |
+      ** NOTICE **
+
+      We are currently changing name of our chart from `universal-chart` to `nxs-universal-chart`.
+
+      Prior to release `3.0` both versions are expected to keep rendering the same values contract.** NOTICE **
+
+      Option `extraVolumeMounts` for generics and workload generals has been renamed to `volumeMounts` and will be removed in version `3.0`.
+      Please use `volumeMounts` instead.
+
+      Option `imagePullSecrets` for workloads is deprecated and will be removed in version `3.0`.
+      Please use `extraImagePullSecrets` instead.
