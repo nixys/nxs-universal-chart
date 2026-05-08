@@ -117,6 +117,7 @@ jobs:
           python3 tests/smokes/run/smoke.py --scenario default-empty
           python3 tests/smokes/run/smoke.py --scenario schema-invalid-list-contract
           python3 tests/smokes/run/smoke.py --scenario rendering-contract
+          python3 tests/smokes/run/smoke.py --scenario null-workload-entries
           python3 tests/smokes/run/smoke.py --scenario example-render
           python3 tests/smokes/run/smoke.py --scenario example-kubeconform
 
