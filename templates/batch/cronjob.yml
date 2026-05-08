@@ -37,7 +37,7 @@
   {{- else -}}
     {{- $singleOnly = false -}}
   {{- end -}}
-{{- end -}}
+{{- end }}
 ---
 apiVersion: {{ include "helpers.capabilities.cronJob.apiVersion" $ }}
 kind: CronJob
