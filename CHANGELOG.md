@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.0.21] - May 24, 2026
+### Added
+* added `nuc-strimzi-kafka-operator` subchart.
+
+## [3.0.20] - May 24, 2026
+### Changed
+* updated `nuc-keycloak-operator` subchart dependency from `1.0.0` to `1.0.1`.
+
+## [3.0.19] - May 19, 2026
+### Added
+* added `nuc-keycloak-operator` subchart.
+
+## [3.0.18] - May 8, 2026
+### Fixed
+* fixed YAML doc separator rendering between consecutive `jobs`, `hooks`, and `cronJobs` so each resource is emitted as a separate YAML document.
+
+### Changed
+* updated `nuc-external-secrets` subchart dependency from `1.0.1` to `1.1.0`.
+
+### Testing
+* added unit and smoke coverage for multi-workload YAML document separator in batch templates.
+
 ## [3.0.17] - April 27, 2026
 ### Fixed
 * fixed deprecated workload `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
