@@ -1,0 +1,74 @@
+suite: multi-workload YAML document separator
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: renders two jobs as two separate YAML documents
+    templates:
+      - templates/batch/job.yml
+    values:
+      - values/multi_workload_doc_separator.values.yaml
+    asserts:
+      - hasDocuments:
+          count: 2
+      - documentIndex: 0
+        isKind:
+          of: Job
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: multi-alpha
+      - documentIndex: 1
+        isKind:
+          of: Job
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: multi-bravo
+
+  - it: renders two helm hooks as two separate YAML documents
+    templates:
+      - templates/misc/helm-hooks.yml
+    values:
+      - values/multi_workload_doc_separator.values.yaml
+    asserts:
+      - hasDocuments:
+          count: 2
+      - documentIndex: 0
+        isKind:
+          of: Job
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: multi-postdeploy
+      - documentIndex: 1
+        isKind:
+          of: Job
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: multi-predeploy
+
+  - it: renders two cronjobs as two separate YAML documents
+    templates:
+      - templates/batch/cronjob.yml
+    values:
+      - values/multi_workload_doc_separator.values.yaml
+    asserts:
+      - hasDocuments:
+          count: 2
+      - documentIndex: 0
+        isKind:
+          of: CronJob
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: multi-alpha
+      - documentIndex: 1
+        isKind:
+          of: CronJob
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: multi-bravo

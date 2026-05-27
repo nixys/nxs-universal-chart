@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.17
+version: 3.1.0
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -24,8 +24,8 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "fixed `cronJobsGeneral.suspend` and `cronJobsGeneral.singleOnly`"
+    - kind: added
+      description: "Added: NUC Subchart for Strimzi Kafka Operator"
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -35,7 +35,7 @@ annotations:
 
 dependencies:
   - name: nuc-common
-    version: 1.0.4
+    version: 1.0.5
 
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
@@ -54,6 +54,10 @@ dependencies:
     version: 1.0.4
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-fluxcd.enabled
+  - name: nuc-argocd
+    version: 1.0.4
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-argocd.enabled
   - name: nuc-knative
     version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
@@ -67,7 +71,7 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kube-prometheus-stack.enabled
   - name: nuc-native-gateway
-    version: 1.0.4
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-native-gateway.enabled
   - name: nuc-victoria-metrics
@@ -103,7 +107,7 @@ dependencies:
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-elk.enabled
   - name: nuc-external-secrets
-    version: 1.0.1
+    version: 1.1.0
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-external-secrets.enabled
   - name: nuc-mongodb-percona-operator
@@ -118,3 +122,11 @@ dependencies:
     version: 1.0.0
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-valkey.enabled
+  - name: nuc-keycloak-operator
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-keycloak-operator.enabled
+  - name: nuc-strimzi-kafka-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-strimzi-kafka-operator.enabled
