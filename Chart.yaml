@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.0.18
+version: 3.0.21
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -24,8 +24,8 @@ annotations:
     - name: Source
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "Fix: render YAML doc separator between consecutive jobs/hooks/cronjobs"
+    - kind: added
+      description: "Added: NUC Subchart for Strimzi Kafka Operator"
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
@@ -118,3 +118,11 @@ dependencies:
     version: 1.0.0
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-valkey.enabled
+  - name: nuc-keycloak-operator
+    version: 1.0.1
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-keycloak-operator.enabled
+  - name: nuc-strimzi-kafka-operator
+    version: 1.0.0
+    repository: oci://registry.nixys.ru/nuc
+    condition: nuc-strimzi-kafka-operator.enabled
