@@ -1,5 +1,45 @@
 # Changelog
 
+## [3.1.0] - May 27, 2026
+### Fixed
+* fixed `nuc-native-gateway` (`1.0.6`): `spec` of HTTPRoute (and all other Gateway API resources) was rendered as-is via `toYaml`, so Helm template expressions in string values — e.g. `'{{ printf "%s-%s" .Release.Name "frontend" }}'` or `'{{ include "helpers.app.fullname" … }}'` — were not evaluated. `spec` and `status` are now rendered through `tpl`, making release-name-aware `backendRefs` work out of the box.
+
+### Added
+* added `nuc-strimzi-kafka-operator`, `nuc-keycloak-operator`, `nuc-fluxcd`, `nuc-external-secrets`, `nuc-mongodb-percona-operator`, `nuc-envoy-gateway`, `nuc-cloudnativepg`, `nuc-mysql-percona-operator`, `nuc-elk`, `nuc-rabbitmq`, and `nuc-clickhouse` subcharts to the dependency list.
+* added shared `generic` defaults for workloads: `nodeSelector`, `resources`, `podSecurityContext`, `containerSecurityContext`, and `automountServiceAccountToken`.
+* added `servicesGeneral` for common labels and annotations on rendered `Service` resources, including auto-generated governing Services.
+* added typed `projected` volumes via `volumes[].type: projected`.
+* added `ServiceAccount.imagePullSecrets` support via `serviceAccountDefaultImagePullSecretName`, `serviceAccountGeneral.imagePullSecrets`, and per-ServiceAccount overrides.
+* added new Istio templates: `AuthorizationPolicy`, `DestinationRule`, `EnvoyFilter`, `Gateway`, `PeerAuthentication`, `ProxyConfig`, `RequestAuthentication`, `ServiceEntry`, `Sidecar`, `Telemetry`, `VirtualService`, `WasmPlugin`, `WorkloadEntry`, `WorkloadGroup`.
+* added new Vault Secret Operator templates: `HCPAuth`, `HCPVaultSecretsApp`, `SecretTransformation`, `VaultAuthGlobal`, `VaultConnection`, `VaultDynamicSecret`, `VaultPKISecret`.
+* added `stdin` and `tty` support for containers and initContainers.
+* added GitHub chart-testing and CI configuration under `.github/`, including lint, security, smoke, unit, and e2e workflows.
+* added contributor templates: `docs/PULL_REQUEST_TEMPLATE.md`, `docs/ISSUE_TEMPLATE/bug_report.yml`, `docs/ISSUE_TEMPLATE/feature_request.yml`.
+* added samples catalog: `nuc-fluxcd`, `nuc-external-secrets`, `nuc-mongodb-percona-operator`, `nuc-envoy-gateway`, `nuc-valkey`, `wordpress`, and `wordpress-vault` (WordPress + Vault Secret Operator) deployment examples.
+
+### Fixed
+* fixed YAML doc separator rendering between consecutive `jobs`, `hooks`, and `cronJobs` so each resource is emitted as a separate YAML document.
+* fixed deprecated `imagePullSecrets` warnings in `NOTES.txt` so `null` entries inside `deployments`, `cronJobs`, `jobs`, and `hooks` do not fail template rendering.
+* fixed FluxCD dependency condition to use `nuc-fluxcd.enabled`.
+* fixed Envoy Gateway dependency condition to use `global.nuc-envoy-gateway.enabled`, avoiding an `enabled` key rejected by the subchart schema.
+* fixed `cronJobsGeneral.suspend` and `cronJobsGeneral.singleOnly` so CronJobs inherit the general defaults while still allowing per-CronJob `false` or `null` overrides.
+* fixed `envConfigmaps` and `envSecrets` rendering to preserve multiple entries and skip `null` or empty items without rendering an empty `envFrom` block.
+* fixed automatic checksum reference collection for `*General.envConfigmaps` and `*General.envSecrets`.
+* fixed ConfigMaps and Secrets annotated by default hooks preventing uninstall.
+* fixed multi-env rendering error.
+* fixed CronJob general settings (`cronJobsGeneral`) inheritance.
+
+### Changed
+* `autoRolloutChecksums` now generates checksum annotations only for ConfigMaps, Secrets, and SealedSecrets actually referenced by a given workload, instead of checksumming every resource in the release.
+* updated `nuc-common` dependency from `1.0.4` to `1.0.5`.
+* updated `nuc-keycloak-operator` dependency from `1.0.0` to `1.0.1`.
+* updated `nuc-external-secrets` dependency from `1.0.1` to `1.1.0`.
+* completed Dependency Subcharts documentation for all dependencies declared in `Chart.yaml`.
+* documented `deploymentsGeneral` and `cronJobsGeneral` environment source defaults, including empty-value handling and override behavior.
+
+### Testing
+* added unit and smoke coverage for all new features and bug fixes introduced across the 3.0.x series.
+
 ## [3.0.21] - May 24, 2026
 ### Added
 * added `nuc-strimzi-kafka-operator` subchart.

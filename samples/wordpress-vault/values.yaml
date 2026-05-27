@@ -1,0 +1,175 @@
+nameOverride: wordpress
+
+# Non-sensitive WordPress environment variables
+envs:
+  WORDPRESS_DB_HOST: mysql-haproxy
+  WORDPRESS_DB_NAME: wordpress
+  WORDPRESS_DB_USER: wordpress
+
+# Persistent storage for WordPress media uploads
+pvcs:
+  uploads:
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    storageClassName: standard
+
+# WordPress HTTP service
+services:
+  app:
+    extraSelectorLabels:
+      component: app
+    ports:
+      - name: http
+        port: 80
+        targetPort: http
+
+# WordPress Deployment
+deployments:
+  app:
+    replicas: 1
+    extraSelectorLabels:
+      component: app
+    containers:
+      - name: wordpress
+        image: wordpress
+        imageTag: "6.7-php8.3-apache"
+        ports:
+          - name: http
+            containerPort: 80
+        envConfigmaps:
+          - envs
+        envSecrets:
+          - db
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /wp-login.php
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /wp-login.php
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        volumeMounts:
+          - name: uploads
+            mountPath: /var/www/html/wp-content/uploads
+    volumes:
+      - name: uploads
+        type: pvc
+
+# HTTPS Ingress with cert-manager TLS
+ingresses:
+  wordpress.example.local:
+    ingressClassName: nginx
+    certManager:
+      originalIssuerName: letsencrypt
+      issuerType: cluster-issuer
+    hosts:
+      - paths:
+          - path: /
+            pathType: Prefix
+            serviceName: app
+            servicePort: http
+
+# MySQL database via Percona XtraDB Cluster
+nuc-mysql-percona-operator:
+  enabled: true
+  perconaXtraDBClusters:
+    mysql:
+      spec:
+        crVersion: 1.16.0
+        secretsName: mysql-auth
+        pxc:
+          size: 1
+          image: percona/percona-xtradb-cluster:8.0.36
+          volumeSpec:
+            persistentVolumeClaim:
+              resources:
+                requests:
+                  storage: 10Gi
+        haproxy:
+          enabled: true
+          size: 1
+          image: percona/percona-xtradb-cluster-operator:1.16.0-haproxy
+
+# Valkey object cache (Redis-compatible)
+nuc-valkey:
+  enabled: true
+  valkeyclusters:
+    cache:
+      spec:
+        image: valkey/valkey:8.1
+        shards: 1
+        replicas: 0
+        workloadType: StatefulSet
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        config:
+          maxmemory-policy: allkeys-lru
+
+# TLS certificate via cert-manager
+nuc-certificates:
+  enabled: true
+  clusterIssuers:
+    letsencrypt:
+      spec:
+        acme:
+          email: ops@example.local
+          server: https://acme-v02.api.letsencrypt.org/directory
+          privateKeySecretRef:
+            name: letsencrypt-account-key
+          solvers:
+            - http01:
+                ingress:
+                  ingressClassName: nginx
+  certificates:
+    tls:
+      namespace: default
+      spec:
+        secretName: wordpress-tls
+        dnsNames:
+          - wordpress.example.local
+        issuerRef:
+          name: letsencrypt
+          kind: ClusterIssuer
+
+# DB credentials delivered from Vault via Vault Secret Operator
+nuc-vault-secret-operator:
+  enabled: true
+  vaultConnections:
+    default:
+      spec:
+        address: https://vault.example.local:8200
+  vaultAuths:
+    app:
+      vaultConnectionRef: default
+      method: kubernetes
+      mount: kubernetes
+      role: wordpress
+      serviceAccount: default
+  vaultStaticSecrets:
+    db:
+      spec:
+        vaultAuthRef: app
+        mount: kvv2
+        type: kv-v2
+        path: apps/wordpress
+        refreshAfter: 1m
+        destination:
+          name: db
+          create: true
