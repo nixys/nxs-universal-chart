@@ -1426,6 +1426,9 @@
             },
             "progressDeadlineSeconds": {
               "type": "integer"
+            },
+            "revisionHistoryLimit": {
+              "type": "integer"
             }
           }
         }
@@ -1444,6 +1447,9 @@
               "$ref": "#/definitions/freeFormObject"
             },
             "progressDeadlineSeconds": {
+              "type": "integer"
+            },
+            "revisionHistoryLimit": {
               "type": "integer"
             }
           }
@@ -1547,6 +1553,9 @@
             },
             "volumeClaimTemplates": {
               "$ref": "#/definitions/freeFormArray"
+            },
+            "revisionHistoryLimit": {
+              "type": "integer"
             }
           }
         }
@@ -1569,6 +1578,9 @@
             },
             "volumeClaimTemplates": {
               "$ref": "#/definitions/freeFormArray"
+            },
+            "revisionHistoryLimit": {
+              "type": "integer"
             }
           }
         }

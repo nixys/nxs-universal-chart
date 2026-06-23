@@ -26,6 +26,11 @@ spec:
   {{- with $statefulSet.minReadySeconds }}
   minReadySeconds: {{ . }}
   {{- end }}
+  {{- if hasKey $statefulSet "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ get $statefulSet "revisionHistoryLimit" }}
+  {{- else if hasKey $general "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ get $general "revisionHistoryLimit" }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
