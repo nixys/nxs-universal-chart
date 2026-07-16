@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Added
+* added `revisionHistoryLimit` support for `deployments`, `daemonSets`, and `statefulSets` entries with `deploymentsGeneral`/`daemonSetsGeneral`/`statefulSetsGeneral` defaults, so the number of retained old ReplicaSets/ControllerRevisions can be limited (Kubernetes keeps `10` by default).
+
 ## [3.1.0] - May 27, 2026
 ### Fixed
 * fixed `nuc-native-gateway` (`1.0.6`): `spec` of HTTPRoute (and all other Gateway API resources) was rendered as-is via `toYaml`, so Helm template expressions in string values — e.g. `'{{ printf "%s-%s" .Release.Name "frontend" }}'` or `'{{ include "helpers.app.fullname" … }}'` — were not evaluated. `spec` and `status` are now rendered through `tpl`, making release-name-aware `backendRefs` work out of the box.

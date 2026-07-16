@@ -1426,6 +1426,10 @@
             },
             "progressDeadlineSeconds": {
               "type": "integer"
+            },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
             }
           }
         }
@@ -1445,6 +1449,10 @@
             },
             "progressDeadlineSeconds": {
               "type": "integer"
+            },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
             }
           }
         }
@@ -1472,6 +1480,10 @@
             "minReadySeconds": {
               "type": "integer"
             },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
+            },
             "strategy": {
               "$ref": "#/definitions/freeFormObject"
             }
@@ -1490,6 +1502,10 @@
           "properties": {
             "minReadySeconds": {
               "type": "integer"
+            },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
             },
             "strategy": {
               "$ref": "#/definitions/freeFormObject"
@@ -1545,6 +1561,10 @@
             "minReadySeconds": {
               "type": "integer"
             },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
+            },
             "volumeClaimTemplates": {
               "$ref": "#/definitions/freeFormArray"
             }
@@ -1566,6 +1586,10 @@
             },
             "minReadySeconds": {
               "type": "integer"
+            },
+            "revisionHistoryLimit": {
+              "type": ["integer", "null"],
+              "minimum": 0
             },
             "volumeClaimTemplates": {
               "$ref": "#/definitions/freeFormArray"

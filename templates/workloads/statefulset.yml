@@ -4,6 +4,20 @@
 {{- range $name := keys (.Values.statefulSets | default dict) | sortAlpha }}
 {{- $statefulSet := get $.Values.statefulSets $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $statefulSet)) }}
+{{- $revisionHistoryLimitSet := false -}}
+{{- $revisionHistoryLimit := 0 -}}
+{{- if and (hasKey $general "revisionHistoryLimit") (ne $general.revisionHistoryLimit nil) -}}
+  {{- $revisionHistoryLimit = $general.revisionHistoryLimit -}}
+  {{- $revisionHistoryLimitSet = true -}}
+{{- end -}}
+{{- if hasKey $statefulSet "revisionHistoryLimit" -}}
+  {{- if ne $statefulSet.revisionHistoryLimit nil -}}
+    {{- $revisionHistoryLimit = $statefulSet.revisionHistoryLimit -}}
+    {{- $revisionHistoryLimitSet = true -}}
+  {{- else -}}
+    {{- $revisionHistoryLimitSet = false -}}
+  {{- end -}}
+{{- end }}
 ---
 apiVersion: {{ include "helpers.capabilities.statefulSet.apiVersion" $ }}
 kind: StatefulSet
@@ -19,6 +33,9 @@ metadata:
     {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $statefulSet) | nindent 4 }}
 spec:
   replicas: {{ $statefulSet.replicas | default 1 }}
+  {{- if $revisionHistoryLimitSet }}
+  revisionHistoryLimit: {{ $revisionHistoryLimit }}
+  {{- end }}
   {{- with $statefulSet.strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}

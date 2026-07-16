@@ -1,0 +1,117 @@
+suite: revision history limit
+templates:
+  - templates/workloads/deployment.yml
+  - templates/workloads/daemonset.yml
+  - templates/workloads/statefulset.yml
+release:
+  name: unit-test
+  namespace: unit-namespace
+
+tests:
+  - it: omits revisionHistoryLimit by default
+    values:
+      - values/revision_history_limit.values.yaml
+    template: templates/workloads/deployment.yml
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+
+  - it: renders per-deployment revisionHistoryLimit
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      deployments.app.revisionHistoryLimit: 3
+    template: templates/workloads/deployment.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+
+  - it: preserves explicit zero revisionHistoryLimit
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      deployments.app.revisionHistoryLimit: 0
+    template: templates/workloads/deployment.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+
+  - it: inherits revisionHistoryLimit from deploymentsGeneral
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+    template: templates/workloads/deployment.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: prefers per-deployment revisionHistoryLimit over deploymentsGeneral
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+      deployments.app.revisionHistoryLimit: 2
+    template: templates/workloads/deployment.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 2
+
+  - it: clears general revisionHistoryLimit with explicit null
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+      deployments.app.revisionHistoryLimit: null
+    template: templates/workloads/deployment.yml
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+
+  - it: renders per-daemonset revisionHistoryLimit
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      daemonSets.agent.revisionHistoryLimit: 4
+    template: templates/workloads/daemonset.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 4
+
+  - it: inherits revisionHistoryLimit from daemonSetsGeneral
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      daemonSetsGeneral.revisionHistoryLimit: 5
+    template: templates/workloads/daemonset.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: renders per-statefulset revisionHistoryLimit
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      statefulSets.db.revisionHistoryLimit: 4
+    template: templates/workloads/statefulset.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 4
+
+  - it: inherits revisionHistoryLimit from statefulSetsGeneral
+    values:
+      - values/revision_history_limit.values.yaml
+    set:
+      statefulSetsGeneral.revisionHistoryLimit: 5
+    template: templates/workloads/statefulset.yml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5

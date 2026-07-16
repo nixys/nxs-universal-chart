@@ -4,6 +4,20 @@
 {{- range $name := keys (.Values.daemonSets | default dict) | sortAlpha }}
 {{- $daemonSet := get $.Values.daemonSets $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $daemonSet)) }}
+{{- $revisionHistoryLimitSet := false -}}
+{{- $revisionHistoryLimit := 0 -}}
+{{- if and (hasKey $general "revisionHistoryLimit") (ne $general.revisionHistoryLimit nil) -}}
+  {{- $revisionHistoryLimit = $general.revisionHistoryLimit -}}
+  {{- $revisionHistoryLimitSet = true -}}
+{{- end -}}
+{{- if hasKey $daemonSet "revisionHistoryLimit" -}}
+  {{- if ne $daemonSet.revisionHistoryLimit nil -}}
+    {{- $revisionHistoryLimit = $daemonSet.revisionHistoryLimit -}}
+    {{- $revisionHistoryLimitSet = true -}}
+  {{- else -}}
+    {{- $revisionHistoryLimitSet = false -}}
+  {{- end -}}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -18,6 +32,9 @@ metadata:
   annotations:
     {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $daemonSet) | nindent 4 }}
 spec:
+  {{- if $revisionHistoryLimitSet }}
+  revisionHistoryLimit: {{ $revisionHistoryLimit }}
+  {{- end }}
   {{- with $daemonSet.strategy }}
   updateStrategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}

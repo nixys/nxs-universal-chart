@@ -152,6 +152,7 @@ deployments:
         syncOptions:
           - ServerSideApply=true
     replicas: 2
+    revisionHistoryLimit: 2
     extraSelectorLabels:
       component: api
     serviceAccountName: deployer

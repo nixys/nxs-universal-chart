@@ -4,6 +4,20 @@
 {{- range $name := keys (.Values.deployments | default dict) | sortAlpha }}
 {{- $deployment := get $.Values.deployments $name -}}
 {{- if eq "true" (include "helpers.resources.isEnabled" (dict "value" $deployment)) }}
+{{- $revisionHistoryLimitSet := false -}}
+{{- $revisionHistoryLimit := 0 -}}
+{{- if and (hasKey $general "revisionHistoryLimit") (ne $general.revisionHistoryLimit nil) -}}
+  {{- $revisionHistoryLimit = $general.revisionHistoryLimit -}}
+  {{- $revisionHistoryLimitSet = true -}}
+{{- end -}}
+{{- if hasKey $deployment "revisionHistoryLimit" -}}
+  {{- if ne $deployment.revisionHistoryLimit nil -}}
+    {{- $revisionHistoryLimit = $deployment.revisionHistoryLimit -}}
+    {{- $revisionHistoryLimitSet = true -}}
+  {{- else -}}
+    {{- $revisionHistoryLimitSet = false -}}
+  {{- end -}}
+{{- end }}
 ---
 apiVersion: {{ include "helpers.capabilities.deployment.apiVersion" $ }}
 kind: Deployment
@@ -19,6 +33,9 @@ metadata:
     {{- include "helpers.app.annotations" (dict "context" $ "general" $general "value" $deployment) | nindent 4 }}
 spec:
   replicas: {{ $deployment.replicas | default 1 }}
+  {{- if $revisionHistoryLimitSet }}
+  revisionHistoryLimit: {{ $revisionHistoryLimit }}
+  {{- end }}
   {{- with $deployment.strategy }}
   strategy: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}

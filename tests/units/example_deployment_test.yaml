@@ -37,6 +37,9 @@ tests:
           path: spec.replicas
           value: 2
       - equal:
+          path: spec.revisionHistoryLimit
+          value: 2
+      - equal:
           path: spec.selector.matchLabels.tenant
           value: shared
       - equal:

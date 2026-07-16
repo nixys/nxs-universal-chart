@@ -1,0 +1,20 @@
+deployments:
+  app:
+    containers:
+      app:
+        image: nginx
+        imageTag: "1.27.5"
+
+daemonSets:
+  agent:
+    containers:
+      agent:
+        image: nginx
+        imageTag: "1.27.5"
+
+statefulSets:
+  db:
+    containers:
+      db:
+        image: nginx
+        imageTag: "1.27.5"
