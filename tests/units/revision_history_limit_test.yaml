@@ -1,0 +1,97 @@
+suite: revisionHistoryLimit
+templates:
+  - templates/workloads/deployment.yml
+  - templates/workloads/statefulset.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: omits revisionHistoryLimit on a Deployment when neither workload nor general sets it
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+
+  - it: renders the per-Deployment revisionHistoryLimit
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.revisionHistoryLimit: 2
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 2
+
+  - it: falls back to deploymentsGeneral.revisionHistoryLimit when the workload omits it
+    template: templates/workloads/deployment.yml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: per-Deployment revisionHistoryLimit overrides the general fallback
+    template: templates/workloads/deployment.yml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+      deployments.app.revisionHistoryLimit: 2
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 2
+
+  - it: honours an explicit revisionHistoryLimit of 0 on a Deployment
+    template: templates/workloads/deployment.yml
+    set:
+      deploymentsGeneral.revisionHistoryLimit: 5
+      deployments.app.revisionHistoryLimit: 0
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+
+  - it: omits revisionHistoryLimit on a StatefulSet when neither workload nor general sets it
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+
+  - it: renders the per-StatefulSet revisionHistoryLimit
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSets.app.revisionHistoryLimit: 3
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+
+  - it: falls back to statefulSetsGeneral.revisionHistoryLimit when the workload omits it
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSetsGeneral.revisionHistoryLimit: 4
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 4
+
+  - it: per-StatefulSet revisionHistoryLimit (including an explicit 0) overrides the general fallback
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSetsGeneral.revisionHistoryLimit: 4
+      statefulSets.app.revisionHistoryLimit: 0
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
