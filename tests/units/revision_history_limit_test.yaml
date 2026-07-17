@@ -2,6 +2,7 @@ suite: revisionHistoryLimit
 templates:
   - templates/workloads/deployment.yml
   - templates/workloads/statefulset.yml
+  - templates/workloads/daemonset.yml
 release:
   name: smoke-test
   namespace: default
@@ -91,6 +92,45 @@ tests:
       statefulSetsGeneral.revisionHistoryLimit: 4
       statefulSets.app.revisionHistoryLimit: 0
       statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+
+  - it: omits revisionHistoryLimit on a DaemonSet when neither workload nor general sets it
+    template: templates/workloads/daemonset.yml
+    set:
+      daemonSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit
+
+  - it: renders the per-DaemonSet revisionHistoryLimit
+    template: templates/workloads/daemonset.yml
+    set:
+      daemonSets.app.revisionHistoryLimit: 2
+      daemonSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 2
+
+  - it: falls back to daemonSetsGeneral.revisionHistoryLimit when the workload omits it
+    template: templates/workloads/daemonset.yml
+    set:
+      daemonSetsGeneral.revisionHistoryLimit: 6
+      daemonSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 6
+
+  - it: per-DaemonSet revisionHistoryLimit (including an explicit 0) overrides the general fallback
+    template: templates/workloads/daemonset.yml
+    set:
+      daemonSetsGeneral.revisionHistoryLimit: 6
+      daemonSets.app.revisionHistoryLimit: 0
+      daemonSets.app.containers.main.image: nginx:1.27.5
     asserts:
       - equal:
           path: spec.revisionHistoryLimit

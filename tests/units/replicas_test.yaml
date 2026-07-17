@@ -1,0 +1,66 @@
+suite: workload replicas
+templates:
+  - templates/workloads/deployment.yml
+  - templates/workloads/statefulset.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: defaults Deployment replicas to 1 when unset
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: renders the configured Deployment replicas
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.replicas: 3
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: honours an explicit Deployment replicas of 0
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.replicas: 0
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0
+
+  - it: defaults StatefulSet replicas to 1 when unset
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: renders the configured StatefulSet replicas
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSets.app.replicas: 2
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+
+  - it: honours an explicit StatefulSet replicas of 0
+    template: templates/workloads/statefulset.yml
+    set:
+      statefulSets.app.replicas: 0
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0

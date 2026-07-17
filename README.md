@@ -215,14 +215,14 @@ Schema matching note:
 | `generic.dnsPolicy` | `generic.dnsPolicy: "ClusterFirst"` | `""` | Shared DNS policy for workload pods. |
 | `generic.serviceAccountName` | `generic.serviceAccountName: "deployer"` | `""` | Default service account name when workload-level field is omitted. |
 | `generic.automountServiceAccountToken` | `generic.automountServiceAccountToken: false` | `n/a` | Default `automountServiceAccountToken` for workload pods when omitted per workload. |
-| `generic.usePredefinedAffinity` | `generic.usePredefinedAffinity: true` | `true` | Enables generated affinity presets when explicit affinity is not set. |
+| `generic.usePredefinedAffinity` | `generic.usePredefinedAffinity: true` | `false` | Enables generated affinity presets when explicit affinity is not set. Disabled by default since v3.1.1: no `affinity` block is rendered unless requested. |
 
 ### Runtime Defaults and Shared Generated Resources
 
 | Field | Example | Default | Description |
 |---|---|---|---|
-| `podAffinityPreset` | `podAffinityPreset: "soft"` | `"soft"` | Preset used by generated pod affinity helper. |
-| `podAntiAffinityPreset` | `podAntiAffinityPreset: "hard"` | `"soft"` | Preset used by generated pod anti-affinity helper. |
+| `podAffinityPreset` | `podAffinityPreset: "soft"` | `""` | Preset used by generated pod affinity helper: `""` (disabled), `soft` or `hard`. Empty presets are omitted from the rendered `affinity` block. |
+| `podAntiAffinityPreset` | `podAntiAffinityPreset: "hard"` | `"soft"` | Preset used by generated pod anti-affinity helper: `""` (disabled), `soft` or `hard`. |
 | `nodeAffinityPreset.type` | `nodeAffinityPreset.type: "hard"` | `""` | Node affinity mode (`soft`/`hard`) for generated affinity. |
 | `nodeAffinityPreset.key` | `nodeAffinityPreset.key: "nodepool"` | `""` | Node label key for generated node affinity. |
 | `nodeAffinityPreset.values` | `nodeAffinityPreset.values: ["apps"]` | `[]` | Node label values for generated node affinity. |
@@ -244,13 +244,13 @@ Schema matching note:
 
 | Field | Example | Default | Description |
 |---|---|---|---|
-| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`, `revisionHistoryLimit`. |
+| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`. |
 | `deployments` | `deployments.api.replicas: 2` | `{}` | Deployment resources keyed by suffix. |
-| `daemonSetsGeneral` | `daemonSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all DaemonSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`. |
+| `daemonSetsGeneral` | `daemonSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all DaemonSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `revisionHistoryLimit`. |
 | `daemonSets` | `daemonSets.node-agent.containers.agent.image: busybox` | `{}` | DaemonSet resources keyed by suffix. |
 | `podsGeneral` | `podsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Pod entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields). |
 | `pods` | `pods.toolbox.containers.toolbox.image: busybox` | `{}` | Pod resources keyed by suffix. |
-| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`, `revisionHistoryLimit`. |
+| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`. |
 | `statefulSets` | `statefulSets.worker.serviceName: headless` | `{}` | StatefulSet resources keyed by suffix. |
 | `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `parallelism`, `completions`, `activeDeadlineSeconds`, `backoffLimit`, `ttlSecondsAfterFinished`, `restartPolicy`, `commandDurationAlert`, `commandDurationAlertNamespace`. |
 | `jobs` | `jobs.migrate.containers.migrate.image: busybox` | `{}` | One-shot batch jobs keyed by suffix, or one raw templated YAML string. |
@@ -289,7 +289,7 @@ Fields set on a `*General` object act as defaults for every workload in that fam
 | `containers` | `containers.api.image: nginx` | `required per workload` | Main containers, supports both map and array forms. |
 | `resources` | `resources.requests.cpu: 100m` | `n/a` | Default container resources for this workload. When set on a `*General` object, acts as a fallback for all containers in that family that omit their own `resources`. Overrides `generic.resources`. Allowed keys: `requests`, `limits`, `claims`. |
 | `volumes` / `extraVolumes` | `volumes: [{name: app, type: configMap}]` | `[]` | Typed and raw volumes for workload pods. |
-| `usePredefinedAffinity` | `usePredefinedAffinity: false` | `true` (via generic) | Enables/disables generated affinity presets for this workload. |
+| `usePredefinedAffinity` | `usePredefinedAffinity: true` | `false` (via generic) | Enables/disables generated affinity presets for this workload. |
 
 ### Container Entry Fields
 
@@ -324,7 +324,6 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `deployments.<name>.replicas` | `replicas: 3` | `1` | Number of desired deployment replicas. |
 | `deployments.<name>.strategy` | `strategy.rollingUpdate.maxUnavailable: 1` | `n/a` | Deployment strategy block. |
 | `deployments.<name>.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `600` | Rollout progress deadline in seconds. |
-| `deployments.<name>.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Number of old ReplicaSets retained for rollback. Defaults to the Kubernetes default (10) when unset; falls back to `deploymentsGeneral.revisionHistoryLimit`. |
 
 #### DaemonSets
 
@@ -332,6 +331,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 |---|---|---|---|
 | `daemonSets.<name>.strategy` | `strategy.type: RollingUpdate` | `n/a` | DaemonSet update strategy. |
 | `daemonSets.<name>.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Minimum seconds for pod readiness before considered available. |
+| `daemonSets.<name>.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Number of old ControllerRevisions retained for rollback. Defaults to the Kubernetes default (10) when unset; falls back to `daemonSetsGeneral.revisionHistoryLimit`. |
 
 #### Pods
 
@@ -348,7 +348,6 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `statefulSets.<name>.serviceName` | `serviceName: headless` | `<resource key>` | Governing service name used by StatefulSet. |
 | `statefulSets.<name>.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Minimum ready time per pod. |
 | `statefulSets.<name>.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | PVC templates for StatefulSet pods. |
-| `statefulSets.<name>.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Number of old ControllerRevisions retained for rollback. Defaults to the Kubernetes default (10) when unset; falls back to `statefulSetsGeneral.revisionHistoryLimit`. |
 
 #### Jobs
 
@@ -399,7 +398,6 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
 |---|---|---|---|
 | `deploymentsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default deployment strategy for all Deployments. |
 | `deploymentsGeneral.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `n/a` | Default rollout progress deadline in seconds. |
-| `deploymentsGeneral.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Default number of old ReplicaSets retained for all Deployments. |
 
 Example - set default environment sources for every Deployment container:
 
@@ -419,6 +417,7 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
 |---|---|---|---|
 | `daemonSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all DaemonSets. |
 | `daemonSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds before pod is considered available. |
+| `daemonSetsGeneral.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Default number of old ControllerRevisions retained for all DaemonSets. |
 
 #### podsGeneral
 
@@ -433,7 +432,6 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
 | `statefulSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all StatefulSets. |
 | `statefulSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds per pod. |
 | `statefulSetsGeneral.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | Default PVC templates applied to all StatefulSets. |
-| `statefulSetsGeneral.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Default number of old ControllerRevisions retained for all StatefulSets. |
 
 #### jobsGeneral
 
