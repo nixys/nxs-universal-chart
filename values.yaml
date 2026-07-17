@@ -108,7 +108,8 @@ generic:
   # -- Shared automountServiceAccountToken used when workload-level value is omitted.
   # automountServiceAccountToken: true
   # -- Enable generated affinity presets when workload affinity is not specified.
-  usePredefinedAffinity: true
+  # Disabled by default since v3.1.1: no `affinity` block is rendered unless requested.
+  usePredefinedAffinity: false
 
 # -- Optional dependency overrides and compatibility toggles preserved from previous umbrella-chart releases.
 nuc-common:
@@ -157,10 +158,10 @@ global:
   nuc-envoy-gateway:
     enabled: false
 
-# -- Pod affinity preset used when generated affinities are enabled.
-podAffinityPreset: soft
+# -- Pod affinity preset used when generated affinities are enabled: `""` (disabled), `soft` or `hard`.
+podAffinityPreset: ""
 
-# -- Pod anti-affinity preset used when generated affinities are enabled.
+# -- Pod anti-affinity preset used when generated affinities are enabled: `""` (disabled), `soft` or `hard`.
 podAntiAffinityPreset: soft
 
 # -- Node affinity preset used when generated affinities are enabled.

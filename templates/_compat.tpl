@@ -867,10 +867,18 @@ affinity: {{- include "helpers.tplvalues.render" (dict "value" .affinity "contex
 {{- else if $general.affinity }}
 affinity: {{- include "helpers.tplvalues.render" (dict "value" $general.affinity "context" $) | nindent 2 }}
 {{- else if $usePredefinedAffinity }}
+{{- if or $.Values.nodeAffinityPreset.type $.Values.podAffinityPreset $.Values.podAntiAffinityPreset }}
 affinity:
-  nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" $.Values.nodeAffinityPreset.type "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values "context" $) | nindent 4 }}
-  podAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
-  podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" $.Values.podAntiAffinityPreset "extraLabels" $extraLabels "context" $) | nindent 4 }}
+  {{- with $.Values.nodeAffinityPreset.type }}
+  nodeAffinity: {{- include "helpers.affinities.nodes" (dict "type" . "key" $.Values.nodeAffinityPreset.key "values" $.Values.nodeAffinityPreset.values "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with $.Values.podAffinityPreset }}
+  podAffinity: {{- include "helpers.affinities.pods" (dict "type" . "extraLabels" $extraLabels "context" $) | nindent 4 }}
+  {{- end }}
+  {{- with $.Values.podAntiAffinityPreset }}
+  podAntiAffinity: {{- include "helpers.affinities.pods" (dict "type" . "extraLabels" $extraLabels "context" $) | nindent 4 }}
+  {{- end }}
+{{- end }}
 {{- end }}
 {{- $topologySpreadConstraints := $.Values.generic.topologySpreadConstraints -}}
 {{- if ne $general.topologySpreadConstraints nil }}{{- $topologySpreadConstraints = $general.topologySpreadConstraints -}}{{- end -}}

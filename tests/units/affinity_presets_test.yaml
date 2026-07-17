@@ -1,0 +1,110 @@
+suite: predefined affinity presets
+templates:
+  - templates/workloads/deployment.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: omits the affinity block by default
+    set:
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.template.spec.affinity
+
+  - it: renders only podAntiAffinity when generic.usePredefinedAffinity is enabled
+    set:
+      generic.usePredefinedAffinity: true
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - exists:
+          path: spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution
+      - notExists:
+          path: spec.template.spec.affinity.podAffinity
+      - notExists:
+          path: spec.template.spec.affinity.nodeAffinity
+
+  - it: enables presets per workload kind via deploymentsGeneral.usePredefinedAffinity
+    set:
+      deploymentsGeneral.usePredefinedAffinity: true
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - exists:
+          path: spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution
+
+  - it: deploymentsGeneral.usePredefinedAffinity=false overrides an enabled generic value
+    set:
+      generic.usePredefinedAffinity: true
+      deploymentsGeneral.usePredefinedAffinity: false
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.template.spec.affinity
+
+  - it: omits the affinity block entirely when presets are enabled but all empty
+    set:
+      generic.usePredefinedAffinity: true
+      podAntiAffinityPreset: ""
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.template.spec.affinity
+
+  - it: renders podAffinity when podAffinityPreset is set explicitly
+    set:
+      generic.usePredefinedAffinity: true
+      podAffinityPreset: soft
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - exists:
+          path: spec.template.spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution
+      - exists:
+          path: spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution
+
+  - it: renders nodeAffinity when nodeAffinityPreset is configured
+    set:
+      generic.usePredefinedAffinity: true
+      nodeAffinityPreset.type: hard
+      nodeAffinityPreset.key: nodepool
+      nodeAffinityPreset.values: [apps]
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+          value: nodepool
+
+  - it: prefers explicit workload affinity over generated presets
+    set:
+      generic.usePredefinedAffinity: true
+      deployments.app.containers.main.image: nginx:1.27.5
+      deployments.app.affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values: [worker]
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+          value: role
+      - notExists:
+          path: spec.template.spec.affinity.podAntiAffinity
+
+  - it: renders explicit workload affinity even when presets are disabled
+    set:
+      deployments.app.containers.main.image: nginx:1.27.5
+      deployments.app.affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values: [worker]
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+          value: role
