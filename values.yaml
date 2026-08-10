@@ -103,6 +103,9 @@ generic:
   priorityClassName: ""
   # -- Shared DNS policy.
   dnsPolicy: ""
+  # -- Shared dnsConfig applied to all workload pod specs unless overridden per workload.
+  # Example: {options: [{name: ndots, value: "2"}]}
+  dnsConfig: {}
   # -- Shared serviceAccountName used when workload-level value is omitted.
   serviceAccountName: ""
   # -- Shared automountServiceAccountToken used when workload-level value is omitted.

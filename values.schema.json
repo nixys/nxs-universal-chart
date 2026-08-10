@@ -161,6 +161,9 @@
         "dnsPolicy": {
           "$ref": "#/definitions/stringValue"
         },
+        "dnsConfig": {
+          "$ref": "#/definitions/freeFormObject"
+        },
         "serviceAccountName": {
           "$ref": "#/definitions/stringValue"
         },
@@ -1367,6 +1370,9 @@
         },
         "dnsPolicy": {
           "$ref": "#/definitions/stringValue"
+        },
+        "dnsConfig": {
+          "$ref": "#/definitions/freeFormObject"
         },
         "restartPolicy": {
           "$ref": "#/definitions/stringValue"

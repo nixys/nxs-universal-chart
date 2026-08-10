@@ -1,0 +1,9 @@
+# See https://github.com/helm/chart-testing#configuration
+chart-dirs:
+  - .
+github-groups: true
+helm-extra-args: --timeout 600s
+use-helmignore: true
+validate-chart-schema: true
+validate-maintainers: false
+validate-yaml: true

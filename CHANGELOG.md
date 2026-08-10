@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0] - August 10, 2026
+### Added
+* added `dnsConfig` support on workload pod specs (`deployments`, `statefulSets`, `daemonSets`, `pods`, `jobs`, `cronJobs`, `hooks`) with the same per-workload → `generic.dnsConfig` fallback as `dnsPolicy`, and added `dnsConfig` to `values.schema.json` under `generic` and the base workload properties. Values are rendered through `tpl`, so template expressions inside `dnsConfig` are evaluated. Pure addition: nothing is rendered when the value is unset (#124).
+
+### Testing
+* added unit suite `tests/units/dns_config_test.yaml` covering the `generic` fallback, per-workload override, coexistence with `dnsPolicy`, templated values, and all workload kinds.
+
 ## [3.1.1] - July 17, 2026
 ### Added
 * added `revisionHistoryLimit` support for `deployments`, `statefulSets`, and `daemonSets`, including `deploymentsGeneral`, `statefulSetsGeneral`, and `daemonSetsGeneral` fallbacks. An explicitly set `0` is honoured; when unset, the field is omitted and the Kubernetes default (10) applies.

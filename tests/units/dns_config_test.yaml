@@ -1,0 +1,145 @@
+suite: dnsConfig
+templates:
+  - templates/workloads/deployment.yml
+  - templates/workloads/statefulset.yml
+  - templates/workloads/daemonset.yml
+  - templates/batch/job.yml
+  - templates/batch/cronjob.yml
+release:
+  name: smoke-test
+  namespace: default
+
+tests:
+  - it: omits dnsConfig when neither the workload nor generic sets it
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - notExists:
+          path: spec.template.spec.dnsConfig
+
+  - it: renders generic.dnsConfig on a Deployment
+    template: templates/workloads/deployment.yml
+    set:
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig
+          value:
+            options:
+              - name: ndots
+                value: "2"
+
+  - it: renders the per-workload dnsConfig and it wins over generic
+    template: templates/workloads/deployment.yml
+    set:
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      deployments.app.dnsConfig:
+        nameservers:
+          - 10.0.0.10
+        searches:
+          - svc.cluster.local
+        options:
+          - name: ndots
+            value: "1"
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig
+          value:
+            nameservers:
+              - 10.0.0.10
+            searches:
+              - svc.cluster.local
+            options:
+              - name: ndots
+                value: "1"
+
+  - it: renders dnsConfig alongside dnsPolicy
+    template: templates/workloads/deployment.yml
+    set:
+      generic.dnsPolicy: ClusterFirst
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirst
+      - equal:
+          path: spec.template.spec.dnsConfig.options[0].name
+          value: ndots
+
+  - it: supports template expressions inside dnsConfig
+    template: templates/workloads/deployment.yml
+    set:
+      generic.dnsConfig:
+        searches:
+          - '{{ .Release.Namespace }}.svc.cluster.local'
+      deployments.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig.searches[0]
+          value: default.svc.cluster.local
+
+  - it: renders generic.dnsConfig on a StatefulSet
+    template: templates/workloads/statefulset.yml
+    set:
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      statefulSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig.options[0].value
+          value: "2"
+
+  - it: renders generic.dnsConfig on a DaemonSet
+    template: templates/workloads/daemonset.yml
+    set:
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      daemonSets.app.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig.options[0].value
+          value: "2"
+
+  - it: renders the per-workload dnsConfig on a Job
+    template: templates/batch/job.yml
+    set:
+      jobs.migrate.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      jobs.migrate.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsConfig.options[0].value
+          value: "2"
+
+  - it: renders generic.dnsConfig on a CronJob
+    template: templates/batch/cronjob.yml
+    set:
+      generic.dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+      cronJobs.cleanup.schedule: "*/5 * * * *"
+      cronJobs.cleanup.containers.main.image: nginx:1.27.5
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.dnsConfig.options[0].value
+          value: "2"
