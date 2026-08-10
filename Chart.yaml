@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.1.1
+version: 3.2.0
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -25,11 +25,7 @@ annotations:
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
     - kind: added
-      description: "Added: revisionHistoryLimit support for Deployments, StatefulSets and DaemonSets"
-    - kind: fixed
-      description: "Fixed: explicit 'replicas: 0' on Deployments and StatefulSets is no longer rendered as 1"
-    - kind: changed
-      description: "Changed: predefined affinity presets are disabled by default (generic.usePredefinedAffinity: false)"
+      description: "Added: dnsConfig support on workload pod specs with generic.dnsConfig fallback"
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart

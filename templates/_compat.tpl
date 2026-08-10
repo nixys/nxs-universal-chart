@@ -896,6 +896,11 @@ dnsPolicy: {{ .dnsPolicy }}
 {{- else if $.Values.generic.dnsPolicy }}
 dnsPolicy: {{ $.Values.generic.dnsPolicy }}
 {{- end }}
+{{- if .dnsConfig }}
+dnsConfig: {{- include "helpers.tplvalues.render" (dict "value" .dnsConfig "context" $) | nindent 2 }}
+{{- else if $.Values.generic.dnsConfig }}
+dnsConfig: {{- include "helpers.tplvalues.render" (dict "value" $.Values.generic.dnsConfig "context" $) | nindent 2 }}
+{{- end }}
 {{- with .restartPolicy }}
 restartPolicy: {{ . }}
 {{- end }}
