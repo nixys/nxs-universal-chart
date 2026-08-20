@@ -309,7 +309,7 @@
       "$ref": "#/definitions/stringValue"
     },
     "defaultImageTag": {
-      "$ref": "#/definitions/stringValue"
+      "$ref": "#/definitions/stringOrNumberValue"
     },
     "defaultImagePullPolicy": {
       "$ref": "#/definitions/stringValue"
@@ -406,6 +406,9 @@
     },
     "stringValue": {
       "type": "string"
+    },
+    "stringOrNumberValue": {
+      "type": ["string", "number", "boolean"]
     },
     "enabledToggle": {
       "type": "object",
@@ -523,7 +526,7 @@
           "$ref": "#/definitions/stringValue"
         },
         "imageTag": {
-          "$ref": "#/definitions/stringValue"
+          "$ref": "#/definitions/stringOrNumberValue"
         },
         "imagePullPolicy": {
           "$ref": "#/definitions/stringValue"

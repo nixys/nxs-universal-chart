@@ -1,0 +1,13 @@
+nameOverride: app
+
+defaultImage: nginx
+defaultImageTag: 20250811
+
+deployments:
+  numeric-tag:
+    containers:
+      - name: app
+    initContainers:
+      - name: init
+        image: busybox
+        imageTag: 1755000000
