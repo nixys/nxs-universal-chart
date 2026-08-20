@@ -236,7 +236,7 @@ Schema matching note:
 | `diagnosticMode.command` | `diagnosticMode.command: ["sleep"]` | `["sleep"]` | Command used in diagnostic mode. |
 | `diagnosticMode.args` | `diagnosticMode.args: ["infinity"]` | `["infinity"]` | Args used in diagnostic mode. |
 | `defaultImage` | `defaultImage: "nginx"` | `"nginx"` | Default image when a container omits `image`. |
-| `defaultImageTag` | `defaultImageTag: "latest"` | `"latest"` | Default tag when a container omits `imageTag`. |
+| `defaultImageTag` | `defaultImageTag: "latest"` | `"latest"` | Default tag when a container omits `imageTag`. Numeric values (e.g. a numeric CI commit SHA) are accepted and rendered as strings. |
 | `defaultImagePullPolicy` | `defaultImagePullPolicy: "IfNotPresent"` | `"IfNotPresent"` | Default pull policy when container-level field is omitted. |
 
 ### Workload Families (Top-Level Maps)
@@ -298,7 +298,7 @@ These fields apply to each entry in `containers` and `initContainers`.
 | Field | Example | Default | Description |
 |---|---|---|---|
 | `name` | `name: api` | deterministic fallback | Explicit container name. |
-| `image` / `imageTag` | `image: nginx`, `imageTag: "1.27.5"` | `defaultImage` / `defaultImageTag` | Image and tag for container. |
+| `image` / `imageTag` | `image: nginx`, `imageTag: "1.27.5"` | `defaultImage` / `defaultImageTag` | Image and tag for container. `imageTag` also accepts numeric values, which are rendered as strings. |
 | `imagePullPolicy` | `imagePullPolicy: IfNotPresent` | `defaultImagePullPolicy` | Pull policy override for container. |
 | `command` / `args` | `command: ["sh","-c"]`, `args: ["sleep 3600"]` | `n/a` | Command and args (also overridden by diagnostic mode). |
 | `env`, `envFrom` | `env: [{name: APP_MODE, value: prod}]` | `n/a` | Native env/envFrom blocks. |

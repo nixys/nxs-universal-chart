@@ -1,0 +1,29 @@
+suite: numeric image tags
+release:
+  name: test
+  namespace: default
+
+tests:
+  - it: renders numeric defaultImageTag as plain string
+    template: templates/workloads/deployment.yml
+    values:
+      - values/numeric_image_tag.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-numeric-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: nginx:20250811
+
+  - it: renders numeric container imageTag as plain string
+    template: templates/workloads/deployment.yml
+    values:
+      - values/numeric_image_tag.values.yaml
+    documentSelector:
+      path: metadata.name
+      value: app-numeric-tag
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: busybox:1755000000
