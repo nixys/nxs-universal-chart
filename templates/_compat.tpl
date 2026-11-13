@@ -40,14 +40,57 @@ Remove these once the dependency includes the same fixes.
 {{- end -}}
 {{- end -}}
 
-{{- define "helpers.app.selectorLabels" -}}
+{{- define "helpers.app.defaultSelectorLabels" -}}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{ include "helpers.app.genericSelectorLabels" $ }}
+{{- end -}}
+
+{{- define "helpers.app.selectorLabels" -}}
+{{- $useDefaults := true -}}
+{{- if and .Values.generic (hasKey .Values.generic "useDefaultSelectorLabels") -}}
+{{- $useDefaults = .Values.generic.useDefaultSelectorLabels -}}
+{{- end -}}
+{{- $labels := include "helpers.app.genericSelectorLabels" . | fromYaml -}}
+{{- if $useDefaults -}}
+{{- $labels = merge $labels (include "helpers.app.defaultSelectorLabels" . | fromYaml) -}}
+{{- end -}}
+{{- with $labels }}{{ toYaml . }}{{ end -}}
+{{- end -}}
+
+{{- define "helpers.app.matchLabels" -}}
+{{- $labels := include "helpers.app.selectorLabels" .context | fromYaml -}}
+{{- with .value }}
+{{- $labels = merge (include "helpers.tplvalues.render" (dict "value" . "context" $.context) | fromYaml) $labels -}}
+{{- end -}}
+{{- if not $labels -}}
+{{- fail (printf "%s: selector is empty, set extraSelectorLabels when generic.useDefaultSelectorLabels is false" .resource) -}}
+{{- end -}}
+{{ toYaml $labels }}
+{{- end -}}
+
+{{- define "helpers.app.podSelectorLabels" -}}
+{{- $labels := merge (include "helpers.app.genericSelectorLabels" .context | fromYaml) (include "helpers.app.defaultSelectorLabels" .context | fromYaml) -}}
+{{- with .value }}
+{{- $labels = merge (include "helpers.tplvalues.render" (dict "value" . "context" $.context) | fromYaml) $labels -}}
+{{- end -}}
+{{ toYaml $labels }}
+{{- end -}}
+
+{{- define "helpers.affinities.pods.labelSelector" -}}
+{{- $labels := merge (dict) (default dict .extraLabels) (include "helpers.app.selectorLabels" .context | fromYaml) -}}
+{{- if not $labels -}}
+{{- fail "pod affinity preset: selector is empty, set generic.extraSelectorLabels when generic.useDefaultSelectorLabels is false" -}}
+{{- end -}}
+labelSelector:
+  matchLabels:
+    {{- toYaml $labels | nindent 4 }}
+namespaces:
+  - {{ .context.Release.Namespace | quote }}
+topologyKey: kubernetes.io/hostname
 {{- end -}}
 
 {{- define "helpers.app.labels" -}}
-{{ include "helpers.app.selectorLabels" . }}
+{{ merge (include "helpers.app.genericSelectorLabels" . | fromYaml) (include "helpers.app.defaultSelectorLabels" . | fromYaml) | toYaml }}
 helm.sh/chart: {{ include "helpers.app.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}

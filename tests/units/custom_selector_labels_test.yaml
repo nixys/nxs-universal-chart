@@ -1,0 +1,237 @@
+suite: custom selector labels
+templates:
+  - templates/batch/job.yml
+  - templates/workloads/deployment.yml
+  - templates/workloads/daemonset.yml
+  - templates/workloads/statefulset.yml
+  - templates/networking/svc.yml
+  - templates/observability/pdb.yaml
+release:
+  name: selector-test
+  namespace: unit-namespace
+
+tests:
+  - it: preserves default selectors when the option is omitted
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.api.containers.main.image: nginx
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+
+  - it: uses custom Deployment selectors and keeps standard pod and metadata labels
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/workloads/deployment.yml
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: api
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+            app: selector-test-legacy
+            component: api
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: selector-test
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: selector-test
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+
+  - it: uses custom DaemonSet selectors and keeps standard pod labels
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/workloads/daemonset.yml
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: agent
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+            app: selector-test-legacy
+            component: agent
+
+  - it: uses custom StatefulSet selectors and keeps standard pod labels
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/workloads/statefulset.yml
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: worker
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+            app: selector-test-legacy
+            component: worker
+
+  - it: selects Deployment pods with the custom Service selector
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/networking/svc.yml
+    documentSelector:
+      path: metadata.name
+      value: selector-test-api
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app: selector-test-legacy
+            component: api
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: selector-test
+
+  - it: selects StatefulSet pods with the generated governing Service
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/networking/svc.yml
+    documentSelector:
+      path: metadata.name
+      value: selector-test-worker
+    asserts:
+      - equal:
+          path: spec.clusterIP
+          value: None
+      - equal:
+          path: spec.selector
+          value:
+            app: selector-test-legacy
+            component: worker
+
+  - it: uses the custom PDB selector
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/observability/pdb.yaml
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: api
+
+  - it: uses the custom selector for both predefined pod affinity presets
+    values:
+      - values/custom_selector_labels.values.yaml
+    template: templates/workloads/deployment.yml
+    set:
+      generic.usePredefinedAffinity: true
+      podAffinityPreset: soft
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: api
+      - equal:
+          path: spec.template.spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchLabels
+          value:
+            app: selector-test-legacy
+            component: api
+
+  - it: supports resource-only selectors and additional pod labels
+    template: templates/workloads/deployment.yml
+    set:
+      generic.useDefaultSelectorLabels: false
+      deployments.api.extraSelectorLabels.app: legacy-api
+      deployments.api.podLabels.team: platform
+      deployments.api.containers.main.image: nginx
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: legacy-api
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: selector-test
+            app.kubernetes.io/instance: selector-test
+            app: legacy-api
+            team: platform
+
+  - it: fails when a Deployment selector is empty
+    template: templates/workloads/deployment.yml
+    set:
+      generic.useDefaultSelectorLabels: false
+      deployments.api.containers.main.image: nginx
+    asserts:
+      - failedTemplate:
+          errorMessage: "deployments.api: selector is empty, set extraSelectorLabels when generic.useDefaultSelectorLabels is false"
+
+  - it: fails when a Service selector is empty
+    template: templates/networking/svc.yml
+    set:
+      generic.useDefaultSelectorLabels: false
+      services.api.ports[0].port: 80
+    asserts:
+      - failedTemplate:
+          errorMessage: "services.api: selector is empty, set extraSelectorLabels when generic.useDefaultSelectorLabels is false"
+
+  - it: fails when a PDB selector is empty
+    template: templates/observability/pdb.yaml
+    set:
+      generic.useDefaultSelectorLabels: false
+      pdbs.api.minAvailable: 1
+    asserts:
+      - failedTemplate:
+          errorMessage: "pdbs.api: selector is empty, set extraSelectorLabels when generic.useDefaultSelectorLabels is false"
+
+  - it: fails when a pod affinity preset selector is empty
+    template: templates/batch/job.yml
+    set:
+      generic.useDefaultSelectorLabels: false
+      generic.usePredefinedAffinity: true
+      podAntiAffinityPreset: hard
+      jobs.migrate.containers.main.image: busybox
+    asserts:
+      - failedTemplate:
+          errorMessage: "pod affinity preset: selector is empty, set generic.extraSelectorLabels when generic.useDefaultSelectorLabels is false"
+
+  - it: lets extraSelectorLabels override standard label values without duplicate keys
+    template: templates/workloads/deployment.yml
+    set:
+      generic.useDefaultSelectorLabels: false
+      generic.extraSelectorLabels:
+        app.kubernetes.io/name: legacy-name
+      deployments.api.extraSelectorLabels.component: api
+      deployments.api.containers.main.image: nginx
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: legacy-name
+            component: api
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: legacy-name
+            app.kubernetes.io/instance: selector-test
+            component: api
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: legacy-name

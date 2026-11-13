@@ -59,6 +59,8 @@ generic:
   deterministicNames: true
   # -- Add checksum annotations for ConfigMaps and Secrets referenced by each workload to its pod template.
   autoRolloutChecksums: true
+  # -- Include app.kubernetes.io/name and app.kubernetes.io/instance in selectors. Set to false to select only by extraSelectorLabels.
+  useDefaultSelectorLabels: true
   # -- Extra selector labels merged into selectors and workload pod labels.
   extraSelectorLabels: {}
   # -- Extra labels merged into all workload pods.

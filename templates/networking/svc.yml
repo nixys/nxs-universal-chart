@@ -60,8 +60,7 @@ spec:
       {{- end }}
     {{- end }}
   selector:
-    {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
-    {{- with $service.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.matchLabels" (dict "value" $service.extraSelectorLabels "resource" (printf "services.%s" $name) "context" $) | nindent 4 }}
 {{ end }}
 {{- end }}
 
@@ -89,8 +88,7 @@ spec:
   ports:
     {{- include "helpers.statefulsets.governingServicePorts" (dict "name" $name "statefulSet" $statefulSet "context" $) | nindent 4 }}
   selector:
-    {{- include "helpers.app.selectorLabels" $ | nindent 4 }}
-    {{- with $statefulSet.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}{{- end }}
+    {{- include "helpers.app.matchLabels" (dict "value" $statefulSet.extraSelectorLabels "resource" (printf "statefulSets.%s" $name) "context" $) | nindent 4 }}
 {{- end }}
 {{- end }}
 {{- end }}

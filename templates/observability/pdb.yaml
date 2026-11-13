@@ -28,7 +28,6 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
-      {{- with $pdb.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+      {{- include "helpers.app.matchLabels" (dict "value" $pdb.extraSelectorLabels "resource" (printf "pdbs.%s" $name) "context" $) | nindent 6 }}
 {{- end }}
 {{- end }}

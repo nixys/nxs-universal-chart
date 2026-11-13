@@ -192,6 +192,7 @@ Schema matching note:
 | `generic.nameSuffix` | `generic.nameSuffix: "blue"` | `""` | Suffix appended to deterministic base name. |
 | `generic.deterministicNames` | `generic.deterministicNames: true` | `true` | Enables deterministic fallback names for unnamed containers/initContainers. |
 | `generic.autoRolloutChecksums` | `generic.autoRolloutChecksums: true` | `true` | Adds checksum pod annotations for ConfigMaps/Secrets referenced by each workload. |
+| `generic.useDefaultSelectorLabels` | `generic.useDefaultSelectorLabels: false` | `true` | Includes `app.kubernetes.io/name` and `app.kubernetes.io/instance` in selectors. Set to `false` to select only by `extraSelectorLabels`; pods keep the standard labels. `extraSelectorLabels` keys override standard label values. Rendering fails if a selector, including a pod affinity preset selector, is empty. Selectors without `instance` can overlap with other releases in the namespace. Changing selectors of existing workloads requires recreating them. |
 | `generic.extraSelectorLabels` | `generic.extraSelectorLabels.tenant: "shared"` | `{}` | Extra labels merged into selectors and pod labels. |
 | `generic.podLabels` | `generic.podLabels.tier: "backend"` | `{}` | Labels applied to all workload pod templates. |
 | `generic.podAnnotations` | `generic.podAnnotations.rendered-from: "values"` | `{}` | Annotations applied to all workload pod templates. |
