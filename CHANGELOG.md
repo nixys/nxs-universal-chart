@@ -1,8 +1,21 @@
 # Changelog
 
-## [3.2.3] - Unreleased
+## [3.2.4] - November 13, 2026
 ### Added
-* `pdbs.<name>.unhealthyPodEvictionPolicy` is passed through to PodDisruptionBudget `spec.unhealthyPodEvictionPolicy` (`IfHealthyBudget` or `AlwaysAllow`). Omitted when unset, so existing manifests do not change. Rendering fails with a clear error when it is set and the cluster only supports `policy/v1beta1`
+* `generic.useDefaultSelectorLabels` (default `true`). When set to `false`, `app.kubernetes.io/name` and `app.kubernetes.io/instance` are omitted from selectors of Deployments, StatefulSets, DaemonSets, Services (including the generated StatefulSet governing Service), PDBs and predefined pod affinity presets, and selectors are built from `generic.extraSelectorLabels` and resource-level `extraSelectorLabels`. This allows adopting existing workloads whose immutable selectors do not match the chart defaults. Pods and resource metadata keep the standard labels. Rendering fails with a clear error when a selector would be empty ([#136](https://github.com/nixys/nxs-universal-chart/pull/136), by @rift0nix)
+* `pdbs.<name>.unhealthyPodEvictionPolicy` is passed through to PodDisruptionBudget `spec.unhealthyPodEvictionPolicy` (`IfHealthyBudget` or `AlwaysAllow`), so running but not Ready pods no longer have to block node drains. Omitted when unset. Rendering fails with a clear error when it is set and the cluster only supports `policy/v1beta1`. The field is honored by Kubernetes 1.27+ (beta, enabled by default; GA in 1.31) ([#137](https://github.com/nixys/nxs-universal-chart/pull/137), by @pkieszcz)
+
+### Changed
+* `extraSelectorLabels` keys that match a standard label (`app.kubernetes.io/name`, `app.kubernetes.io/instance`) now override its value instead of rendering a duplicate key. Labels in selectors and pod templates are rendered in alphabetical order; with default values the rendered objects are otherwise unchanged
+
+### Upgrade notes
+* Selectors of existing Deployments, StatefulSets and DaemonSets are immutable. Toggling `generic.useDefaultSelectorLabels` (or changing `extraSelectorLabels`) on a live release fails for them while Services and PDBs may already be updated; use `--rollback-on-failure` (`--atomic` in Helm 3) or recreate the workloads. Selectors without `app.kubernetes.io/instance` can overlap with other releases in the same namespace
+
+## [3.2.3] - October 14, 2026
+### Changed
+* Rotated the cosign key that signs the chart and its `nuc-*` subcharts. `artifacthub.io/signKey` now points to fingerprint `6DC59A12500AE4BA79BE0CE5552634D6847EB0CF3C05D3751183F57D27A1E7AC`; the public key is served at https://registry.nixys.io/signkey/cosign.pub. Releases signed before 3.2.3 must be verified with the previous key
+* `nuc-*` dependencies bumped to patch releases signed with the new key. The subchart templates are unchanged, except that `nuc-native-gateway` drops `sessionPersistence.idleTimeout` from its example values (the field was removed in Gateway API 1.6)
+* CI and smoke tests pin the `datreeio/CRDs-catalog` commit used by kubeconform instead of following `main`
 
 ## [3.2.2] - September 22, 2026
 ### Added

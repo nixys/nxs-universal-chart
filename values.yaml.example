@@ -412,7 +412,6 @@ ingresses:
 pdbs:
   api:
     minAvailable: 1
-    unhealthyPodEvictionPolicy: AlwaysAllow
     labels:
       component: api
     extraSelectorLabels:

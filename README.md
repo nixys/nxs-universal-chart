@@ -84,29 +84,29 @@ The chart also declares reusable dependency subcharts. `nuc-common` is always lo
 | Subchart | Version | Enabled by | Source chart | Includes |
 |----------|---------|------------|--------------|----------|
 | `nuc-common` | `1.0.5` | always | [nuc-common](https://github.com/nixys/nuc-common) | Shared Helm library helpers for capability detection, pod/workload rendering, labels, templating, configmaps, secrets, ingress, volumes, and deprecation notices. |
-| `nuc-traefik` | `1.0.5` | `nuc-traefik.enabled` | [nuc-traefik](https://github.com/nixys/nuc-traefik) | Traefik CRDs: `IngressRoute`, `IngressRouteTCP`, `IngressRouteUDP`, `Middleware`, `MiddlewareTCP`, `TLSOption`, `TLSStore`, `ServersTransport`, `ServersTransportTCP`, and `TraefikService`. |
-| `nuc-certificates` | `1.0.4` | `nuc-certificates.enabled` | [nuc-certificates](https://github.com/nixys/nuc-certificates) | cert-manager resources: `Certificate`, `CertificateRequest`, `Issuer`, `ClusterIssuer`, `Challenge`, and `Order`. |
-| `nuc-istio` | `1.0.5` | `nuc-istio.enabled` | [nuc-istio](https://github.com/nixys/nuc-istio) | Istio traffic-management resources: `Gateway`, `VirtualService`, and `DestinationRule`. |
-| `nuc-fluxcd` | `1.0.4` | `nuc-fluxcd.enabled` | [nuc-fluxcd](https://github.com/nixys/nuc-fluxcd) | Flux CD resources: `GitRepository`, `Kustomization`, `HelmRepository`, `HelmRelease`, `OCIRepository`, image automation, and notification resources. |
-| `nuc-knative` | `1.0.5` | `nuc-knative.enabled` | [nuc-knative](https://github.com/nixys/nuc-knative) | Knative Serving resources including `Service`, `Route`, `Configuration`, `Revision`, `Ingress`, `PodAutoscaler`, `ServerlessService`, `DomainMapping`, and related serving objects. |
-| `nuc-kserve` | `1.0.4` | `nuc-kserve.enabled` | [nuc-kserve](https://github.com/nixys/nuc-kserve) | KServe resources such as `InferenceService`, `InferenceGraph`, `ServingRuntime`, `ClusterServingRuntime`, `TrainedModel`, and model cache/storage CRDs. |
-| `nuc-kube-prometheus-stack` | `1.0.5` | `nuc-kube-prometheus-stack.enabled` | [nuc-kube-prometheus-stack](https://github.com/nixys/nuc-kube-prometheus-stack) | Prometheus Operator monitoring resources: `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, and `ServiceMonitor`. |
-| `nuc-native-gateway` | `1.0.6` | `nuc-native-gateway.enabled` | [nuc-native-gateway](https://github.com/nixys/nuc-native-gateway) | Gateway API resources: `GatewayClass`, `Gateway`, `HTTPRoute`, `GRPCRoute`, `TLSRoute`, `ReferenceGrant`, `BackendTLSPolicy`, and `ListenerSet`. |
-| `nuc-envoy-gateway` | `1.0.1` | `global.nuc-envoy-gateway.enabled` | [nuc-envoy-gateway](https://github.com/nixys/nuc-envoy-gateway) | Envoy Gateway extension resources: `Backend`, `BackendTrafficPolicy`, `ClientTrafficPolicy`, `EnvoyExtensionPolicy`, `EnvoyPatchPolicy`, `EnvoyProxy`, `HTTPRouteFilter`, and `SecurityPolicy`. |
-| `nuc-victoria-metrics` | `1.0.4` | `nuc-victoria-metrics.enabled` | [nuc-victoria-metrics](https://github.com/nixys/nuc-victoria-metrics) | VictoriaMetrics Operator resources: `VMAlert`, `VMRule`, `VMProbe`, `VMScrapeConfig`, `VMServiceScrape`, and `VMStaticScrape`. |
-| `nuc-vault-secret-operator` | `1.0.5` | `nuc-vault-secret-operator.enabled` | [nuc-vault-secret-operator](https://github.com/nixys/nuc-vault-secret-operator) | Vault Secret Operator resources: `VaultAuth` and `VaultStaticSecret`. |
-| `nuc-argocd` | `1.0.4` | `nuc-argocd.enabled` | [nuc-argocd](https://github.com/nixys/nuc-argocd) | Argo CD resources: `Application`, `ApplicationSet`, and `AppProject`. |
-| `nuc-keda` | `1.0.4` | `nuc-keda.enabled` | [nuc-keda](https://github.com/nixys/nuc-keda) | KEDA autoscaling resources: `ScaledObject`, `ScaledJob`, `TriggerAuthentication`, and `ClusterTriggerAuthentication`. |
-| `nuc-cloudnativepg` | `1.0.0` | `nuc-cloudnativepg.enabled` | [nuc-cloudnativepg](https://github.com/nixys/nuc-cloudnativepg) | CloudNativePG resources: `Backup`, `ClusterImageCatalog`, `Cluster`, `Database`, `FailoverQuorum`, `ImageCatalog`, `Pooler`, `Publication`, `ScheduledBackup`, and `Subscription`. |
-| `nuc-mysql-percona-operator` | `1.0.0` | `nuc-mysql-percona-operator.enabled` | [nuc-mysql-percona-operator](https://github.com/nixys/nuc-mysql-percona-operator) | Percona XtraDB Cluster Operator resources: `PerconaXtraDBCluster`, `PerconaXtraDBClusterBackup`, and `PerconaXtraDBClusterRestore`. |
-| `nuc-rabbitmq` | `1.0.1` | `nuc-rabbitmq.enabled` | [nuc-rabbitmq](https://github.com/nixys/nuc-rabbitmq) | RabbitMQ Cluster Operator and Messaging Topology Operator resources: `RabbitmqCluster`, `Queue`, `Policy`, `Exchange`, `Binding`, `User`, `Permission`, `Vhost`, `Federation`, and `Shovel`. |
-| `nuc-clickhouse` | `1.0.1` | `nuc-clickhouse.enabled` | [nuc-clickhouse](https://github.com/nixys/nuc-clickhouse) | Altinity ClickHouse Operator resources: `ClickHouseInstallation`, `ClickHouseInstallationTemplate`, `ClickHouseOperatorConfiguration`, and `ClickHouseKeeperInstallation`. |
-| `nuc-elk` | `1.0.0` | `nuc-elk.enabled` | [nuc-elk](https://github.com/nixys/nuc-elk) | Elastic Cloud on Kubernetes resources: `Elasticsearch`, `Kibana`, `ApmServer`, `Beat`, `Agent`, `EnterpriseSearch`, `ElasticMapsServer`, and `Logstash`. |
-| `nuc-external-secrets` | `1.1.0` | `nuc-external-secrets.enabled` | [nuc-external-secrets](https://github.com/nixys/nuc-external-secrets) | External Secrets Operator resources: `ExternalSecret`, `SecretStore`, `ClusterSecretStore`, push secrets, and generator resources. |
-| `nuc-mongodb-percona-operator` | `1.0.0` | `nuc-mongodb-percona-operator.enabled` | [nuc-mongodb-percona-operator](https://github.com/nixys/nuc-mongodb-percona-operator) | Percona Server for MongoDB Operator resources: `PerconaServerMongoDB`, `PerconaServerMongoDBBackup`, and `PerconaServerMongoDBRestore`. |
-| `nuc-valkey` | `1.0.0` | `nuc-valkey.enabled` | [nuc-valkey](https://github.com/nixys/nuc-valkey) | Valkey Operator resources: `ValkeyCluster` and `ValkeyNode`. |
-| `nuc-keycloak-operator` | `1.0.1` | `nuc-keycloak-operator.enabled` | [nuc-keycloak-operator](https://github.com/nixys/nuc-keycloak-operator) | Keycloak Operator resources: `Keycloak` and `KeycloakRealmImport`. |
-| `nuc-strimzi-kafka-operator` | `1.0.0` | `nuc-strimzi-kafka-operator.enabled` | [nuc-strimzi-kafka-operator](https://github.com/nixys/nuc-strimzi-kafka-operator) | Strimzi Kafka Operator resources: `Kafka`, `KafkaTopic`, `KafkaUser`, `KafkaConnect`, `KafkaBridge`, `KafkaMirrorMaker2`, and `KafkaRebalance`. |
+| `nuc-traefik` | `1.0.6` | `nuc-traefik.enabled` | [nuc-traefik](https://github.com/nixys/nuc-traefik) | Traefik CRDs: `IngressRoute`, `IngressRouteTCP`, `IngressRouteUDP`, `Middleware`, `MiddlewareTCP`, `TLSOption`, `TLSStore`, `ServersTransport`, `ServersTransportTCP`, and `TraefikService`. |
+| `nuc-certificates` | `1.0.5` | `nuc-certificates.enabled` | [nuc-certificates](https://github.com/nixys/nuc-certificates) | cert-manager resources: `Certificate`, `CertificateRequest`, `Issuer`, `ClusterIssuer`, `Challenge`, and `Order`. |
+| `nuc-istio` | `1.0.6` | `nuc-istio.enabled` | [nuc-istio](https://github.com/nixys/nuc-istio) | Istio traffic-management resources: `Gateway`, `VirtualService`, and `DestinationRule`. |
+| `nuc-fluxcd` | `1.0.5` | `nuc-fluxcd.enabled` | [nuc-fluxcd](https://github.com/nixys/nuc-fluxcd) | Flux CD resources: `GitRepository`, `Kustomization`, `HelmRepository`, `HelmRelease`, `OCIRepository`, image automation, and notification resources. |
+| `nuc-knative` | `1.0.6` | `nuc-knative.enabled` | [nuc-knative](https://github.com/nixys/nuc-knative) | Knative Serving resources including `Service`, `Route`, `Configuration`, `Revision`, `Ingress`, `PodAutoscaler`, `ServerlessService`, `DomainMapping`, and related serving objects. |
+| `nuc-kserve` | `1.0.5` | `nuc-kserve.enabled` | [nuc-kserve](https://github.com/nixys/nuc-kserve) | KServe resources such as `InferenceService`, `InferenceGraph`, `ServingRuntime`, `ClusterServingRuntime`, `TrainedModel`, and model cache/storage CRDs. |
+| `nuc-kube-prometheus-stack` | `1.0.6` | `nuc-kube-prometheus-stack.enabled` | [nuc-kube-prometheus-stack](https://github.com/nixys/nuc-kube-prometheus-stack) | Prometheus Operator monitoring resources: `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, and `ServiceMonitor`. |
+| `nuc-native-gateway` | `1.0.7` | `nuc-native-gateway.enabled` | [nuc-native-gateway](https://github.com/nixys/nuc-native-gateway) | Gateway API resources: `GatewayClass`, `Gateway`, `HTTPRoute`, `GRPCRoute`, `TLSRoute`, `ReferenceGrant`, `BackendTLSPolicy`, and `ListenerSet`. |
+| `nuc-envoy-gateway` | `1.0.2` | `global.nuc-envoy-gateway.enabled` | [nuc-envoy-gateway](https://github.com/nixys/nuc-envoy-gateway) | Envoy Gateway extension resources: `Backend`, `BackendTrafficPolicy`, `ClientTrafficPolicy`, `EnvoyExtensionPolicy`, `EnvoyPatchPolicy`, `EnvoyProxy`, `HTTPRouteFilter`, and `SecurityPolicy`. |
+| `nuc-victoria-metrics` | `1.0.5` | `nuc-victoria-metrics.enabled` | [nuc-victoria-metrics](https://github.com/nixys/nuc-victoria-metrics) | VictoriaMetrics Operator resources: `VMAlert`, `VMRule`, `VMProbe`, `VMScrapeConfig`, `VMServiceScrape`, and `VMStaticScrape`. |
+| `nuc-vault-secret-operator` | `1.0.6` | `nuc-vault-secret-operator.enabled` | [nuc-vault-secret-operator](https://github.com/nixys/nuc-vault-secret-operator) | Vault Secret Operator resources: `VaultAuth` and `VaultStaticSecret`. |
+| `nuc-argocd` | `1.0.5` | `nuc-argocd.enabled` | [nuc-argocd](https://github.com/nixys/nuc-argocd) | Argo CD resources: `Application`, `ApplicationSet`, and `AppProject`. |
+| `nuc-keda` | `1.0.5` | `nuc-keda.enabled` | [nuc-keda](https://github.com/nixys/nuc-keda) | KEDA autoscaling resources: `ScaledObject`, `ScaledJob`, `TriggerAuthentication`, and `ClusterTriggerAuthentication`. |
+| `nuc-cloudnativepg` | `1.0.1` | `nuc-cloudnativepg.enabled` | [nuc-cloudnativepg](https://github.com/nixys/nuc-cloudnativepg) | CloudNativePG resources: `Backup`, `ClusterImageCatalog`, `Cluster`, `Database`, `FailoverQuorum`, `ImageCatalog`, `Pooler`, `Publication`, `ScheduledBackup`, and `Subscription`. |
+| `nuc-mysql-percona-operator` | `1.0.1` | `nuc-mysql-percona-operator.enabled` | [nuc-mysql-percona-operator](https://github.com/nixys/nuc-mysql-percona-operator) | Percona XtraDB Cluster Operator resources: `PerconaXtraDBCluster`, `PerconaXtraDBClusterBackup`, and `PerconaXtraDBClusterRestore`. |
+| `nuc-rabbitmq` | `1.0.2` | `nuc-rabbitmq.enabled` | [nuc-rabbitmq](https://github.com/nixys/nuc-rabbitmq) | RabbitMQ Cluster Operator and Messaging Topology Operator resources: `RabbitmqCluster`, `Queue`, `Policy`, `Exchange`, `Binding`, `User`, `Permission`, `Vhost`, `Federation`, and `Shovel`. |
+| `nuc-clickhouse` | `1.0.2` | `nuc-clickhouse.enabled` | [nuc-clickhouse](https://github.com/nixys/nuc-clickhouse) | Altinity ClickHouse Operator resources: `ClickHouseInstallation`, `ClickHouseInstallationTemplate`, `ClickHouseOperatorConfiguration`, and `ClickHouseKeeperInstallation`. |
+| `nuc-elk` | `1.0.1` | `nuc-elk.enabled` | [nuc-elk](https://github.com/nixys/nuc-elk) | Elastic Cloud on Kubernetes resources: `Elasticsearch`, `Kibana`, `ApmServer`, `Beat`, `Agent`, `EnterpriseSearch`, `ElasticMapsServer`, and `Logstash`. |
+| `nuc-external-secrets` | `1.1.1` | `nuc-external-secrets.enabled` | [nuc-external-secrets](https://github.com/nixys/nuc-external-secrets) | External Secrets Operator resources: `ExternalSecret`, `SecretStore`, `ClusterSecretStore`, push secrets, and generator resources. |
+| `nuc-mongodb-percona-operator` | `1.0.1` | `nuc-mongodb-percona-operator.enabled` | [nuc-mongodb-percona-operator](https://github.com/nixys/nuc-mongodb-percona-operator) | Percona Server for MongoDB Operator resources: `PerconaServerMongoDB`, `PerconaServerMongoDBBackup`, and `PerconaServerMongoDBRestore`. |
+| `nuc-valkey` | `1.0.1` | `nuc-valkey.enabled` | [nuc-valkey](https://github.com/nixys/nuc-valkey) | Valkey Operator resources: `ValkeyCluster` and `ValkeyNode`. |
+| `nuc-keycloak-operator` | `1.0.3` | `nuc-keycloak-operator.enabled` | [nuc-keycloak-operator](https://github.com/nixys/nuc-keycloak-operator) | Keycloak Operator resources: `Keycloak` and `KeycloakRealmImport`. |
+| `nuc-strimzi-kafka-operator` | `1.0.1` | `nuc-strimzi-kafka-operator.enabled` | [nuc-strimzi-kafka-operator](https://github.com/nixys/nuc-strimzi-kafka-operator) | Strimzi Kafka Operator resources: `Kafka`, `KafkaTopic`, `KafkaUser`, `KafkaConnect`, `KafkaBridge`, `KafkaMirrorMaker2`, and `KafkaRebalance`. |
 
 ## Values Model
 
@@ -246,13 +246,13 @@ Schema matching note:
 
 | Field | Example | Default | Description |
 |---|---|---|---|
-| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`. |
+| `deploymentsGeneral` | `deploymentsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Deployment entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `progressDeadlineSeconds`, `revisionHistoryLimit`. |
 | `deployments` | `deployments.api.replicas: 2` | `{}` | Deployment resources keyed by suffix. |
 | `daemonSetsGeneral` | `daemonSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all DaemonSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `revisionHistoryLimit`. |
 | `daemonSets` | `daemonSets.node-agent.containers.agent.image: busybox` | `{}` | DaemonSet resources keyed by suffix. |
 | `podsGeneral` | `podsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all Pod entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields). |
 | `pods` | `pods.toolbox.containers.toolbox.image: busybox` | `{}` | Pod resources keyed by suffix. |
-| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`. |
+| `statefulSetsGeneral` | `statefulSetsGeneral.resources.requests.cpu: 100m` | `{}` | Shared defaults applied to all StatefulSet entries. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `strategy`, `minReadySeconds`, `volumeClaimTemplates`, `revisionHistoryLimit`. |
 | `statefulSets` | `statefulSets.worker.serviceName: headless` | `{}` | StatefulSet resources keyed by suffix. |
 | `jobsGeneral` | `jobsGeneral.backoffLimit: 1` | `{}` | Shared defaults applied to one-shot Jobs. Supports all [Common Workload Entry Fields](#common-workload-entry-fields) plus `parallelism`, `completions`, `activeDeadlineSeconds`, `backoffLimit`, `ttlSecondsAfterFinished`, `restartPolicy`, `commandDurationAlert`, `commandDurationAlertNamespace`. |
 | `jobs` | `jobs.migrate.containers.migrate.image: busybox` | `{}` | One-shot batch jobs keyed by suffix, or one raw templated YAML string. |
@@ -327,6 +327,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `deployments.<name>.replicas` | `replicas: 3` | Kubernetes default (`1`) | Number of desired deployment replicas. The field is omitted when unset, and also when an enabled `hpas.<name>` entry targets this Deployment (`scaleTargetRef.kind: Deployment`), so the HPA keeps ownership of the replica count across Helm upgrades. |
 | `deployments.<name>.strategy` | `strategy.rollingUpdate.maxUnavailable: 1` | `n/a` | Deployment strategy block. |
 | `deployments.<name>.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `600` | Rollout progress deadline in seconds. |
+| `deployments.<name>.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Number of old ReplicaSets retained for rollback. Defaults to the Kubernetes default (10) when unset; falls back to `deploymentsGeneral.revisionHistoryLimit`. |
 
 #### DaemonSets
 
@@ -351,6 +352,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 | `statefulSets.<name>.serviceName` | `serviceName: headless` | `<resource key>` | Governing service name used by StatefulSet. |
 | `statefulSets.<name>.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Minimum ready time per pod. |
 | `statefulSets.<name>.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | PVC templates for StatefulSet pods. |
+| `statefulSets.<name>.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Number of old ControllerRevisions retained for rollback. Defaults to the Kubernetes default (10) when unset; falls back to `statefulSetsGeneral.revisionHistoryLimit`. |
 
 #### Jobs
 
@@ -402,6 +404,7 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
 |---|---|---|---|
 | `deploymentsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default deployment strategy for all Deployments. |
 | `deploymentsGeneral.progressDeadlineSeconds` | `progressDeadlineSeconds: 600` | `n/a` | Default rollout progress deadline in seconds. |
+| `deploymentsGeneral.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Default number of old ReplicaSets retained for all Deployments. |
 
 Example - set default environment sources for every Deployment container:
 
@@ -436,6 +439,7 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) plus:
 | `statefulSetsGeneral.strategy` | `strategy.type: RollingUpdate` | `n/a` | Default update strategy for all StatefulSets. |
 | `statefulSetsGeneral.minReadySeconds` | `minReadySeconds: 10` | `n/a` | Default minimum ready seconds per pod. |
 | `statefulSetsGeneral.volumeClaimTemplates` | `volumeClaimTemplates: [{...}]` | `n/a` | Default PVC templates applied to all StatefulSets. |
+| `statefulSetsGeneral.revisionHistoryLimit` | `revisionHistoryLimit: 3` | `n/a` | Default number of old ControllerRevisions retained for all StatefulSets. |
 
 #### jobsGeneral
 

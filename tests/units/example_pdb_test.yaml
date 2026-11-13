@@ -21,15 +21,31 @@ tests:
       - equal:
           path: spec.minAvailable
           value: 1
-      - equal:
+      - notExists:
           path: spec.unhealthyPodEvictionPolicy
-          value: AlwaysAllow
       - equal:
           path: spec.selector.matchLabels.component
           value: api
       - equal:
           path: spec.selector.matchLabels.tenant
           value: shared
+
+  - it: renders spec.unhealthyPodEvictionPolicy on a cluster with policy/v1
+    capabilities:
+      majorVersion: "1"
+      minorVersion: "31"
+    set:
+      pdbs:
+        api:
+          minAvailable: 1
+          unhealthyPodEvictionPolicy: AlwaysAllow
+    asserts:
+      - equal:
+          path: apiVersion
+          value: policy/v1
+      - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: AlwaysAllow
 
   - it: omits spec.unhealthyPodEvictionPolicy when the values key is unset
     set:
