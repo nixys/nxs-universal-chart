@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.2.3] - Unreleased
+### Added
+* `pdbs.<name>.unhealthyPodEvictionPolicy` is passed through to PodDisruptionBudget `spec.unhealthyPodEvictionPolicy` (`IfHealthyBudget` or `AlwaysAllow`). Omitted when unset, so existing manifests do not change. Rendering fails with a clear error when it is set and the cluster only supports `policy/v1beta1`
+
 ## [3.2.2] - September 22, 2026
 ### Added
 * `hpas.<name>.behavior` is passed through to Kubernetes HPA `spec.behavior` (scale-up/scale-down stabilization windows and policies). Omitted when unset. Rendering fails with a clear error when `behavior` is combined with an `apiVersion` other than `autoscaling/v2` or `autoscaling/v2beta2` ([#129](https://github.com/nixys/nxs-universal-chart/pull/129), by @amovergan and Peter Rukin)

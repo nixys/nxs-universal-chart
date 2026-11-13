@@ -22,8 +22,33 @@ tests:
           path: spec.minAvailable
           value: 1
       - equal:
+          path: spec.unhealthyPodEvictionPolicy
+          value: AlwaysAllow
+      - equal:
           path: spec.selector.matchLabels.component
           value: api
       - equal:
           path: spec.selector.matchLabels.tenant
           value: shared
+
+  - it: omits spec.unhealthyPodEvictionPolicy when the values key is unset
+    set:
+      pdbs:
+        api:
+          minAvailable: 1
+    asserts:
+      - notExists:
+          path: spec.unhealthyPodEvictionPolicy
+
+  - it: fails when unhealthyPodEvictionPolicy is set on a cluster without policy/v1
+    capabilities:
+      majorVersion: "1"
+      minorVersion: "20"
+    set:
+      pdbs:
+        api:
+          minAvailable: 1
+          unhealthyPodEvictionPolicy: AlwaysAllow
+    asserts:
+      - failedTemplate:
+          errorMessage: PDB "api" sets unhealthyPodEvictionPolicy, which requires apiVersion policy/v1 (got "policy/v1beta1")
