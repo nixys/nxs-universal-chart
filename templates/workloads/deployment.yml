@@ -32,13 +32,11 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "helpers.app.selectorLabels" $ | nindent 6 }}
-      {{- with $deployment.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 6 }}{{- end }}
+      {{- include "helpers.app.matchLabels" (dict "value" $deployment.extraSelectorLabels "resource" (printf "deployments.%s" $name) "context" $) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "helpers.app.selectorLabels" $ | nindent 8 }}
-        {{- with $deployment.extraSelectorLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
+        {{- include "helpers.app.podSelectorLabels" (dict "value" $deployment.extraSelectorLabels "context" $) | nindent 8 }}
         {{- with $.Values.generic.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with $general.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
         {{- with $deployment.podLabels }}{{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}{{- end }}
