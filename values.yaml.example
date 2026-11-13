@@ -24,6 +24,7 @@ generic:
     owner: platform
   nameSuffix: blue
   deterministicNames: true
+  useDefaultSelectorLabels: true
   extraSelectorLabels:
     tenant: shared
   podLabels:

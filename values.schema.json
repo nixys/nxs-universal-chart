@@ -101,6 +101,9 @@
         "extraSelectorLabels": {
           "$ref": "#/definitions/stringMap"
         },
+        "useDefaultSelectorLabels": {
+          "type": "boolean"
+        },
         "podLabels": {
           "$ref": "#/definitions/stringMap"
         },

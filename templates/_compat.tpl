@@ -40,14 +40,25 @@ Remove these once the dependency includes the same fixes.
 {{- end -}}
 {{- end -}}
 
-{{- define "helpers.app.selectorLabels" -}}
+{{- define "helpers.app.defaultSelectorLabels" -}}
 app.kubernetes.io/name: {{ include "helpers.app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+
+{{- define "helpers.app.selectorLabels" -}}
+{{- $useDefaults := true -}}
+{{- if and .Values.generic (hasKey .Values.generic "useDefaultSelectorLabels") -}}
+{{- $useDefaults = .Values.generic.useDefaultSelectorLabels -}}
+{{- end -}}
+{{- if $useDefaults }}
+{{ include "helpers.app.defaultSelectorLabels" . }}
+{{- end }}
 {{ include "helpers.app.genericSelectorLabels" $ }}
 {{- end -}}
 
 {{- define "helpers.app.labels" -}}
-{{ include "helpers.app.selectorLabels" . }}
+{{ include "helpers.app.defaultSelectorLabels" . }}
+{{ include "helpers.app.genericSelectorLabels" $ }}
 helm.sh/chart: {{ include "helpers.app.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Chart.AppVersion }}

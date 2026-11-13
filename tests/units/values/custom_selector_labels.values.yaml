@@ -1,0 +1,44 @@
+generic:
+  useDefaultSelectorLabels: false
+  extraSelectorLabels:
+    app: '{{ .Release.Name }}-legacy'
+
+deployments:
+  api:
+    extraSelectorLabels:
+      component: api
+    containers:
+      main:
+        image: nginx
+
+daemonSets:
+  agent:
+    extraSelectorLabels:
+      component: agent
+    containers:
+      main:
+        image: busybox
+
+statefulSets:
+  worker:
+    extraSelectorLabels:
+      component: worker
+    containers:
+      main:
+        image: busybox
+        ports:
+          - name: tcp
+            containerPort: 9000
+
+services:
+  api:
+    extraSelectorLabels:
+      component: api
+    ports:
+      - port: 80
+
+pdbs:
+  api:
+    minAvailable: 1
+    extraSelectorLabels:
+      component: api
