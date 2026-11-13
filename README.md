@@ -620,6 +620,7 @@ All [Common Workload Entry Fields](#common-workload-entry-fields) and all [jobsG
 | `pdbs.<name>.labels` / `annotations` | `labels.app: api` | `{}` | Extra metadata for PDB resource. |
 | `pdbs.<name>.gitops` | `gitops.argo.compareOptions: ["IgnoreExtraneous"]` | `{}` | Resource-level GitOps metadata overlay. |
 | `pdbs.<name>.minAvailable` / `maxUnavailable` | `minAvailable: 1` | `n/a` | Availability policy for disruptions. |
+| `pdbs.<name>.unhealthyPodEvictionPolicy` | `unhealthyPodEvictionPolicy: AlwaysAllow` | `n/a` | Optional PDB `spec.unhealthyPodEvictionPolicy` (`IfHealthyBudget` or `AlwaysAllow`). Requires `policy/v1`. Omitted when unset. |
 | `pdbs.<name>.extraSelectorLabels` | `extraSelectorLabels.component: api` | `{}` | Additional selector labels for PDB target pods. |
 | `hpas` | `hpas.api.scaleTargetRef.name: api` | `{}` | HPA resources keyed by suffix. |
 | `hpas.<name>.disabled` | `disabled: true` | `false` | Disables rendering of an HPA entry. |
