@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 DEFAULT_SCHEMA_LOCATION = (
-    "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/"
+    "https://raw.githubusercontent.com/datreeio/CRDs-catalog/f1e7f6bc0537bf0622ffe6e47dbaa85914fabbec/"
     "{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"
 )
 

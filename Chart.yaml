@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.2.3
+version: 3.2.4
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -25,18 +25,14 @@ annotations:
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
     - kind: added
-      description: "HPA resources now render Kubernetes spec.behavior (scaleUp/scaleDown stabilization windows and policies) when hpas.<name>.behavior is set"
+      description: "generic.useDefaultSelectorLabels (default true): set to false to drop app.kubernetes.io/name and app.kubernetes.io/instance from selectors and select only by extraSelectorLabels; pods keep the standard labels"
     - kind: added
-      description: "CronJobs render spec.jobTemplate.metadata from cronJobs.<name>.jobLabels / jobAnnotations and cronJobsGeneral defaults"
-    - kind: fixed
-      description: "Deployments and StatefulSets no longer render spec.replicas when replicas is unset, so Helm upgrades stop resetting the replica count managed by an autoscaler (explicit values, including 0, are preserved)"
-    - kind: changed
-      description: "Deployments and StatefulSets targeted by an enabled hpas entry never render spec.replicas, even when replicas is set"
+      description: "pdbs.<name>.unhealthyPodEvictionPolicy is passed through to PodDisruptionBudget spec.unhealthyPodEvictionPolicy (IfHealthyBudget or AlwaysAllow)"
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/signKey: |
-    fingerprint: 332FCD67C8B83C68B5AE67884856BB650E18E5427465417E1BC62ED1C417F3BE
+    fingerprint: 6DC59A12500AE4BA79BE0CE5552634D6847EB0CF3C05D3751183F57D27A1E7AC
     url: https://registry.nixys.io/signkey/cosign.pub
 
 dependencies:
@@ -45,94 +41,94 @@ dependencies:
 
     repository: oci://registry.nixys.ru/nuc
   - name: nuc-traefik
-    version: 1.0.5
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-traefik.enabled
   - name: nuc-certificates
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-certificates.enabled
   - name: nuc-istio
-    version: 1.0.5
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-istio.enabled
   - name: nuc-fluxcd
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-fluxcd.enabled
   - name: nuc-argocd
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-argocd.enabled
   - name: nuc-knative
-    version: 1.0.5
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-knative.enabled
   - name: nuc-kserve
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kserve.enabled
   - name: nuc-kube-prometheus-stack
-    version: 1.0.5
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-kube-prometheus-stack.enabled
   - name: nuc-native-gateway
-    version: 1.0.6
+    version: 1.0.7
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-native-gateway.enabled
   - name: nuc-victoria-metrics
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-victoria-metrics.enabled
   - name: nuc-vault-secret-operator
-    version: 1.0.5
+    version: 1.0.6
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-vault-secret-operator.enabled
   - name: nuc-keda
-    version: 1.0.4
+    version: 1.0.5
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keda.enabled
   - name: nuc-cloudnativepg
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-cloudnativepg.enabled
   - name: nuc-mysql-percona-operator
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-mysql-percona-operator.enabled
   - name: nuc-rabbitmq
-    version: 1.0.1
+    version: 1.0.2
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-rabbitmq.enabled
   - name: nuc-clickhouse
-    version: 1.0.1
+    version: 1.0.2
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-clickhouse.enabled
   - name: nuc-elk
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-elk.enabled
   - name: nuc-external-secrets
-    version: 1.1.0
+    version: 1.1.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-external-secrets.enabled
   - name: nuc-mongodb-percona-operator
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-mongodb-percona-operator.enabled
   - name: nuc-envoy-gateway
-    version: 1.0.1
+    version: 1.0.2
     repository: oci://registry.nixys.ru/nuc
     condition: global.nuc-envoy-gateway.enabled
   - name: nuc-valkey
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-valkey.enabled
   - name: nuc-keycloak-operator
-    version: 1.0.1
+    version: 1.0.3
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-keycloak-operator.enabled
   - name: nuc-strimzi-kafka-operator
-    version: 1.0.0
+    version: 1.0.1
     repository: oci://registry.nixys.ru/nuc
     condition: nuc-strimzi-kafka-operator.enabled
