@@ -413,6 +413,30 @@ false
 {{ toYaml $entries }}
 {{- end -}}
 
+{{- define "nxs.workloads.envs" -}}
+{{- $general := .general | default dict -}}
+{{- $value := .value -}}
+{{- $ctx := .context -}}
+{{- if or (and $general.env (kindIs "map" $general.env)) (and $value.env (kindIs "map" $value.env)) -}}
+{{- include "helpers.workloads.envs" (dict "general" (omit $general "env") "value" (omit $value "env") "context" $ctx) | default "env:" -}}
+{{- range list $general.env $value.env -}}
+  {{- with . -}}
+    {{- if kindIs "map" . -}}
+      {{- $env := . -}}
+      {{- range keys $env | sortAlpha }}
+  - name: {{ . | quote }}
+    value: {{ include "helpers.tplvalues.render" (dict "value" (get $env .) "context" $ctx) | quote }}
+      {{- end -}}
+    {{- else -}}
+      {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 2 -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- else -}}
+{{- include "helpers.workloads.envs" . -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Coerce a value to its string representation.
 Numeric values coming from YAML are float64 in templates, so plain rendering
@@ -1001,7 +1025,7 @@ initContainers:
   command: {{- include "helpers.tplvalues.render" (dict "value" (get $container "command") "context" $) | nindent 2 }}
     {{- end }}
   {{- end }}
-{{ include "helpers.workloads.envs" (dict "value" $container "context" $) | nindent 2 }}
+{{ include "nxs.workloads.envs" (dict "value" $container "context" $) | nindent 2 }}
 {{ include "helpers.workloads.envsFrom" (dict "value" $container "context" $) | nindent 2 }}
   {{- with (get $container "ports") }}
   ports: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
@@ -1062,7 +1086,7 @@ containers:
   command: {{- include "helpers.tplvalues.render" (dict "value" (get $container "command") "context" $) | nindent 2 }}
     {{- end }}
   {{- end }}
-{{ include "helpers.workloads.envs" (dict "value" $container "general" $general "context" $) | nindent 2 }}
+{{ include "nxs.workloads.envs" (dict "value" $container "general" $general "context" $) | nindent 2 }}
 {{ include "helpers.workloads.envsFrom" (dict "value" $container "general" $general "context" $) | nindent 2 }}
   {{- with (get $container "ports") }}
   ports: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}

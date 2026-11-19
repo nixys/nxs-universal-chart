@@ -484,6 +484,12 @@
       "default": [],
       "items": {}
     },
+    "containerEnv": {
+      "anyOf": [
+        { "$ref": "#/definitions/freeFormArray" },
+        { "$ref": "#/definitions/stringMap" }
+      ]
+    },
     "apiVersionOverrideMap": {
       "type": "object",
       "default": {},
@@ -548,7 +554,7 @@
           "$ref": "#/definitions/freeFormArray"
         },
         "env": {
-          "$ref": "#/definitions/freeFormArray"
+          "$ref": "#/definitions/containerEnv"
         },
         "envFrom": {
           "$ref": "#/definitions/freeFormArray"
@@ -1317,7 +1323,7 @@
           "additionalProperties": true,
           "properties": {
             "env": {
-              "$ref": "#/definitions/freeFormArray"
+              "$ref": "#/definitions/containerEnv"
             },
             "envFrom": {
               "$ref": "#/definitions/freeFormArray"

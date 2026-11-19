@@ -1,0 +1,108 @@
+suite: env map syntax
+templates:
+  - templates/workloads/deployment.yml
+release:
+  name: unit-test
+
+tests:
+  - it: renders env maps as sorted string entries for main and init containers
+    set:
+      deployments.api.containers.api.env:
+        Microservice_RunMigration: "false"
+        Microservice_DisplayName: "MC Usage Monitoring"
+        Hosting_Address: "http://*"
+      deployments.api.initContainers.setup.env:
+        RELEASE_NAME: '{{ .Release.Name }}'
+        EMPTY_VALUE: ""
+        TEMPLATED_BOOLEAN: '{{ false }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: Hosting_Address
+              value: "http://*"
+            - name: Microservice_DisplayName
+              value: "MC Usage Monitoring"
+            - name: Microservice_RunMigration
+              value: "false"
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: EMPTY_VALUE
+              value: ""
+            - name: RELEASE_NAME
+              value: unit-test
+            - name: TEMPLATED_BOOLEAN
+              value: "false"
+
+  - it: omits env when the map is empty and there are no other entries
+    set:
+      deployments.api.containers.api.env: {}
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: renders references and family map entries before a native container list
+    set:
+      deploymentsGeneral.env:
+        FAMILY: common
+      deploymentsGeneral.envsFromConfigmap:
+        config: [MODE]
+      deployments.api.containers.api.envsFromSecret:
+        credentials: [{APP_TOKEN: token}]
+      deployments.api.containers.api.env:
+        - name: Z_LITERAL
+          value: local
+        - name: A_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      deployments.api.initContainers.setup.env:
+        INIT_ONLY: setup
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unit-test-config
+                  key: MODE
+            - name: APP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: unit-test-credentials
+                  key: token
+            - name: FAMILY
+              value: common
+            - name: Z_LITERAL
+              value: local
+            - name: A_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: INIT_ONLY
+              value: setup
+
+  - it: appends a container map after a family list without removing duplicate names
+    set:
+      deploymentsGeneral.env:
+        - name: Z_MODE
+          value: common
+        - name: A_REGION
+          value: local
+      deployments.api.containers.api.env:
+        Z_MODE: custom
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: Z_MODE
+              value: common
+            - name: A_REGION
+              value: local
+            - name: Z_MODE
+              value: custom

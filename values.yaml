@@ -227,6 +227,7 @@ services: {}
 networkPolicies: {}
 
 # -- Shared defaults applied to Deployment workloads.
+# Workload-family defaults (`*General`) accept `env` as a string map or a native Kubernetes list.
 deploymentsGeneral: {}
 
 # -- Deployment workloads keyed by resource suffix.

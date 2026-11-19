@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Added
+* `env` accepts a map of variable names to strings in `containers`, `initContainers`, and workload-family `*General` defaults. The existing Kubernetes list syntax is still supported.
+
 ## [3.2.4] - November 13, 2026
 ### Added
 * `generic.useDefaultSelectorLabels` (default `true`). When set to `false`, `app.kubernetes.io/name` and `app.kubernetes.io/instance` are omitted from selectors of Deployments, StatefulSets, DaemonSets, Services (including the generated StatefulSet governing Service), PDBs and predefined pod affinity presets, and selectors are built from `generic.extraSelectorLabels` and resource-level `extraSelectorLabels`. This allows adopting existing workloads whose immutable selectors do not match the chart defaults. Pods and resource metadata keep the standard labels. Rendering fails with a clear error when a selector would be empty ([#136](https://github.com/nixys/nxs-universal-chart/pull/136), by @rift0nix)
