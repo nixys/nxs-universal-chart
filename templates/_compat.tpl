@@ -413,6 +413,78 @@ false
 {{ toYaml $entries }}
 {{- end -}}
 
+{{- define "helpers.workloads.envs" -}}
+{{- $ctx := .context -}}
+{{- $general := .general | default dict -}}
+{{- $v := .value | default dict -}}
+{{- $envs := list $general.env $v.env -}}
+{{- if and (kindIs "map" $general.env) (kindIs "map" $v.env) -}}
+{{- $family := dict -}}
+{{- $containerOnly := dict -}}
+{{- range $key, $value := $general.env }}{{ $_ := set $family $key $value }}{{ end -}}
+{{- range $key, $value := $v.env -}}
+{{- if hasKey $family $key }}{{ $_ := set $family $key $value }}{{ else }}{{ $_ := set $containerOnly $key $value }}{{ end -}}
+{{- end -}}
+{{- $envs = list $family $containerOnly -}}
+{{- end -}}
+{{- $hasEnv := false -}}
+{{- range $envs -}}
+{{- if kindIs "map" . -}}
+{{- range $_, $value := . -}}
+{{- if ne $value nil -}}{{- $hasEnv = true -}}{{- end -}}
+{{- end -}}
+{{- else if . -}}
+{{- $hasEnv = true -}}
+{{- end -}}
+{{- end -}}
+{{- if or $general.envsFromConfigmap $v.envsFromConfigmap $general.envsFromSecret $v.envsFromSecret $hasEnv -}}
+env:
+{{- with $general.envsFromConfigmap }}
+{{ include "helpers.configmaps.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $v.envsFromConfigmap }}
+{{ include "helpers.configmaps.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $general.envsFromSecret }}
+{{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $v.envsFromSecret }}
+{{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- $seen := dict }}
+{{- range $envs }}
+{{- if kindIs "map" . }}
+{{- range $key, $value := . }}
+{{- if ne $value nil }}
+{{- $name := $key }}
+{{- if contains "{{" $key }}
+{{- $name = include "helpers.tplvalues.render" (dict "value" $key "context" $ctx) }}
+{{- end }}
+{{- if not $name }}
+{{- fail (printf "env: variable name %q renders to an empty string" $key) }}
+{{- end }}
+{{- if hasKey $seen $name }}
+{{- fail (printf "env: variable names %q and %q both render to %q" (get $seen $name) $key $name) }}
+{{- end }}
+{{- $_ := set $seen $name $key }}
+  - name: {{ $name | quote }}
+{{- if kindIs "map" $value }}
+{{- if not $value.valueFrom }}
+{{- fail (printf "env: variable %q must be a string, null, or an object with valueFrom" $key) }}
+{{- end }}
+    valueFrom: {{- include "helpers.tplvalues.render" (dict "value" $value.valueFrom "context" $ctx) | nindent 6 }}
+{{- else }}
+    value: {{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- else if . }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Coerce a value to its string representation.
 Numeric values coming from YAML are float64 in templates, so plain rendering

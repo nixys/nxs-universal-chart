@@ -1,0 +1,202 @@
+suite: env map syntax
+templates:
+  - templates/workloads/deployment.yml
+release:
+  name: unit-test
+
+tests:
+  - it: renders map entries for main and init containers
+    set:
+      generic.environment: prod
+      deployments.api.containers.api.env:
+        lower_case: "x"
+        Microservice_RunMigration: "false"
+        Hosting_Address: "http://*"
+        EMPTY_VALUE: ""
+        DROPPED: null
+        '{{ "A_FROM_TEMPLATE" }}': "2"
+        'APP_{{ upper .Values.generic.environment }}_MODE': "on"
+        POD_NAME:
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      deployments.api.initContainers.setup.env:
+        RELEASE_NAME: '{{ .Release.Name }}'
+        TEMPLATED_BOOLEAN: '{{ false }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: APP_PROD_MODE
+              value: "on"
+            - name: EMPTY_VALUE
+              value: ""
+            - name: Hosting_Address
+              value: "http://*"
+            - name: Microservice_RunMigration
+              value: "false"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: lower_case
+              value: "x"
+            - name: A_FROM_TEMPLATE
+              value: "2"
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: RELEASE_NAME
+              value: unit-test
+            - name: TEMPLATED_BOOLEAN
+              value: "false"
+
+  - it: omits env when all map values are null and there are no other entries
+    set:
+      deploymentsGeneral.env:
+        FAMILY: null
+      deployments.api.containers.api.env:
+        DROPPED: null
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: rejects invalid map values
+    set:
+      deploymentsGeneral.env:
+        FAMILY_BOOLEAN: false
+      deployments.api.containers.api.env:
+        NUMBER: 1
+        EMPTY_OBJECT: {}
+        EMPTY_VALUE_FROM:
+          valueFrom: {}
+        VALUE_OBJECT:
+          value: a
+        BOTH:
+          value: a
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+    asserts:
+      - failedTemplate:
+          errorPattern: "deploymentsGeneral/env/FAMILY_BOOLEAN"
+      - failedTemplate:
+          errorPattern: "containers/api/env/NUMBER"
+      - failedTemplate:
+          errorPattern: "containers/api/env/EMPTY_OBJECT"
+      - failedTemplate:
+          errorPattern: "containers/api/env/EMPTY_VALUE_FROM"
+      - failedTemplate:
+          errorPattern: "containers/api/env/VALUE_OBJECT"
+      - failedTemplate:
+          errorPattern: "containers/api/env/BOTH"
+
+  - it: fails when a key renders to an empty name
+    set:
+      generic.environment: ""
+      deployments.api.containers.api.env:
+        '{{ .Values.generic.environment }}': "on"
+    asserts:
+      - failedTemplate:
+          errorPattern: 'env: variable name "\{\{ \.Values\.generic\.environment \}\}" renders to an empty string'
+
+  - it: fails when merged family and container keys render to the same name
+    set:
+      deploymentsGeneral.env:
+        FOO: family
+      deployments.api.containers.api.env:
+        '{{ "FOO" }}': container
+    asserts:
+      - failedTemplate:
+          errorPattern: 'env: variable names "FOO" and "\{\{ \\"FOO\\" \}\}" both render to "FOO"'
+
+  - it: merges family and container maps by key and keeps family keys first
+    set:
+      deploymentsGeneral.env:
+        FOO: family
+        BAR: family
+        JMX_PASSWORD:
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      deployments.api.containers.api.env:
+        FOO: container
+        BAR: null
+        JDK_OPTS: "-Dpassword=$(JMX_PASSWORD)"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: FOO
+              value: container
+            - name: JMX_PASSWORD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: JDK_OPTS
+              value: "-Dpassword=$(JMX_PASSWORD)"
+
+  - it: renders references and family map entries before a native container list
+    set:
+      deploymentsGeneral.env:
+        FAMILY: common
+      deploymentsGeneral.envsFromConfigmap:
+        config: [MODE]
+      deployments.api.containers.api.envsFromSecret:
+        credentials: [{APP_TOKEN: token}]
+      deployments.api.containers.api.env:
+        - name: Z_LITERAL
+          value: local
+        - name: A_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      deployments.api.initContainers.setup.env:
+        INIT_ONLY: setup
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: unit-test-config
+                  key: MODE
+            - name: APP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: unit-test-credentials
+                  key: token
+            - name: FAMILY
+              value: common
+            - name: Z_LITERAL
+              value: local
+            - name: A_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: INIT_ONLY
+              value: setup
+
+  - it: appends a container map after a family list without removing duplicate names
+    set:
+      deploymentsGeneral.env:
+        - name: Z_MODE
+          value: common
+        - name: A_REGION
+          value: local
+      deployments.api.containers.api.env:
+        Z_MODE: custom
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: Z_MODE
+              value: common
+            - name: A_REGION
+              value: local
+            - name: Z_MODE
+              value: custom

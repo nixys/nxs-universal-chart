@@ -197,8 +197,7 @@ deployments:
         envSecrets:
           - secret-envs
         env:
-          - name: RUNTIME_ENV
-            value: '{{ .Values.generic.environment }}'
+          RUNTIME_ENV: '{{ .Values.generic.environment }}'
         volumeMounts:
           - name: app-settings
             mountPath: /etc/app
