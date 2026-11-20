@@ -413,27 +413,49 @@ false
 {{ toYaml $entries }}
 {{- end -}}
 
-{{- define "nxs.workloads.envs" -}}
-{{- $general := .general | default dict -}}
-{{- $value := .value -}}
+{{- define "helpers.workloads.envs" -}}
 {{- $ctx := .context -}}
-{{- if or (and $general.env (kindIs "map" $general.env)) (and $value.env (kindIs "map" $value.env)) -}}
-{{- include "helpers.workloads.envs" (dict "general" (omit $general "env") "value" (omit $value "env") "context" $ctx) | default "env:" -}}
-{{- range list $general.env $value.env -}}
-  {{- with . -}}
-    {{- if kindIs "map" . -}}
-      {{- $env := . -}}
-      {{- range keys $env | sortAlpha }}
-  - name: {{ . | quote }}
-    value: {{ include "helpers.tplvalues.render" (dict "value" (get $env .) "context" $ctx) | quote }}
-      {{- end -}}
-    {{- else -}}
-      {{- include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 2 -}}
-    {{- end -}}
-  {{- end -}}
+{{- $general := .general | default dict -}}
+{{- $v := .value | default dict -}}
+{{- $hasEnv := false -}}
+{{- range list $general.env $v.env -}}
+{{- if kindIs "map" . -}}
+{{- range $_, $value := . -}}
+{{- if ne $value nil -}}{{- $hasEnv = true -}}{{- end -}}
 {{- end -}}
-{{- else -}}
-{{- include "helpers.workloads.envs" . -}}
+{{- else if . -}}
+{{- $hasEnv = true -}}
+{{- end -}}
+{{- end -}}
+{{- if or $general.envsFromConfigmap $v.envsFromConfigmap $general.envsFromSecret $v.envsFromSecret $hasEnv -}}
+env:
+{{- with $general.envsFromConfigmap }}
+{{ include "helpers.configmaps.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $v.envsFromConfigmap }}
+{{ include "helpers.configmaps.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $general.envsFromSecret }}
+{{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- with $v.envsFromSecret }}
+{{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- range list $general.env $v.env }}
+{{- if kindIs "map" . }}
+{{- range $name, $value := . }}
+{{- if kindIs "map" $value }}
+  - name: {{ $name | quote }}
+{{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | indent 4 }}
+{{- else if ne $value nil }}
+  - name: {{ $name | quote }}
+    value: {{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | quote }}
+{{- end }}
+{{- end }}
+{{- else if . }}
+{{ include "helpers.tplvalues.render" (dict "value" . "context" $ctx) | nindent 2 }}
+{{- end }}
+{{- end }}
 {{- end -}}
 {{- end -}}
 
@@ -1025,7 +1047,7 @@ initContainers:
   command: {{- include "helpers.tplvalues.render" (dict "value" (get $container "command") "context" $) | nindent 2 }}
     {{- end }}
   {{- end }}
-{{ include "nxs.workloads.envs" (dict "value" $container "context" $) | nindent 2 }}
+{{ include "helpers.workloads.envs" (dict "value" $container "context" $) | nindent 2 }}
 {{ include "helpers.workloads.envsFrom" (dict "value" $container "context" $) | nindent 2 }}
   {{- with (get $container "ports") }}
   ports: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}
@@ -1086,7 +1108,7 @@ containers:
   command: {{- include "helpers.tplvalues.render" (dict "value" (get $container "command") "context" $) | nindent 2 }}
     {{- end }}
   {{- end }}
-{{ include "nxs.workloads.envs" (dict "value" $container "general" $general "context" $) | nindent 2 }}
+{{ include "helpers.workloads.envs" (dict "value" $container "general" $general "context" $) | nindent 2 }}
 {{ include "helpers.workloads.envsFrom" (dict "value" $container "general" $general "context" $) | nindent 2 }}
   {{- with (get $container "ports") }}
   ports: {{- include "helpers.tplvalues.render" (dict "value" . "context" $) | nindent 2 }}

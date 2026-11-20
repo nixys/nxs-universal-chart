@@ -487,7 +487,25 @@
     "containerEnv": {
       "anyOf": [
         { "$ref": "#/definitions/freeFormArray" },
-        { "$ref": "#/definitions/stringMap" }
+        {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/definitions/nonEmptyString"
+          },
+          "additionalProperties": {
+            "anyOf": [
+              { "type": ["string", "null"] },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "value": { "type": "string" },
+                  "valueFrom": { "type": "object" }
+                }
+              }
+            ]
+          }
+        }
       ]
     },
     "apiVersionOverrideMap": {

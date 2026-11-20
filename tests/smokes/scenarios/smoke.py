@@ -89,9 +89,6 @@ def check_schema_invalid_list_contract(context: SmokeContext) -> None:
         raise system.TestFailure(
             "helm lint failed for invalid values, but the error does not mention the object-based contract"
         )
-    for name in ("INVALID_FAMILY_VALUE", "INVALID_CONTAINER_VALUE"):
-        if not any(name in line and "string" in line.lower() for line in combined_output.splitlines()):
-            raise system.TestFailure(f"helm lint did not report that {name} must be a string")
 
 
 def check_rendering_contract(context: SmokeContext) -> None:

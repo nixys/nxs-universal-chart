@@ -35,12 +35,54 @@ tests:
             - name: TEMPLATED_BOOLEAN
               value: "false"
 
+  - it: renders object values and skips null values
+    set:
+      deployments.api.containers.api.env:
+        POD_NAME:
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        DROPPED: null
+        KEPT: "1"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: KEPT
+              value: "1"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
   - it: omits env when the map is empty and there are no other entries
     set:
       deployments.api.containers.api.env: {}
     asserts:
       - notExists:
           path: spec.template.spec.containers[0].env
+
+  - it: omits env when all map values are null and there are no other entries
+    set:
+      deploymentsGeneral.env:
+        FAMILY: null
+      deployments.api.containers.api.env:
+        DROPPED: null
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: rejects non-string scalar map values
+    set:
+      deploymentsGeneral.env:
+        INVALID_FAMILY_VALUE: false
+      deployments.api.containers.api.env:
+        INVALID_CONTAINER_VALUE: 1
+    asserts:
+      - failedTemplate:
+          errorPattern: "deploymentsGeneral/env/INVALID_FAMILY_VALUE"
+      - failedTemplate:
+          errorPattern: "containers/api/env/INVALID_CONTAINER_VALUE"
 
   - it: renders references and family map entries before a native container list
     set:

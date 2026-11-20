@@ -304,7 +304,7 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `image` / `imageTag` | `image: nginx`, `imageTag: "1.27.5"` | `defaultImage` / `defaultImageTag` | Image and tag for container. `imageTag` also accepts numeric values, which are rendered as strings. |
 | `imagePullPolicy` | `imagePullPolicy: IfNotPresent` | `defaultImagePullPolicy` | Pull policy override for container. |
 | `command` / `args` | `command: ["sh","-c"]`, `args: ["sleep 3600"]` | `n/a` | Command and args (also overridden by diagnostic mode). |
-| `env` | `env: {APP_MODE: "prod"}` | `n/a` | Map of variable names to strings, or a native Kubernetes `env` list. |
+| `env` | `env: {APP_MODE: "prod"}` | `n/a` | Map keyed by variable name, or a native Kubernetes `env` list. |
 | `envFrom` | `envFrom: [{configMapRef: {name: app-settings}}]` | `n/a` | Native Kubernetes `envFrom` list. |
 | `envConfigmaps`, `envSecrets` | `envConfigmaps: [envs, app-envs]` | `n/a` | Includes all keys from each named ConfigMap/Secret. Multiple entries are rendered in order; `null` and empty string entries are skipped. |
 | `envsFromConfigmap`, `envsFromSecret` | `envsFromConfigmap.app-settings: [APP_MODE]` | `n/a` | Includes selected keys from named ConfigMaps/Secrets. |
@@ -317,7 +317,7 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
 | `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
 
-Map entries are rendered in variable name order. Quote values such as `"false"` or `"123"` to keep them as strings. Use the native list for `valueFrom` or when order matters, for example when a value uses `$(OTHER_VAR)` to reference an earlier entry.
+In the map form, a value is a string, an object with `valueFrom`, for example `POD_NAME: {valueFrom: {fieldRef: {fieldPath: metadata.name}}}`, or `null` to drop a variable set in an earlier values file. Quote values such as `"false"` or `"123"` to keep them as strings. Map entries are rendered in variable name order, so use the native list when order matters, for example when a value uses `$(OTHER_VAR)` to reference an earlier entry.
 
 ### Workload-Specific Fields
 
@@ -395,7 +395,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 
 Each `*General` object accepts all fields from [Common Workload Entry Fields](#common-workload-entry-fields) (including `resources`, `nodeSelector`, `tolerations`, `podLabels`, `imagePullSecrets`, etc.) as defaults for every workload in that family. In addition, some `*General` objects accept the extra family-specific fields listed below.
 
-`*General` objects also accept default container environment fields: `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. These defaults are rendered for every main container in that workload family before container-level entries for the same field. `*General.env` accepts either form, independently of the container's `env`.
+`*General` objects also accept default container environment fields: `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. These defaults are rendered for every main container in that workload family before container-level environment entries. `*General.env` accepts either form, independently of the container's `env`.
 
 Empty or `null` entries in `envConfigmaps` and `envSecrets` are ignored. If no valid entries remain, the `envFrom` block is not rendered.
 
