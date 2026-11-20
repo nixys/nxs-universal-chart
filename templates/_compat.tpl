@@ -419,10 +419,13 @@ false
 {{- $v := .value | default dict -}}
 {{- $envs := list $general.env $v.env -}}
 {{- if and (kindIs "map" $general.env) (kindIs "map" $v.env) -}}
-{{- $merged := dict -}}
-{{- range $key, $value := $general.env }}{{ $_ := set $merged $key $value }}{{ end -}}
-{{- range $key, $value := $v.env }}{{ $_ := set $merged $key $value }}{{ end -}}
-{{- $envs = list $merged -}}
+{{- $family := dict -}}
+{{- $containerOnly := dict -}}
+{{- range $key, $value := $general.env }}{{ $_ := set $family $key $value }}{{ end -}}
+{{- range $key, $value := $v.env -}}
+{{- if hasKey $family $key }}{{ $_ := set $family $key $value }}{{ else }}{{ $_ := set $containerOnly $key $value }}{{ end -}}
+{{- end -}}
+{{- $envs = list $family $containerOnly -}}
 {{- end -}}
 {{- $hasEnv := false -}}
 {{- range $envs -}}
@@ -448,9 +451,9 @@ env:
 {{- with $v.envsFromSecret }}
 {{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
 {{- end }}
+{{- $seen := dict }}
 {{- range $envs }}
 {{- if kindIs "map" . }}
-{{- $seen := dict }}
 {{- range $key, $value := . }}
 {{- if ne $value nil }}
 {{- $name := $key }}

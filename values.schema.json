@@ -500,7 +500,7 @@
                 "additionalProperties": false,
                 "required": ["valueFrom"],
                 "properties": {
-                  "valueFrom": { "type": "object" }
+                  "valueFrom": { "type": "object", "minProperties": 1 }
                 }
               }
             ]
