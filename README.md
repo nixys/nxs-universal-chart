@@ -317,7 +317,7 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
 | `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
 
-In the map form, a value is a string, an object with `valueFrom`, for example `POD_NAME: {valueFrom: {fieldRef: {fieldPath: metadata.name}}}`, or `null` to drop a variable set in an earlier values file. Quote values such as `"false"` or `"123"` to keep them as strings. Map entries are rendered in variable name order, so use the native list when order matters, for example when a value uses `$(OTHER_VAR)` to reference an earlier entry.
+In the map form, a value is a string, an object with `valueFrom`, for example `POD_NAME: {valueFrom: {fieldRef: {fieldPath: metadata.name}}}`, or `null` to drop a variable set in an earlier values file. Quote values such as `"false"` or `"123"` to keep them as strings. Templates are rendered in keys and values, and rendering fails if a key renders to an empty name. Map entries are rendered in the order of keys as written, before templates are rendered, so use the native list when order matters, for example when a value uses `$(OTHER_VAR)` to reference an earlier entry.
 
 ### Workload-Specific Fields
 

@@ -443,13 +443,21 @@ env:
 {{- end }}
 {{- range list $general.env $v.env }}
 {{- if kindIs "map" . }}
-{{- range $name, $value := . }}
+{{- range $key, $value := . }}
+{{- if ne $value nil }}
+{{- $name := $key }}
+{{- if contains "{{" $key }}
+{{- $name = include "helpers.tplvalues.render" (dict "value" $key "context" $ctx) }}
+{{- end }}
+{{- if not $name }}
+{{- fail (printf "env: variable name %q renders to an empty string" $key) }}
+{{- end }}
+  - name: {{ $name | quote }}
 {{- if kindIs "map" $value }}
-  - name: {{ $name | quote }}
 {{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | indent 4 }}
-{{- else if ne $value nil }}
-  - name: {{ $name | quote }}
+{{- else }}
     value: {{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- else if . }}

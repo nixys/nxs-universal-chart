@@ -55,6 +55,33 @@ tests:
                 fieldRef:
                   fieldPath: metadata.name
 
+  - it: renders templates in keys and keeps the order of keys as written
+    set:
+      generic.environment: prod
+      deployments.api.containers.api.env:
+        'APP_{{ upper .Values.generic.environment }}_MODE': "on"
+        B_PLAIN: "1"
+        '{{ "Z_FROM_TEMPLATE" }}': "2"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: APP_PROD_MODE
+              value: "on"
+            - name: B_PLAIN
+              value: "1"
+            - name: Z_FROM_TEMPLATE
+              value: "2"
+
+  - it: fails when a key renders to an empty name
+    set:
+      generic.environment: ""
+      deployments.api.containers.api.env:
+        '{{ .Values.generic.environment }}': "on"
+    asserts:
+      - failedTemplate:
+          errorPattern: 'env: variable name "\{\{ \.Values\.generic\.environment \}\}" renders to an empty string'
+
   - it: omits env when the map is empty and there are no other entries
     set:
       deployments.api.containers.api.env: {}
