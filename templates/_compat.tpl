@@ -417,8 +417,15 @@ false
 {{- $ctx := .context -}}
 {{- $general := .general | default dict -}}
 {{- $v := .value | default dict -}}
+{{- $envs := list $general.env $v.env -}}
+{{- if and (kindIs "map" $general.env) (kindIs "map" $v.env) -}}
+{{- $merged := dict -}}
+{{- range $key, $value := $general.env }}{{ $_ := set $merged $key $value }}{{ end -}}
+{{- range $key, $value := $v.env }}{{ $_ := set $merged $key $value }}{{ end -}}
+{{- $envs = list $merged -}}
+{{- end -}}
 {{- $hasEnv := false -}}
-{{- range list $general.env $v.env -}}
+{{- range $envs -}}
 {{- if kindIs "map" . -}}
 {{- range $_, $value := . -}}
 {{- if ne $value nil -}}{{- $hasEnv = true -}}{{- end -}}
@@ -441,8 +448,9 @@ env:
 {{- with $v.envsFromSecret }}
 {{ include "helpers.secrets.includeEnv" (dict "value" . "context" $ctx) | nindent 2 }}
 {{- end }}
-{{- range list $general.env $v.env }}
+{{- range $envs }}
 {{- if kindIs "map" . }}
+{{- $seen := dict }}
 {{- range $key, $value := . }}
 {{- if ne $value nil }}
 {{- $name := $key }}
@@ -452,9 +460,16 @@ env:
 {{- if not $name }}
 {{- fail (printf "env: variable name %q renders to an empty string" $key) }}
 {{- end }}
+{{- if hasKey $seen $name }}
+{{- fail (printf "env: variable names %q and %q both render to %q" (get $seen $name) $key $name) }}
+{{- end }}
+{{- $_ := set $seen $name $key }}
   - name: {{ $name | quote }}
 {{- if kindIs "map" $value }}
-{{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | indent 4 }}
+{{- if not $value.valueFrom }}
+{{- fail (printf "env: variable %q must be a string, null, or an object with valueFrom" $key) }}
+{{- end }}
+    valueFrom: {{- include "helpers.tplvalues.render" (dict "value" $value.valueFrom "context" $ctx) | nindent 6 }}
 {{- else }}
     value: {{ include "helpers.tplvalues.render" (dict "value" $value "context" $ctx) | quote }}
 {{- end }}

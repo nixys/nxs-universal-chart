@@ -498,8 +498,8 @@
               {
                 "type": "object",
                 "additionalProperties": false,
+                "required": ["valueFrom"],
                 "properties": {
-                  "value": { "type": "string" },
                   "valueFrom": { "type": "object" }
                 }
               }

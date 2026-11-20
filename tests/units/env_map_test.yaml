@@ -1,13 +1,16 @@
 suite: env map syntax
 templates:
   - templates/workloads/deployment.yml
+  - templates/batch/job.yml
 release:
   name: unit-test
 
 tests:
-  - it: renders env maps as sorted string entries for main and init containers
+  - it: renders env maps as string entries in byte order of keys for main and init containers
+    template: templates/workloads/deployment.yml
     set:
       deployments.api.containers.api.env:
+        lower_case: "x"
         Microservice_RunMigration: "false"
         Microservice_DisplayName: "MC Usage Monitoring"
         Hosting_Address: "http://*"
@@ -25,6 +28,8 @@ tests:
               value: "MC Usage Monitoring"
             - name: Microservice_RunMigration
               value: "false"
+            - name: lower_case
+              value: "x"
       - equal:
           path: spec.template.spec.initContainers[0].env
           value:
@@ -36,6 +41,7 @@ tests:
               value: "false"
 
   - it: renders object values and skips null values
+    template: templates/workloads/deployment.yml
     set:
       deployments.api.containers.api.env:
         POD_NAME:
@@ -55,13 +61,14 @@ tests:
                 fieldRef:
                   fieldPath: metadata.name
 
-  - it: renders templates in keys and keeps the order of keys as written
+  - it: renders templates in keys and sorts by keys before rendering
+    template: templates/workloads/deployment.yml
     set:
       generic.environment: prod
       deployments.api.containers.api.env:
         'APP_{{ upper .Values.generic.environment }}_MODE': "on"
         B_PLAIN: "1"
-        '{{ "Z_FROM_TEMPLATE" }}': "2"
+        '{{ "A_FROM_TEMPLATE" }}': "2"
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env
@@ -70,10 +77,11 @@ tests:
               value: "on"
             - name: B_PLAIN
               value: "1"
-            - name: Z_FROM_TEMPLATE
+            - name: A_FROM_TEMPLATE
               value: "2"
 
   - it: fails when a key renders to an empty name
+    template: templates/workloads/deployment.yml
     set:
       generic.environment: ""
       deployments.api.containers.api.env:
@@ -82,7 +90,18 @@ tests:
       - failedTemplate:
           errorPattern: 'env: variable name "\{\{ \.Values\.generic\.environment \}\}" renders to an empty string'
 
+  - it: fails when keys render to the same name
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.api.containers.api.env:
+        FOO: "1"
+        '{{ "FOO" }}': "2"
+    asserts:
+      - failedTemplate:
+          errorPattern: 'env: variable names "FOO" and "\{\{ \\"FOO\\" \}\}" both render to "FOO"'
+
   - it: omits env when the map is empty and there are no other entries
+    template: templates/workloads/deployment.yml
     set:
       deployments.api.containers.api.env: {}
     asserts:
@@ -90,6 +109,7 @@ tests:
           path: spec.template.spec.containers[0].env
 
   - it: omits env when all map values are null and there are no other entries
+    template: templates/workloads/deployment.yml
     set:
       deploymentsGeneral.env:
         FAMILY: null
@@ -100,6 +120,7 @@ tests:
           path: spec.template.spec.containers[0].env
 
   - it: rejects non-string scalar map values
+    template: templates/workloads/deployment.yml
     set:
       deploymentsGeneral.env:
         INVALID_FAMILY_VALUE: false
@@ -111,7 +132,89 @@ tests:
       - failedTemplate:
           errorPattern: "containers/api/env/INVALID_CONTAINER_VALUE"
 
+  - it: rejects object values other than valueFrom
+    template: templates/workloads/deployment.yml
+    set:
+      deployments.api.containers.api.env:
+        EMPTY_OBJECT: {}
+        VALUE_OBJECT:
+          value: a
+        BOTH:
+          value: a
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+    asserts:
+      - failedTemplate:
+          errorPattern: "containers/api/env/EMPTY_OBJECT"
+      - failedTemplate:
+          errorPattern: "containers/api/env/VALUE_OBJECT"
+      - failedTemplate:
+          errorPattern: "containers/api/env/BOTH"
+
+  - it: merges family and container maps by key
+    template: templates/workloads/deployment.yml
+    set:
+      deploymentsGeneral.env:
+        FOO: family
+        BAR: family
+        KEEP: family
+      deployments.api.containers.api.env:
+        FOO: container
+        BAR: null
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: FOO
+              value: container
+            - name: KEEP
+              value: family
+
+  - it: fails when merged family and container keys render to the same name
+    template: templates/workloads/deployment.yml
+    set:
+      deploymentsGeneral.env:
+        FOO: family
+      deployments.api.containers.api.env:
+        '{{ "FOO" }}': container
+    asserts:
+      - failedTemplate:
+          errorPattern: 'both render to "FOO"'
+
+  - it: merges family and container maps for Jobs
+    template: templates/batch/job.yml
+    set:
+      jobsGeneral.env:
+        MODE: family
+        REGION: local
+      jobs.migrate.containers.main.env:
+        MODE: job
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MODE
+              value: job
+            - name: REGION
+              value: local
+
+  - it: replaces a list from a values file with a map instead of merging them
+    template: templates/workloads/deployment.yml
+    values:
+      - values/env_map_list.values.yaml
+    set:
+      deployments.api.containers.api.env:
+        FROM_MAP: "1"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: FROM_MAP
+              value: "1"
+
   - it: renders references and family map entries before a native container list
+    template: templates/workloads/deployment.yml
     set:
       deploymentsGeneral.env:
         FAMILY: common
@@ -157,6 +260,7 @@ tests:
               value: setup
 
   - it: appends a container map after a family list without removing duplicate names
+    template: templates/workloads/deployment.yml
     set:
       deploymentsGeneral.env:
         - name: Z_MODE

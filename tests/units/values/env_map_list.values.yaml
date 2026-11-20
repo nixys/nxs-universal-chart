@@ -1,0 +1,7 @@
+deployments:
+  api:
+    containers:
+      api:
+        env:
+          - name: FROM_LIST
+            value: "1"
