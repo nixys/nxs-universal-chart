@@ -162,6 +162,8 @@ tests:
       - equal:
           path: spec.publishNotReadyAddresses
           value: true
+      - notExists:
+          path: spec.externalIPs
       - equal:
           path: spec.ports[0].targetPort
           value: tcp

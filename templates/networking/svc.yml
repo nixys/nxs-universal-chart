@@ -42,10 +42,10 @@ spec:
   healthCheckNodePort: {{ . }}
     {{- end }}
   {{- end }}
-    {{- with $service.externalIPs }}
+  {{- end }}
+  {{- with $service.externalIPs }}
   externalIPs:
 {{ toYaml . | nindent 4 }}
-    {{- end }}
   {{- end }}
   ports:
     {{- range $port := $service.ports }}
