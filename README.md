@@ -304,7 +304,8 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `image` / `imageTag` | `image: nginx`, `imageTag: "1.27.5"` | `defaultImage` / `defaultImageTag` | Image and tag for container. `imageTag` also accepts numeric values, which are rendered as strings. |
 | `imagePullPolicy` | `imagePullPolicy: IfNotPresent` | `defaultImagePullPolicy` | Pull policy override for container. |
 | `command` / `args` | `command: ["sh","-c"]`, `args: ["sleep 3600"]` | `n/a` | Command and args (also overridden by diagnostic mode). |
-| `env`, `envFrom` | `env: [{name: APP_MODE, value: prod}]` | `n/a` | Native env/envFrom blocks. |
+| `env` | `env: {APP_MODE: "prod"}` | `n/a` | Map keyed by variable name, or a native Kubernetes `env` list. |
+| `envFrom` | `envFrom: [{configMapRef: {name: app-settings}}]` | `n/a` | Native Kubernetes `envFrom` list. |
 | `envConfigmaps`, `envSecrets` | `envConfigmaps: [envs, app-envs]` | `n/a` | Includes all keys from each named ConfigMap/Secret. Multiple entries are rendered in order; `null` and empty string entries are skipped. |
 | `envsFromConfigmap`, `envsFromSecret` | `envsFromConfigmap.app-settings: [APP_MODE]` | `n/a` | Includes selected keys from named ConfigMaps/Secrets. |
 | `ports` | `ports: [{name: http, containerPort: 8080}]` | `n/a` | Exposed container ports. |
@@ -315,6 +316,8 @@ These fields apply to each entry in `containers` and `initContainers`.
 | `volumeMounts`, `extraVolumeMounts` | `volumeMounts: [{name: app, mountPath: /etc/app}]` | `[]` | Volume mounts merged with shared/global mounts. |
 | `stdin` | `stdin: true` | `false` | Whether this container should allocate a buffer for stdin in the container runtime. |
 | `tty` | `tty: true` | `false` | Whether this container should allocate a TTY for itself, also requires `stdin` to be true. |
+
+In the map form, a value is a string, an object with only `valueFrom`, for example `POD_NAME: {valueFrom: {fieldRef: {fieldPath: metadata.name}}}`, or `null` to drop a variable set in an earlier values file. Quote values such as `"false"` or `"123"` to keep them as strings. Templates are rendered in keys and values. Rendering fails if a key renders to an empty name or two keys render to the same name. Map entries are sorted by key in byte order before templates are rendered: uppercase letters come before lowercase ones, and keys starting with `{{` come last. Use the native list when order matters within one map, for example when a value uses `$(OTHER_VAR)` to reference an entry that sorts after it. Use the same form for a path in all values files: Helm replaces a list with a map, or a map with a list, instead of merging them.
 
 ### Workload-Specific Fields
 
@@ -392,7 +395,7 @@ These tables list only fields that are unique to a workload family. Shared knobs
 
 Each `*General` object accepts all fields from [Common Workload Entry Fields](#common-workload-entry-fields) (including `resources`, `nodeSelector`, `tolerations`, `podLabels`, `imagePullSecrets`, etc.) as defaults for every workload in that family. In addition, some `*General` objects accept the extra family-specific fields listed below.
 
-`*General` objects also accept default container environment fields: `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. These defaults are rendered for every main container in that workload family before container-level environment entries.
+`*General` objects also accept default container environment fields: `env`, `envFrom`, `envConfigmaps`, `envSecrets`, `envsFromConfigmap`, and `envsFromSecret`. These defaults are rendered for every main container in that workload family before container-level environment entries. `*General.env` accepts either form, independently of the container's `env`. When both are maps, they are merged by raw key, before templates are rendered: the container value replaces the family one, and `null` in the container removes a family variable. Family keys still come first, so a container value can reference a family variable with `$(VAR)`, followed by keys set only in the container, each group sorted as above. When either is a list, entries are not merged, and a name defined at both levels appears twice, which server-side apply rejects.
 
 Empty or `null` entries in `envConfigmaps` and `envSecrets` are ignored. If no valid entries remain, the `envFrom` block is not rendered.
 

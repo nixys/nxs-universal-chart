@@ -82,3 +82,20 @@ tests:
       - equal:
           path: spec.selector.component
           value: worker
+
+  - it: renders external IPs when the Service type is omitted
+    set:
+      services.api:
+        ports:
+          - port: 8080
+        externalIPs:
+          - 192.0.2.20
+          - 192.0.2.10
+    asserts:
+      - notExists:
+          path: spec.type
+      - equal:
+          path: spec.externalIPs
+          value:
+            - 192.0.2.20
+            - 192.0.2.10

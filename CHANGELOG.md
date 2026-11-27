@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.2.5] - November 27, 2026
+
+### Added
+
+* `env` accepts maps keyed by variable name in containers, init containers, and workload-family defaults. Layered values files can override strings and remove variables with `null`. Kubernetes-style lists remain supported. ([#140](https://github.com/nixys/nxs-universal-chart/pull/140), by @rift0nix)
+
+### Fixed
+
+* Services now render configured `externalIPs` when `type` is omitted. Kubernetes applies its default type of `ClusterIP`. ([#141](https://github.com/nixys/nxs-universal-chart/pull/141), by @rift0nix)
+
 ## [3.2.4] - November 13, 2026
 ### Added
 * `generic.useDefaultSelectorLabels` (default `true`). When set to `false`, `app.kubernetes.io/name` and `app.kubernetes.io/instance` are omitted from selectors of Deployments, StatefulSets, DaemonSets, Services (including the generated StatefulSet governing Service), PDBs and predefined pod affinity presets, and selectors are built from `generic.extraSelectorLabels` and resource-level `extraSelectorLabels`. This allows adopting existing workloads whose immutable selectors do not match the chart defaults. Pods and resource metadata keep the standard labels. Rendering fails with a clear error when a selector would be empty ([#136](https://github.com/nixys/nxs-universal-chart/pull/136), by @rift0nix)
