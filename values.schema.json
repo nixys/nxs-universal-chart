@@ -484,6 +484,30 @@
       "default": [],
       "items": {}
     },
+    "containerEnv": {
+      "anyOf": [
+        { "$ref": "#/definitions/freeFormArray" },
+        {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/definitions/nonEmptyString"
+          },
+          "additionalProperties": {
+            "anyOf": [
+              { "type": ["string", "null"] },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["valueFrom"],
+                "properties": {
+                  "valueFrom": { "type": "object", "minProperties": 1 }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
     "apiVersionOverrideMap": {
       "type": "object",
       "default": {},
@@ -548,7 +572,7 @@
           "$ref": "#/definitions/freeFormArray"
         },
         "env": {
-          "$ref": "#/definitions/freeFormArray"
+          "$ref": "#/definitions/containerEnv"
         },
         "envFrom": {
           "$ref": "#/definitions/freeFormArray"
@@ -1317,7 +1341,7 @@
           "additionalProperties": true,
           "properties": {
             "env": {
-              "$ref": "#/definitions/freeFormArray"
+              "$ref": "#/definitions/containerEnv"
             },
             "envFrom": {
               "$ref": "#/definitions/freeFormArray"
