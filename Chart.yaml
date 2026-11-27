@@ -3,7 +3,7 @@ apiVersion: v2
 name: nxs-universal-chart
 description: Helm chart for rendering reusable Kubernetes application resources
 type: application
-version: 3.2.4
+version: 3.2.5
 appVersion: "v1"
 icon: https://registry.nixys.ru/logo.png
 home: https://github.com/nixys/nxs-universal-chart
@@ -25,9 +25,9 @@ annotations:
       url: https://github.com/nixys/nxs-universal-chart
   artifacthub.io/changes: |
     - kind: added
-      description: "generic.useDefaultSelectorLabels (default true): set to false to drop app.kubernetes.io/name and app.kubernetes.io/instance from selectors and select only by extraSelectorLabels; pods keep the standard labels"
-    - kind: added
-      description: "pdbs.<name>.unhealthyPodEvictionPolicy is passed through to PodDisruptionBudget spec.unhealthyPodEvictionPolicy (IfHealthyBudget or AlwaysAllow)"
+      description: "Container env supports maps keyed by variable name, including in init containers and workload-family defaults."
+    - kind: fixed
+      description: "Services preserve configured externalIPs when the type is omitted."
   artifacthub.io/recommendations: |
     - url: https://nixys.io
     - url: https://github.com/nixys/nxs-universal-chart
